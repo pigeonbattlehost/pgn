@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pigen Battle</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      font-family: sans-serif;
+      overflow: hidden;
+    }
+    #menu, #shop {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: #222;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    #menu h1, #shop h2 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+    #menu button, #shop button {
+      font-size: 1.2em;
+      padding: 10px 20px;
+      margin: 5px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    #playButton { background: #00aaff; color: white; }
+    #shopButton { background: #ffaa00; color: black; }
+    #gameContainer { display: none; width: 100%; height: 100%; position: relative; }
+    canvas { display: block; width: 100%; height: 100%; background: #87ceeb; }
+    #version {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      font-size: 14px;
+      color: white;
+    }
+    #shop img {
+      max-width: 200px;
+      border-radius: 15px;
+      margin: 10px;
+    }
+    #joystick, #shootBtn {
+      position: absolute;
+      display: none;
+    }
+    #joystick {
+      left: 20px;
+      bottom: 20px;
+      width: 100px;
+      height: 100px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      touch-action: none;
+    }
+    #shootBtn {
+      right: 20px;
+      bottom: 30px;
+      width: 60px;
+      height: 60px;
+      background: red;
+      border-radius: 50%;
+      color: white;
+      font-size: 18px;
+      text-align: center;
+      line-height: 60px;
+    }
+    #coinsDisplay {
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div id="menu">
+    <h1>Pigen Battle</h1>
+    <div id="coinsDisplay">Coins: 0</div>
+    <button id="playButton">Play</button>
+    <button id="shopButton">Shop</button>
+  </div>
+  <div id="shop" style="display:none;">
+    <h2>Shop</h2>
+    <img src="wheelpigeon.jpg" alt="Wheel Pigeon">
+    <p>Wheel pigeon<br>+2 speed<br>+1.5 attack<br>25 pigeon coins</p>
+    <button id="buyButton">Buy</button>
+    <button onclick="closeShop()">Back</button>
+  </div>
+  <div id="gameContainer">
+    <canvas id="gameCanvas"></canvas>
+    <div id="version">PigeonBattle 0.1xns (Beta)</div>
+    <div id="joystick"></div>
+    <div id="shootBtn">Fire</div>
+  </div>
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = 800;
+    canvas.height = 600;
+
+    const playerImg = new Image();
+    playerImg.src = 'pigeon.jpg';
+    const botImg = new Image();
+    botImg.src = 'angrypigeon.jpg';
+
+    let coins = parseInt(localStorage.getItem('pigeonCoins') || '0');
+    let upgrade = localStorage.getItem('wheelPigeon') === 'true';
+
+    const player = { x: 100, y: 250, w: 64, h: 64, hp: 1200, speed: 5, attack: 10 };
+    const bot = { x: 600, y: 250, w: 64, h: 64, hp: 1200, speed: 7, attack: 40 }; // Злой голубь с более высокой атакой
+    const bullets = [], botBullets = [], keys = {};
+    let gameStarted = false;
+
+    function updateCoinsDisplay() {
+      document.getElementById('coinsDisplay').textContent = 'Coins: ' + coins;
+    }
+
+    document.getElementById('playButton').onclick = () => {
+      document.getElementById('menu').style.display = 'none';
+      document.getElementById('gameContainer').style.display = 'block';
+      gameStarted = true;
+      draw();
+    };
+
+    document.getElementById('shopButton').onclick = () => {
+      document.getElementById('menu').style.display = 'none';
+      document.getElementById('shop').style.display = 'flex';
+    };
+
+    function closeShop() {
+      document.getElementById('shop').style.display = 'none';
+      document.getElementById('menu').style.display = 'flex';
+      updateCoinsDisplay();
+    }
+
+    document.getElementById('buyButton').onclick = () => {
+      if (!upgrade && coins >= 25) {
+        coins -= 25;
+        upgrade = true;
+        localStorage.setItem('pigeonCoins', coins);
+        localStorage.setItem('wheelPigeon', 'true');
+        alert('Upgrade bought!');
+      } else {
+        alert('Not enough coins or already bought');
+      }
+      updateCoinsDisplay();
+    };
+
+    document.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+    document.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+
+    function shoot(from, list, dmg = 10, speed = 5) {
+      list.push({ x: from.x + (from === player ? from.w : -10), y: from.y + from.h / 2 - 5, w: 10, h: 10, speed: from === player ? speed : -speed, dmg });
+    }
+
+    setInterval(() => {
+      if (gameStarted) shoot(bot, botBullets);
+    }, 1000);
+
+    function update() {
+      const moveSpeed = upgrade ? player.speed + 2 : player.speed;
+      const dmgBoost = upgrade ? player.attack * 1.5 : player.attack;
+
+      if (keys['w']) player.y -= moveSpeed;
+      if (keys['s']) player.y += moveSpeed;
+      if (keys['a']) player.x -= moveSpeed;
+      if (keys['d']) player.x += moveSpeed;
+      if (keys[' ']) shoot(player, bullets, dmgBoost);
+
+      bullets.forEach(b => b.x += b.speed);
+      botBullets.forEach(b => b.x += b.speed);
+
+      bullets.forEach(b => {
+        if (b.x < bot.x + bot.w && b.x + b.w > bot.x && b.y < bot.y + bot.h && b.y + b.h > bot.y) {
+          bot.hp -= b.dmg;
+          b.hit = true;
+        }
+      });
+
+      botBullets.forEach(b => {
+        if (b.x < player.x + player.w && b.x + b.w > player.x && b.y < player.y + player.h && b.y + b.h > player.y) {
+          player.hp -= b.dmg;
+          b.hit = true;
+        }
+      });
+
+      if (bot.hp <= 0) {
+        coins += 5; // Всегда 5 коинов за победу
+        localStorage.setItem('pigeonCoins', coins);
+        alert('You win! +5 coins');
+        location.reload();
+      }
+      if (player.hp <= 0) {
+        alert('You lost!');
+        location.reload();
+      }
+    }
+
+    function draw() {
+      update();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      let hour = new Date().getHours();
+      if (hour >= 4 && hour < 6) canvas.style.backgroundColor = '#c48eff';
+      else if (hour >= 6 && hour < 20) canvas.style.backgroundColor = '#87ceeb';
+      else canvas.style.backgroundColor = '#2c3e50';
+
+      ctx.drawImage(playerImg, player.x, player.y, player.w, player.h);
+      ctx.drawImage(botImg, bot.x, bot.y, bot.w, bot.h);
+
+      ctx.fillStyle = 'brown';
+      bullets.forEach(b => ctx.fillRect(b.x, b.y, b.w, b.h));
+      botBullets.forEach(b => ctx.fillRect(b.x, b.y, b.w, b.h));
+
+      ctx.fillStyle = 'white';
+      ctx.font = '16px sans-serif';
+      ctx.fillText(`Player HP: ${player.hp}`, 10, 20);
+      ctx.fillText(`Bot HP: ${bot.hp}`, 10, 40);
+
+      requestAnimationFrame(draw);
+    }
+
+    // Touch controls
+    const joystick = document.getElementById('joystick');
+    const shootBtn = document.getElementById('shootBtn');
+    if ('ontouchstart' in window) {
+      joystick.style.display = 'block';
+      shootBtn.style.display = 'block';
+
+      let startX, startY;
+      joystick.addEventListener('touchstart', e => {
+        const touch = e.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+      });
+
+      joystick.addEventListener('touchmove', e => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        let dx = touch.clientX - startX;
+        let dy = touch.clientY - startY;
+
+        if (dy < -20) keys['w'] = true; else keys['w'] = false;
+        if (dy > 20) keys['s'] = true; else keys['s'] = false;
+        if (dx < -20) keys['a'] = true; else keys['a'] = false;
+        if (dx > 20) keys['d'] = true; else keys['d'] = false;
+      });
+
+      joystick.addEventListener('touchend', () => {
+        keys['w'] = keys['a'] = keys['s'] = keys['d'] = false;
+      });
+
+      shootBtn.addEventListener('touchstart', () => keys[' '] = true);
+      shootBtn.addEventListener('touchend', () => keys[' '] = false);
+    }
+
+    updateCoinsDisplay();
+  </script>
+</body>
+</html>
