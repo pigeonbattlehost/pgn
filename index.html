@@ -353,7 +353,7 @@
 
       joystick.addEventListener('touchmove', e => {
         e.preventDefault();
-        const touch = <div>e.touches[0</div>];
+        const touch = e.touches[0];
         let dx = touch.clientX - startX;
         let dy = touch.clientY - startY;
 
