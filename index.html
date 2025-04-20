@@ -1,8 +1,9 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Pigen Battle</title>
   <style>
     * { box-sizing: border-box; }
@@ -14,7 +15,7 @@
       font-family: sans-serif;
       overflow: hidden;
     }
-    #menu, #shop {
+    #menu, #shop, #pigeonsMenu {
       position: absolute;
       width: 100%;
       height: 100%;
@@ -29,7 +30,7 @@
       font-size: 2.5em;
       margin-bottom: 10px;
     }
-    #menu button, #shop button {
+    #menu button, #shop button, #pigeonsMenu button {
       font-size: 1.2em;
       padding: 10px 20px;
       margin: 5px;
@@ -39,8 +40,9 @@
     }
     #playButton { background: #00aaff; color: white; }
     #shopButton { background: #ffaa00; color: black; }
+    #pigeonsButton { background: #aaa; color: black; }
     #gameContainer { display: none; width: 100%; height: 100%; position: relative; }
-    canvas { display: block; width: 100%; height: 100%; background: #87ceeb; }
+    canvas { display: block; width: 100%; height: 100%; background: #d4af37; }
     #version {
       position: absolute;
       bottom: 10px;
@@ -48,12 +50,20 @@
       font-size: 14px;
       color: white;
     }
-    #shop img {
+    #shop, #pigeonsMenu {
+      overflow-y: auto;
+      align-items: center;
+    }
+    #shop img, .pigeon-card img {
       max-width: 200px;
       border-radius: 15px;
       margin: 10px;
     }
-    #joystick, #shootBtn {
+    .pigeon-card {
+      margin: 20px;
+      text-align: center;
+    }
+    #joystick, #shootBtn, #shootJoystick {
       position: absolute;
       display: none;
     }
@@ -63,6 +73,15 @@
       width: 100px;
       height: 100px;
       background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      touch-action: none;
+    }
+    #shootJoystick {
+      right: 100px;
+      bottom: 20px;
+      width: 100px;
+      height: 100px;
+      background: rgba(255,0,0,0.2);
       border-radius: 50%;
       touch-action: none;
     }
@@ -82,6 +101,16 @@
       margin-bottom: 10px;
       font-size: 18px;
     }
+    #onlineStatus {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      padding: 5px 10px;
+      background: #444;
+      border-radius: 20px;
+      font-size: 14px;
+      color: white;
+    }
   </style>
 </head>
 <body>
@@ -90,42 +119,72 @@
     <div id="coinsDisplay">Coins: 0</div>
     <button id="playButton">Play</button>
     <button id="shopButton">Shop</button>
+    <button id="pigeonsButton">Pigeons</button>
+    <div id="onlineStatus">Made by toiletpigeon (zntsproj)</div>
   </div>
   <div id="shop" style="display:none;">
     <h2>Shop</h2>
-    <img src="wheelpigeon.jpg" alt="Wheel Pigeon">
-    <p>Wheel pigeon<br>+2 speed<br>+1.5 attack<br>25 pigeon coins</p>
-    <button id="buyButton">Buy</button>
+    <div class="pigeon-card">
+      <img src="wheelpigeon.jpg" alt="Wheel Pigeon">
+      <p>Wheel pigeon<br>+2 speed<br>+1.5 attack<br>25 pigeon coins</p>
+      <button onclick="buy('wheelPigeon', 25)">Buy</button>
+    </div>
+    <div class="pigeon-card">
+      <img src="radiopigeon.jpg" alt="Radio Pigeon">
+      <p>RadioPigeon<br>60 pigeon coins<br>Deals 5 dmg/sec with radiation<br>Auto-aim longwave shots</p>
+      <button onclick="buy('radioPigeon', 60)">Buy</button>
+    </div>
     <button onclick="closeShop()">Back</button>
+  </div>
+ <div id="pigeonsMenu" style="display:none;">
+    <h2>Your Pigeons</h2>
+    <div id="ownedPigeons"></div>
+    <button onclick="closePigeons()">Back</button>
   </div>
   <div id="gameContainer">
     <canvas id="gameCanvas"></canvas>
-    <div id="version">PigeonBattle 0.1xns (Beta)</div>
+    <div id="version">PigeonBattle 0.1a (Beta)</div>
     <div id="joystick"></div>
+    <div id="shootJoystick"></div>
     <div id="shootBtn">Fire</div>
   </div>
   <script>
+    function selectPigeon(pigeon) {
+      localStorage.setItem('selectedPigeon', pigeon);
+      if (pigeon === 'wheel') {
+        playerImg.src = 'wheelpigeon.jpg';
+      } else if (pigeon === 'radio') {
+        playerImg.src = 'radiopigeon.jpg';
+      } else {
+        playerImg.src = 'pigeon.jpg';
+      }
+    }
+
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     canvas.width = 800;
     canvas.height = 600;
 
-    const playerImg = new Image();
-    playerImg.src = 'pigeon.jpg';
-    const botImg = new Image();
-    botImg.src = 'angrypigeon.jpg';
-
+    const coinsDisplay = document.getElementById('coinsDisplay');
     let coins = parseInt(localStorage.getItem('pigeonCoins') || '0');
-    let upgrade = localStorage.getItem('wheelPigeon') === 'true';
+    const owned = JSON.parse(localStorage.getItem('ownedPigeons') || '["default"]');
+    let selected = localStorage.getItem('selectedPigeon') || 'default';
 
-    const player = { x: 100, y: 250, w: 64, h: 64, hp: 1200, speed: 5, attack: 10 };
-    const bot = { x: 600, y: 250, w: 64, h: 64, hp: 1200, speed: 7, attack: 40 }; // Злой голубь с более высокой атакой
+    const pigeons = {
+      default: { img: 'pigeon.jpg', speed: 5, attack: 10, damage: 20 },
+      wheelPigeon: { img: 'wheelpigeon.jpg', speed: 7, attack: 15, damage: 40 },
+      radioPigeon: { img: 'radiopigeon.jpg', speed: 5, attack: 10, damage: 0, radiation: true }
+    };
+
+    const player = { x: 100, y: 250, w: 64, h: 64, hp: 1200 };
+    const bot = { x: 600, y: 250, w: 64, h: 64, hp: 2200, speed: 2, attack: 40 };
     const bullets = [], botBullets = [], keys = {};
     let gameStarted = false;
 
-    function updateCoinsDisplay() {
-      document.getElementById('coinsDisplay').textContent = 'Coins: ' + coins;
-    }
+    const playerImg = new Image();
+    playerImg.src = pigeons[selected].img;
+    const botImg = new Image();
+    botImg.src = 'angrypigeon.jpg';
 
     document.getElementById('playButton').onclick = () => {
       document.getElementById('menu').style.display = 'none';
@@ -139,45 +198,96 @@
       document.getElementById('shop').style.display = 'flex';
     };
 
+    document.getElementById('pigeonsButton').onclick = () => {
+      document.getElementById('menu').style.display = 'none';
+      document.getElementById('pigeonsMenu').style.display = 'flex';
+      const container = document.getElementById('ownedPigeons');
+      container.innerHTML = '';
+      owned.forEach(id => {
+        const p = pigeons[id];
+        const div = document.createElement('div');
+        div.className = 'pigeon-card';
+        div.innerHTML = `<img src="${p.img}" /><p>${id}</p><button onclick="selectPigeon('${id}')">Select</button>`;
+        container.appendChild(div);
+      });
+    };
+    function selectPigeon(id) {
+      selected = id;
+      localStorage.setItem('selectedPigeon', id);
+      alert(id + ' selected!');
+    }
+
     function closeShop() {
       document.getElementById('shop').style.display = 'none';
       document.getElementById('menu').style.display = 'flex';
       updateCoinsDisplay();
     }
 
-    document.getElementById('buyButton').onclick = () => {
-      if (!upgrade && coins >= 25) {
-        coins -= 25;
-        upgrade = true;
+    function closePigeons() {
+      document.getElementById('pigeonsMenu').style.display = 'none';
+      document.getElementById('menu').style.display = 'flex';
+    }
+
+    function buy(id, cost) {
+      if (!owned.includes(id) && coins >= cost) {
+        coins -= cost;
+        owned.push(id);
         localStorage.setItem('pigeonCoins', coins);
-        localStorage.setItem('wheelPigeon', 'true');
-        alert('Upgrade bought!');
+        localStorage.setItem('ownedPigeons', JSON.stringify(owned));
+        alert(id + ' bought!');
       } else {
-        alert('Not enough coins or already bought');
+        alert('Not enough coins or already owned');
       }
       updateCoinsDisplay();
-    };
+    }
+
+    function updateCoinsDisplay() {
+      coinsDisplay.textContent = 'Coins: ' + coins;
+    }
 
     document.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
     document.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 
     function shoot(from, list, dmg = 10, speed = 5) {
-      list.push({ x: from.x + (from === player ? from.w : -10), y: from.y + from.h / 2 - 5, w: 10, h: 10, speed: from === player ? speed : -speed, dmg });
+      list.push({ 
+        x: from.x + (from === player ? from.w : -10), 
+        y: from.y + from.h / 2 - 5, 
+        w: 10, 
+        h: 10, 
+        speed: from === player ? speed : -speed, 
+        dmg 
+      });
     }
 
     setInterval(() => {
-      if (gameStarted) shoot(bot, botBullets);
+      if (gameStarted) {
+        shoot(bot, botBullets, Math.floor(Math.random() * 16) + 15);
+        if (pigeons[selected].radiation) bot.hp -= 5;
+      }
     }, 1000);
 
     function update() {
-      const moveSpeed = upgrade ? player.speed + 2 : player.speed;
-      const dmgBoost = upgrade ? player.attack * 1.5 : player.attack;
+      const stats = pigeons[selected];
+      const moveSpeed = stats.speed;
+      const dmgBoost = stats.damage;
 
       if (keys['w']) player.y -= moveSpeed;
       if (keys['s']) player.y += moveSpeed;
       if (keys['a']) player.x -= moveSpeed;
       if (keys['d']) player.x += moveSpeed;
       if (keys[' ']) shoot(player, bullets, dmgBoost);
+
+      // Update bot position to make the bot more dynamic
+      if (bot.x < player.x) {
+        bot.x += bot.speed;
+      } else if (bot.x > player.x) {
+        bot.x -= bot.speed;
+      }
+      if (bot.y < player.y) {
+        bot.y += bot.speed;
+      } else if (bot.y > player.y) {
+        bot.y -= bot.speed;
+      }
 
       bullets.forEach(b => b.x += b.speed);
       botBullets.forEach(b => b.x += b.speed);
@@ -197,7 +307,7 @@
       });
 
       if (bot.hp <= 0) {
-        coins += 5; // Всегда 5 коинов за победу
+        coins += 5;
         localStorage.setItem('pigeonCoins', coins);
         alert('You win! +5 coins');
         location.reload();
@@ -207,15 +317,9 @@
         location.reload();
       }
     }
-
     function draw() {
       update();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      let hour = new Date().getHours();
-      if (hour >= 4 && hour < 6) canvas.style.backgroundColor = '#c48eff';
-      else if (hour >= 6 && hour < 20) canvas.style.backgroundColor = '#87ceeb';
-      else canvas.style.backgroundColor = '#2c3e50';
 
       ctx.drawImage(playerImg, player.x, player.y, player.w, player.h);
       ctx.drawImage(botImg, bot.x, bot.y, bot.w, bot.h);
@@ -232,11 +336,12 @@
       requestAnimationFrame(draw);
     }
 
-    // Touch controls
     const joystick = document.getElementById('joystick');
+    const shootJoystick = document.getElementById('shootJoystick');
     const shootBtn = document.getElementById('shootBtn');
     if ('ontouchstart' in window) {
       joystick.style.display = 'block';
+      shootJoystick.style.display = 'block';
       shootBtn.style.display = 'block';
 
       let startX, startY;
@@ -248,14 +353,14 @@
 
       joystick.addEventListener('touchmove', e => {
         e.preventDefault();
-        const touch = e.touches[0];
+        const touch = <div>e.touches[0</div>];
         let dx = touch.clientX - startX;
         let dy = touch.clientY - startY;
 
-        if (dy < -20) keys['w'] = true; else keys['w'] = false;
-        if (dy > 20) keys['s'] = true; else keys['s'] = false;
-        if (dx < -20) keys['a'] = true; else keys['a'] = false;
-        if (dx > 20) keys['d'] = true; else keys['d'] = false;
+        keys['w'] = dy < -20;
+        keys['s'] = dy > 20;
+        keys['a'] = dx < -20;
+        keys['d'] = dx > 20;
       });
 
       joystick.addEventListener('touchend', () => {
