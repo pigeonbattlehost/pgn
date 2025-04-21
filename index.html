@@ -245,6 +245,16 @@ function isClassicPigeonActive() {
   { img: 'skinnybirb.jpg', hp: 1000, speed: 4, attack: 20 }
 ];
 
+const bossForm = {
+  img: 'kingpigeon.jpg',
+  hp: 1400,
+  speed: 2,
+  attack: 60
+};
+
+let bossTransformed = false;
+let bossFlashCounter = 0;
+
 const player = { x: 100, y: 250, w: 64, h: 64, hp: 1200 };
 
 // Список врагов
@@ -396,6 +406,19 @@ canvas.addEventListener('mouseup', () => {
           b.hit = true;
         }
       });
+      if (!bossTransformed && bot.hp < 250) {
+  const chance = Math.random(); // шанс от 0 до 1
+  if (chance < 0.15) { // 15% шанс
+    bossTransformed = true;
+    bot.hp = bossForm.hp;
+    bot.attack = bossForm.attack;
+    bot.speed = bossForm.speed;
+    botImg.src = bossForm.img;
+
+    // Для мигания
+    bossFlashCounter = 30; // мигает 30 кадров
+  }
+}
 
       if (bot.hp <= 0) {
         coins += 5;
@@ -413,7 +436,15 @@ canvas.addEventListener('mouseup', () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       ctx.drawImage(playerImg, player.x, player.y, player.w, player.h);
-      ctx.drawImage(botImg, bot.x, bot.y, bot.w, bot.h);
+      if (bossTransformed && bossFlashCounter > 0) {
+  if (bossFlashCounter % 6 < 3) {
+    // мигать — рисовать с перерывами
+    ctx.drawImage(botImg, bot.x, bot.y, bot.w, bot.h);
+  }
+  bossFlashCounter--;
+} else {
+  ctx.drawImage(botImg, bot.x, bot.y, bot.w, bot.h);
+}
 
       ctx.fillStyle = 'brown';
       bullets.forEach(b => ctx.fillRect(b.x, b.y, b.w, b.h));
