@@ -144,7 +144,7 @@
   <button onclick="buy('pigeonCopter', 180)">Buy</button>
     <div class="pigeon-card">
   <img src="classicpigeon.jpg" alt="Pigeonin Classic">
-  <p>Pigeonin Classic<br>+10 attack<br>+10 damage<br>1000 pigeon coins<br>24 hours active</p>
+  <p>Pigeonin Classic<br>+10 attack<br>+10 damage<br>500 pigeon coins<br>24 hours active</p>
   <button onclick="buyClassicPigeon()">Buy</button>
   <div class="pigeon-card">
   <img src="feetpigeon.jpg" alt="Pigeon with Feet">
@@ -184,9 +184,9 @@ let pigeoninClassic = localStorage.getItem('pigeoninClassic');
 const pigeoninExpiry = localStorage.getItem('pigeoninExpiry'); // Время окончания улучшения
      // Функция для покупки улучшения Pigeonin Classic
 function buyClassicPigeon() {
-  if (coins >= 1000 && !pigeoninClassic) {
+  if (coins >= 500 && !pigeoninClassic) {
     // Если у игрока достаточно монет и улучшение еще не куплено
-    coins -= 1000;
+    coins -= 500
     localStorage.setItem('pigeonCoins', coins);
 
     // Активируем улучшение на 24 часа
