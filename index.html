@@ -231,11 +231,11 @@ function isClassicPigeonActive() {
     let selected = localStorage.getItem('selectedPigeon') || 'default';
 
     const pigeons = {
-  default: { img: 'pigeon.jpg', speed: 5, attack: 10, damage: 2 },
-  wheelPigeon: { img: 'wheelpigeon.jpg', speed: 7, attack: 2, damage: 5 },
-  radioPigeon: { img: 'radiopigeon.jpg', speed: 5, attack: 10, damage: 0, radiation: true },
-  pigeonCopter: { img: 'pigobomb.jpg', speed: 6, attack: 20, damage: 40 },
-  feetPigeon: { img: 'feetpigeon.jpg', speed: 5, attack: 6, damage: 6, kick: true }
+  default: { img: 'pigeon.jpg', speed: 5, attack: 10, damage: 2, hp: 1200 },
+  wheelPigeon: { img: 'wheelpigeon.jpg', speed: 7, attack: 2, damage: 5, hp: 1000 },
+  radioPigeon: { img: 'radiopigeon.jpg', speed: 5, attack: 10, damage: 0, radiation: true, hp: 1120 },
+  pigeonCopter: { img: 'pigobomb.jpg', speed: 6, attack: 20, damage: 40, hp: 1330 },
+  feetPigeon: { img: 'feetpigeon.jpg', speed: 5, attack: 6, damage: 6, kick: true, hp: 1500 }
 };
 
    const enemies = [
@@ -255,7 +255,7 @@ const bossForm = {
 let bossTransformed = false;
 let bossFlashCounter = 0;
 
-const player = { x: 100, y: 250, w: 64, h: 64, hp: 1200 };
+const player = { x: 100, y: 250, w: 64, h: 64, hp: pigeons[selected].hp };
 
 // Список врагов
 const bots = [
