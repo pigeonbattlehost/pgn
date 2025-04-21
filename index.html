@@ -168,6 +168,7 @@
     <div id="shootJoystick"></div>
     <div id="shootBtn">Fire</div>
   </div>
+
   <script>
     function selectPigeon(pigeon) {
       localStorage.setItem('selectedPigeon', pigeon);
@@ -282,7 +283,7 @@ botImg.src = bot.img;
       gameStarted = true;
       draw();
     };
-
+  
     document.getElementById('shopButton').onclick = () => {
       document.getElementById('menu').style.display = 'none';
       document.getElementById('shop').style.display = 'flex';
@@ -474,7 +475,7 @@ canvas.addEventListener('mouseup', () => {
       });
 
       joystick.addEventListener('touchmove', e => {
-        e.preventDefault();
+        
         const touch = e.touches[0];
         let dx = touch.clientX - startX;
         let dy = touch.clientY - startY;
