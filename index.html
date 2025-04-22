@@ -1,11 +1,9 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pigen Battle</title>
+  <title>Pigeon Battle</title>
   <style>
     * { box-sizing: border-box; }
     html, body {
@@ -125,6 +123,7 @@
     <button id="playButton">Play</button>
     <button id="shopButton">Shop</button>
     <button id="pigeonsButton">Pigeons</button>
+    
     <div id="onlineStatus">Made by toiletpigeon (zntsproj)</div>
   </div>
   <div id="shop" style="display:none;">
@@ -151,6 +150,11 @@
   <img src="feetpigeon.jpg" alt="Pigeon with Feet">
   <p>Pigeon with Feet<br>Feet damage (6 dmg)<br>45 pigeon coins</p>
   <button onclick="buy('feetPigeon', 45)">Buy</button>
+  <div class="pigeon-card">
+  <img src="digeon.jpg" alt="Double Pigeon">
+  <p>Double Pigeon<br>+4 damage<br>+10 attack<br>70 pigeon coins</p>
+  <button onclick="buy('doublePigeon', 70)">Buy</button>
+</div>
 </div>
 </div>
 </div>
@@ -164,13 +168,15 @@
   </div>
   <div id="gameContainer">
     <canvas id="gameCanvas"></canvas>
-    <div id="version">PigeonBattle 0.1.1 Release</div>
+    <div id="version">PigeonBattle 0.2a snapshot</div>
     <div id="joystick"></div>
     <div id="shootJoystick"></div>
     <div id="shootBtn">Fire</div>
   </div>
 
   <script>
+
+
     function selectPigeon(pigeon) {
       localStorage.setItem('selectedPigeon', pigeon);
       if (pigeon === 'wheel') {
@@ -233,11 +239,25 @@ function isClassicPigeonActive() {
     let selected = localStorage.getItem('selectedPigeon') || 'default';
 
     const pigeons = {
-  default: { img: 'pigeon.jpg', speed: 5, attack: 10, damage: 2, hp: 1200 },
-  wheelPigeon: { img: 'wheelpigeon.jpg', speed: 7, attack: 2, damage: 5, hp: 1000 },
+  default: { img: 'pigeon.jpg', speed: 5, attack: 10, damage: 0.3, hp: 1200 },
+  wheelPigeon: { img: 'wheelpigeon.jpg', speed: 7, attack: 2, damage: 0.8, hp: 1000 },
   radioPigeon: { img: 'radiopigeon.jpg', speed: 5, attack: 10, damage: 0, radiation: true, hp: 1120 },
-  pigeonCopter: { img: 'pigobomb.jpg', speed: 6, attack: 20, damage: 40, hp: 1330 },
-  feetPigeon: { img: 'feetpigeon.jpg', speed: 5, attack: 6, damage: 6, kick: true, hp: 1500 }
+  pigeonCopter: { img: 'pigobomb.jpg', speed: 6, attack: 20, damage: 4, hp: 1330 },
+  feetPigeon: { img: 'feetpigeon.jpg', speed: 5, attack: 6, damage: 1, kick: true, hp: 1500 },
+  doublePigeon: { 
+  img: 'digeon.jpg', 
+  speed: 5, 
+  attack: 10, 
+  damage: 0.6, 
+  hp: 1400 
+},
+  heavyPigeon: {
+  img: 'heavypigeon.jpg',
+  speed: 3,
+  attack: 30,
+  damage: 5,
+  hp: 5000
+}
 };
 
    const enemies = [
@@ -428,11 +448,12 @@ canvas.addEventListener('mouseup', () => {
       if (bot.hp <= 0) {
         coins += 5;
         localStorage.setItem('pigeonCoins', coins);
+        updateRank(20);
         alert('You win! +5 coins');
         location.reload();
       }
       if (player.hp <= 0) {
-        alert('You lost!');
+        alert('You lost! -1 coin...');
         location.reload();
       }
     }
