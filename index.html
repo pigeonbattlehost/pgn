@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -351,15 +353,16 @@ botImg.src = bot.img;
       }
       updateCoinsDisplay();
     }
+    
     function shootWhite(player, bullets, dmgBoost) {
   bullets.push({
     x: player.x + player.w,
-    y: player.y + player.h / 2,
+    y: player.y + player.h / 2 - 5,
     w: 10,
-    h: 4,
+    h: 10,
     speed: 10,
     dmg: 5 * dmgBoost,
-    color: 'white'
+    color: 'white' // <- Вот оно!
   });
 }
 
@@ -467,7 +470,7 @@ canvas.addEventListener('mouseup', () => {
         location.reload();
       }
       if (player.hp <= 0) {
-        alert('You lost! -1 coin...');
+        alert('You lost!');
         location.reload();
       }
     }
@@ -486,9 +489,15 @@ canvas.addEventListener('mouseup', () => {
   ctx.drawImage(botImg, bot.x, bot.y, bot.w, bot.h);
 }
 
-      ctx.fillStyle = 'brown';
-      bullets.forEach(b => ctx.fillRect(b.x, b.y, b.w, b.h));
-      botBullets.forEach(b => ctx.fillRect(b.x, b.y, b.w, b.h));
+      bullets.forEach(b => {
+  ctx.fillStyle = b.color || 'brown';
+  ctx.fillRect(b.x, b.y, b.w, b.h);
+});
+
+botBullets.forEach(b => {
+  ctx.fillStyle = b.color || 'black'; // или другой цвет для вражеских пуль
+  ctx.fillRect(b.x, b.y, b.w, b.h);
+});
 
       ctx.fillStyle = 'white';
       ctx.font = '16px sans-serif';
