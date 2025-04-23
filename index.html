@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -448,7 +450,7 @@ canvas.addEventListener('mouseup', () => {
       if (bot.hp <= 0) {
         coins += 5;
         localStorage.setItem('pigeonCoins', coins);
-        updateRank(20);
+        
         alert('You win! +5 coins');
         location.reload();
       }
