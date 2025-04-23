@@ -27,6 +27,15 @@
       justify-content: center;
       align-items: center;
     }
+    #pigeonsMenu {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  height: 100%;
+  overflow-y: auto; /* Добавляем прокрутку */
+  padding: 10px;
+}
     #menu h1, #shop h2 {
       font-size: 2.5em;
       margin-bottom: 10px;
@@ -51,9 +60,7 @@
       font-size: 14px;
       color: white;
     }
-    #shop, #pigeonsMenu {
-      overflow-y: auto;
-      align-items: center;
+    
     }
     #shop img, .pigeon-card img {
       max-width: 200px;
@@ -113,7 +120,34 @@
       color: white;
     }
     
-        
+    #shop {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    height: 100%;
+    overflow-y: auto; /* Добавляем прокрутку */
+    padding: 10px;
+  }
+
+
+.pigeon-card img {
+  max-width: 75%;
+  max-height: 150px;
+  object-fit: contain;
+}
+
+.pigeon-container {
+    display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  height: 100%;
+  overflow-y: auto; /* Добавляем прокрутку */
+  padding: 10px;
+}
+
+}
 
 
   </style>
@@ -244,6 +278,7 @@ function isClassicPigeonActive() {
     let coins = parseInt(localStorage.getItem('pigeonCoins') || '0');
     const owned = JSON.parse(localStorage.getItem('ownedPigeons') || '["default"]');
     let selected = localStorage.getItem('selectedPigeon') || 'default';
+
 
 const pigeons = {
   default: { img: 'pigeon.jpg', speed: 5, attack: 10, damage: 0.3, hp: 1200, shootType: 'normal_shoot' },
@@ -552,3 +587,4 @@ botBullets.forEach(b => {
 </body>
 </html>
 </html>
+,
