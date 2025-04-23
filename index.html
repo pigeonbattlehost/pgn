@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -159,11 +157,6 @@
 </div>
 </div>
 </div>
-<div class="pigeon-card">
-  <img src="goonpigeon.jpg" alt="Goon Pigeon">
-  <p>Goon Pigeon<br>+8 attack<br>+0.9 damage<br>2000 HP<br>80 pigeon coins</p>
-  <button onclick="buy('goonPigeon', 80)">Buy</button>
-</div>
 </div>
 
     <button onclick="closeShop()">Back</button>
@@ -182,6 +175,7 @@
   </div>
 
   <script>
+
 
     function selectPigeon(pigeon) {
       localStorage.setItem('selectedPigeon', pigeon);
@@ -244,14 +238,22 @@ function isClassicPigeonActive() {
     const owned = JSON.parse(localStorage.getItem('ownedPigeons') || '["default"]');
     let selected = localStorage.getItem('selectedPigeon') || 'default';
 
-   const pigeons = {
-  default: { img: 'pigeon.jpg', speed: 5, attack: 10, damage: 0.5, hp: 1200 },
-  wheelPigeon: { img: 'wheelpigeon.jpg', speed: 7, attack: 2, damage: 0.8, hp: 1000 },
-  radioPigeon: { img: 'radiopigeon.jpg', speed: 5, attack: 10, damage: 0, radiation: true, hp: 1120 },
-  pigeonCopter: { img: 'pigobomb.jpg', speed: 6, attack: 20, damage: 4, hp: 1330 },
-  feetPigeon: { img: 'feetpigeon.jpg', speed: 5, attack: 6, damage: 1, kick: true, hp: 1500 },
-  doublePigeon: { img: 'digeon.jpg', speed: 5, attack: 10, damage: 0.6, hp: 1400 },
-  goonPigeon: { img: 'goonpigeon.jpg', speed: 4, attack: 8, damage: 0.90, hp: 2000 }
+const pigeons = {
+  default: { img: 'pigeon.jpg', speed: 5, attack: 10, damage: 0.3, hp: 1200, shootType: 'normal_shoot' },
+  wheelPigeon: { img: 'wheelpigeon.jpg', speed: 7, attack: 2, damage: 0.8, hp: 1000, shootType: 'normal_shoot' },
+  radioPigeon: { img: 'radiopigeon.jpg', speed: 5, attack: 10, damage: 0, radiation: true, hp: 1120, shootType: 'normal_shoot' },
+  pigeonCopter: { img: 'pigobomb.jpg', speed: 6, attack: 20, damage: 4, hp: 1330, shootType: 'normal_shoot' },
+  feetPigeon: { img: 'feetpigeon.jpg', speed: 5, attack: 6, damage: 1, kick: true, hp: 1500, shootType: 'normal_shoot' },
+  doublePigeon: { img: 'digeon.jpg', speed: 5, attack: 10, damage: 0.6, hp: 1400, shootType: 'normal_shoot' },
+  heavyPigeon: { img: 'heavypigeon.jpg', speed: 3, attack: 30, damage: 5, hp: 5000, shootType: 'normal_shoot' },
+  goonPigeon: {
+    img: 'goonpigeon.jpg',
+    speed: 4,
+    attack: 8,
+    damage: 0.9,
+    hp: 2000,
+    shootType: 'white_shoot'
+  }
 };
 
    const enemies = [
@@ -349,6 +351,17 @@ botImg.src = bot.img;
       }
       updateCoinsDisplay();
     }
+    function shootWhite(player, bullets, dmgBoost) {
+  bullets.push({
+    x: player.x + player.w,
+    y: player.y + player.h / 2,
+    w: 10,
+    h: 4,
+    speed: 10,
+    dmg: 5 * dmgBoost,
+    color: 'white'
+  });
+}
 
     function updateCoinsDisplay() {
       coinsDisplay.textContent = 'Coins: ' + coins;
@@ -395,9 +408,13 @@ canvas.addEventListener('mouseup', () => {
       if (keys['s']) player.y += moveSpeed;
       if (keys['a']) player.x -= moveSpeed;
       if (keys['d']) player.x += moveSpeed;
-      if (keys[' ']) shoot(player, bullets, dmgBoost);
-      if (selected === 'goonPigeon') {
-  if (shooting) shootGoonPigeon();
+      if (keys[' ']) {
+  const shootType = stats.shootType || 'normal_shoot';
+  if (shootType === 'white_shoot') {
+    shootWhite(player, bullets, dmgBoost); // вызываешь кастомную стрельбу
+  } else {
+    shoot(player, bullets, dmgBoost); // обычная стрельба
+  }
 }
 
       // Update bot position to make the bot more dynamic
@@ -450,7 +467,7 @@ canvas.addEventListener('mouseup', () => {
         location.reload();
       }
       if (player.hp <= 0) {
-        alert('You lost!');
+        alert('You lost! -1 coin...');
         location.reload();
       }
     }
@@ -511,7 +528,7 @@ canvas.addEventListener('mouseup', () => {
       joystick.addEventListener('touchend', () => {
         keys['w'] = keys['a'] = keys['s'] = keys['d'] = false;
       });
-  
+
       shootBtn.addEventListener('touchstart', () => keys[' '] = true);
       shootBtn.addEventListener('touchend', () => keys[' '] = false);
     }
@@ -519,4 +536,5 @@ canvas.addEventListener('mouseup', () => {
     updateCoinsDisplay();
   </script>
 </body>
+</html>
 </html>
