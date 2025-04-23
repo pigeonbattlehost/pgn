@@ -241,7 +241,7 @@ function isClassicPigeonActive() {
     let selected = localStorage.getItem('selectedPigeon') || 'default';
 
     const pigeons = {
-  default: { img: 'pigeon.jpg', speed: 5, attack: 10, damage: 0.3, hp: 1200 },
+  default: { img: 'pigeon.jpg', speed: 5, attack: 10, damage: 0.5, hp: 1200 },
   wheelPigeon: { img: 'wheelpigeon.jpg', speed: 7, attack: 2, damage: 0.8, hp: 1000 },
   radioPigeon: { img: 'radiopigeon.jpg', speed: 5, attack: 10, damage: 0, radiation: true, hp: 1120 },
   pigeonCopter: { img: 'pigobomb.jpg', speed: 6, attack: 20, damage: 4, hp: 1330 },
@@ -395,7 +395,7 @@ canvas.addEventListener('mouseup', () => {
       const dmgBoost = stats.damage;
       
       if (isClassicPigeonActive()) {
-    dmgBoost += 10; // bonus
+    stats.damage += 10;
     stats.attack += 10; // pigeons attack
   }
   
