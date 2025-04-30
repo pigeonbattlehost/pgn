@@ -37,7 +37,7 @@
       position: absolute;
       width: 100%;
       height: 100%;
-      background: #222;
+      background: #2e3a2f;
       color: white;
       display: flex;
       flex-direction: column;
@@ -69,7 +69,7 @@
     #shopButton { background: #ffaa00; color: black; }
     #pigeonsButton { background: #aaa; color: black; }
     #gameContainer { display: none; width: 100%; height: 100%; position: relative; }
-    canvas { display: block; width: 100%; height: 100%; background: #d4af37; }
+    canvas { display: block; width: 100%; height: 100%; background: #164704; }
     #version {
       position: absolute;
       bottom: 10px;
@@ -177,15 +177,18 @@
 
   <div id="menu">
     <h1>Pigen Battle</h1>
+    <h3>May Update!</h3>
     <div id="coinsDisplay">Coins: 0</div>
     <button id="playButton">Play</button>
     <button id="shopButton">Shop</button>
     <button id="pigeonsButton">Pigeons</button>
+      <button onclick="window.location.href='minigame.html';">MGOTS</button>
     
     <div id="onlineStatus">Made by toiletpigeon (zntsproj)</div>
   </div>
   <div id="shop" style="display:none;">
     <h2>Shop</h2>
+    <h3>MAY SEASON!</h3>
     <div class="pigeon-card">
       <img src="wheelpigeon.jpg" alt="Wheel Pigeon">
       <p>Wheel pigeon<br>+2 speed<br>+1.5 attack<br>25 pigeon coins</p>
@@ -218,10 +221,16 @@
   <p>Army Pigeon<br>55 pigeon coins<br>Deals 0.55 dmg<br>Fires short green bullets</p>
   <button onclick="buy('armyPigeon', 55)">Buy</button>
 </div>
+  <h2>Skins</h2>
+  <div class="pigeon-card">
+  <img src="sorrelpigeon.jpg" alt="Sorrel Pigeon">
+  <p>Sorrel Pigeon<br>55 pigeon coins<br>Deals 0.5 dmg<br>16 attack<br>1500 HP</p>
+  <button onclick="buy('sorrelPigeon', 55)">Buy</button>
+</div>
   <h2>PowerUps</h2>
   <div class="pigeon-card">
   <img src="classicpigeon.jpg" alt="Pigeonin Classic">
-  <p>Pigeonin Classic<br>+10 attack<br>+0.6 damage<br>300 pigeon coins<br>24 hours active</p>
+  <p>Pigeonin Classic (SALE!)<br>+10 attack<br>+0.6 damage<br>300 (but now 225!) pigeon coins<br>24 hours active</p>
   <button onclick="buyClassicPigeon()">Buy</button>
   
   <h2>Compensation</h2>
@@ -243,14 +252,13 @@
   </div>
   <div id="gameContainer">
     <canvas id="gameCanvas"></canvas>
-    <div id="version">PigeonBattle 0.2c</div>
+    <div id="version">PigeonBattle 0.2MAY</div>
     <div id="joystick"></div>
-    <div id="shootJoystick"></div>
-    <div id="shootBtn">Fire</div>
+    <div id="shootBtn">bang</div>
   </div>
 
   <script>
-
+src="https://cdn.jsdelivr.net/npm/nipplejs@0.8.0/dist/nipplejs.min.js"
     setTimeout(() => {
   const splash = document.getElementById('splash');
   splash.style.opacity = '0';
@@ -353,6 +361,7 @@ function isQuantumPigeonActive() {
   return false; // Если улучшение не куплено
 }
     const canvas = document.getElementById('gameCanvas');
+    
     const ctx = canvas.getContext('2d');
     canvas.width = 800;
     canvas.height = 600;
@@ -375,24 +384,36 @@ function comp() {
 }
 
 const pigeons = {
-  default: { img: 'pigeon.jpg', speed: 5, attack: 10, damage: 0.3, hp: 1200, shootType: 'normal_shoot' },
-  wheelPigeon: { img: 'wheelpigeon.jpg', speed: 7, attack: 2, damage: 0.8, hp: 1000, shootType: 'normal_shoot' },
-  radioPigeon: { img: 'radiopigeon.jpg', speed: 5, attack: 10, damage: 0, radiation: true, hp: 1120, shootType: 'normal_shoot' },
-  pigeonCopter: { img: 'pigobomb.jpg', speed: 6, attack: 20, damage: 1.5, hp: 1330, shootType: 'normal_shoot' },
-  feetPigeon: { img: 'feetpigeon.jpg', speed: 5, attack: 6, damage: 1, kick: true, hp: 1500, shootType: 'normal_shoot' },
-  doublePigeon: { img: 'digeon.jpg', speed: 5, attack: 10, damage: 0.6, hp: 1400, shootType: 'normal_shoot' },
-  emiPigeon: { img: 'emipigeon.jpg', speed: 5, attack: 8, damage: 0.655, hp: 1200, shootType: 'emishoot' },
-  
-  dentistPigeon: { img: 'dentistpigeon.jpg', speed: 5, attack: 10, damage: 0.55, hp: 2000, shootType: 'normal_shoot' },
+  default: { img: 'pigeon.jpg', speed: 5, attack: 10, damage: 0.3, hp: 1200, shootType: 'normal_shoot', regenRate: 3.5 },
+  wheelPigeon: { img: 'wheelpigeon.jpg', speed: 7, attack: 2, damage: 0.8, hp: 1000, shootType: 'normal_shoot', regenRate: 2.5 },
+  radioPigeon: { img: 'radiopigeon.jpg', speed: 5, attack: 10, damage: 0, radiation: true, hp: 1120, shootType: 'normal_shoot', regenRate: 3.0 },
+  pigeonCopter: { img: 'pigobomb.jpg', speed: 6, attack: 20, damage: 1.5, hp: 1330, shootType: 'normal_shoot', regenRate: 2.8 },
+  feetPigeon: { img: 'feetpigeon.jpg', speed: 5, attack: 6, damage: 1, kick: true, hp: 1500, shootType: 'normal_shoot', regenRate: 4.5 },
+  doublePigeon: { img: 'digeon.jpg', speed: 5, attack: 10, damage: 0.6, hp: 1400, shootType: 'normal_shoot', regenRate: 3.8 },
+  emiPigeon: { img: 'emipigeon.jpg', speed: 5, attack: 8, damage: 0.655, hp: 1200, shootType: 'emishoot', regenRate: 3.2 },
+  dentistPigeon: { img: 'dentistpigeon.jpg', speed: 5, attack: 10, damage: 0.55, hp: 2000, shootType: 'normal_shoot', regenRate: 5.0 },
   armyPigeon: {
-  img: 'armypigeon.jpg',
-  speed: 5,
-  attack: 12,
-  damage: 0.55,
-  hp: 1300,
-  shootType: 'green_short'
-}
+    img: 'armypigeon.jpg',
+    speed: 5,
+    attack: 12,
+    damage: 0.55,
+    hp: 1300,
+    shootType: 'green_short',
+    regenRate: 3.6
+  },
+  sorrelPigeon: {
+    img: 'sorrelpigeon.jpg',
+    speed: 6.5,
+    attack: 16,
+    damage: 0.5,
+    hp: 1500,
+    shootType: 'green_short',
+    regenRate: 4.2
+  },
 };
+
+
+
 
    const enemies = [
   { img: 'angrypigeon.jpg', hp: 2200, speed: 2, attack: 40 },
@@ -679,7 +700,7 @@ botBullets.forEach(b => {
     const shootBtn = document.getElementById('shootBtn');
     if ('ontouchstart' in window) {
       joystick.style.display = 'block';
-      shootJoystick.style.display = 'block';
+      
       shootBtn.style.display = 'block';
 
       let startX, startY;
