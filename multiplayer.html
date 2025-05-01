@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pigeon Battle Multiplayer</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+      background: #164704;
+      width: 100vw;
+      height: 100vh;
+    }
+    #joystick1, #joystick2 {
+      position: absolute;
+      z-index: 10;
+    }
+    #joystick1 {
+      left: 20px;
+      bottom: 80px;
+    }
+    #joystick2 {
+      right: 20px;
+      bottom: 80px;
+    }
+    .fire-btn {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      background: red;
+      border-radius: 50%;
+      z-index: 10;
+    }
+    #fire1 {
+      left: 100px;
+      bottom: 20px;
+    }
+    #fire2 {
+      right: 100px;
+      bottom: 20px;
+    }
+    #stats {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 10;
+      color: white;
+      font-size: 20px;
+      font-family: monospace;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/nipplejs@0.10.2/dist/nipplejs.min.js"></script>
+</head>
+<body>
+  <canvas id="gameCanvas"></canvas>
+  <div id="joystick1"></div>
+  <div id="joystick2"></div>
+  <div id="fire1" class="fire-btn"></div>
+  <div id="fire2" class="fire-btn"></div>
+  <div id="stats"></div>
+
+  <script>
+    alert("Warning! This 2P Multiplayer Mode is IN BETA STAGE. Report any bugs at discord: ludchoble. Pigeon Battle!");
+
+    // PigeonBattle 2P BETA MODE
+    // report any bugs at discord: ludchoble
+
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const pigeons = {
+      default: { img: 'pigeon.jpg', speed: 3, attack: 10, damage: 80, hp: 1200, shootType: 'normal_shoot' },
+      wheelPigeon: { img: 'wheelpigeon.jpg', speed: 2.5, attack: 2, damage: 110, hp: 1000 },
+      radioPigeon: { img: 'radiopigeon.jpg', speed: 2.8, attack: 10, damage: 130, hp: 1120 },
+      pigeonCopter: { img: 'pigobomb.jpg', speed: 2.9, attack: 20, damage: 90, hp: 1330 },
+      feetPigeon: { img: 'feetpigeon.jpg', speed: 2.6, attack: 6, damage: 115, hp: 1500 },
+      doublePigeon: { img: 'digeon.jpg', speed: 2.7, attack: 10, damage: 100, hp: 1400 },
+      emiPigeon: { img: 'emipigeon.jpg', speed: 2.9, attack: 8, damage: 105, hp: 1200 },
+      dentistPigeon: { img: 'dentistpigeon.jpg', speed: 2.5, attack: 10, damage: 116, hp: 2000 },
+      armyPigeon: { img: 'armypigeon.jpg', speed: 2.6, attack: 12, damage: 135, hp: 1300 },
+      sorrelPigeon: { img: 'sorrelpigeon.jpg', speed: 3, attack: 16, damage: 100, hp: 1500 },
+      goonPigeon: { img: 'goonpigeon.jpg', speed: 2.4, attack: 13, damage: 106, hp: 1250 }
+    };
+
+    const pigeonKeys = Object.keys(pigeons);
+
+    class Player {
+      constructor(x, y, direction, fireKey) {
+        const pigeonType = pigeons[pigeonKeys[Math.floor(Math.random() * pigeonKeys.length)]];
+        this.x = x;
+        this.y = y;
+        this.size = 50;
+        this.speed = pigeonType.speed;
+        this.attack = pigeonType.attack;
+        this.damage = pigeonType.damage;
+        this.hp = pigeonType.hp;
+        this.image = new Image();
+        this.image.src = pigeonType.img;
+        this.bullets = [];
+        this.direction = { x: 0, y: 0 };
+        this.fireKey = fireKey;
+        this.dirX = direction;
+      }
+
+      update() {
+        this.x += this.direction.x * this.speed;
+        this.y += this.direction.y * this.speed;
+
+        this.x = Math.max(0, Math.min(canvas.width - this.size, this.x));
+        this.y = Math.max(0, Math.min(canvas.height - this.size, this.y));
+
+        this.bullets.forEach(b => b.update());
+        this.bullets = this.bullets.filter(b => b.active);
+      }
+
+      draw() {
+        ctx.drawImage(this.image, this.x, this.y, this.size, this.size);
+        this.bullets.forEach(b => b.draw());
+      }
+
+      shoot() {
+        this.bullets.push(new Bullet(this.x + this.size / 2, this.y + this.size / 2, this.dirX, this.damage));
+      }
+    }
+
+    class Bullet {
+      constructor(x, y, dirX, damage) {
+        this.x = x;
+        this.y = y;
+        this.size = 5;
+        this.speed = 6 * dirX;
+        this.active = true;
+        this.damage = damage;
+      }
+
+      update() {
+        this.x += this.speed;
+        if (this.x < 0 || this.x > canvas.width) this.active = false;
+      }
+
+      draw() {
+        ctx.fillStyle = 'white';
+        ctx.fillRect(this.x - this.size / 2, this.y, this.size, 5);
+      }
+
+      hits(player) {
+        return this.x > player.x && this.x < player.x + player.size &&
+               this.y > player.y && this.y < player.y + player.size;
+      }
+    }
+
+    let gameOver = false;
+
+    const player1 = new Player(100, canvas.height / 2, 1, 'fire1');
+    const player2 = new Player(canvas.width - 150, canvas.height / 2, -1, 'fire2');
+
+    const joystick1 = nipplejs.create({ zone: document.getElementById('joystick1'), mode: 'static', position: { left: '80px', bottom: '120px' } });
+    joystick1.on('move', (e, data) => {
+      player1.direction = { x: data.vector.x, y: -data.vector.y }; // invert Y-axis
+    });
+    joystick1.on('end', () => { player1.direction = { x: 0, y: 0 }; });
+
+    const joystick2 = nipplejs.create({ zone: document.getElementById('joystick2'), mode: 'static', position: { right: '80px', bottom: '120px' } });
+    joystick2.on('move', (e, data) => {
+      player2.direction = { x: data.vector.x, y: -data.vector.y }; // invert Y-axis
+    });
+    joystick2.on('end', () => { player2.direction = { x: 0, y: 0 }; });
+
+    let touchStartTime1 = 0;
+    let touchStartTime2 = 0;
+
+    document.getElementById('fire1').addEventListener('touchstart', () => {
+      touchStartTime1 = Date.now();
+    });
+    document.getElementById('fire1').addEventListener('touchend', () => {
+      if (Date.now() - touchStartTime1 < 300) {
+        player1.shoot();
+      }
+    });
+
+    document.getElementById('fire2').addEventListener('touchstart', () => {
+      touchStartTime2 = Date.now();
+    });
+    document.getElementById('fire2').addEventListener('touchend', () => {
+      if (Date.now() - touchStartTime2 < 300) {
+        player2.shoot();
+      }
+    });
+
+    function gameLoop() {
+      if (gameOver) return;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      player1.update();
+      player2.update();
+
+      player1.draw();
+      player2.draw();
+
+      player1.bullets.forEach(b => {
+        if (b.hits(player2)) {
+          player2.hp -= b.damage;
+          b.active = false;
+        }
+      });
+
+      player2.bullets.forEach(b => {
+        if (b.hits(player1)) {
+          player1.hp -= b.damage;
+          b.active = false;
+        }
+      });
+
+      document.getElementById('stats').innerText =
+        `P1 HP: ${Math.max(0, Math.floor(player1.hp))} | P2 HP: ${Math.max(0, Math.floor(player2.hp))}`;
+
+      if (player1.hp <= 0) {
+        alert('Player 2 wins!');
+        gameOver = true;
+      } else if (player2.hp <= 0) {
+        alert('Player 1 wins!');
+        gameOver = true;
+      }
+
+      if (!gameOver) requestAnimationFrame(gameLoop);
+    }
+
+    gameLoop();
+  </script>
+</body>
+</html>
