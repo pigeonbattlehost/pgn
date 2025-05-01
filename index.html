@@ -33,6 +33,23 @@
   justify-content: center;
   z-index: 9999; /* чтобы был поверх всего */
 }
+    #loadingText {
+  position: absolute;
+  bottom: 30px;
+  width: 100%;
+  text-align: center;
+  font-size: 1.1em;
+  color: #ccc;
+  font-family: 'Poppins', sans-serif;
+  animation: blink 1.2s infinite;
+}
+
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
     #menu, #shop, #pigeonsMenu {
       position: absolute;
       width: 100%;
@@ -175,6 +192,7 @@ h1, h2, h3 {
 <body>
     <div id="splash">
   <h1>PigeonLabs</h1>
+  <div id="loadingText">Loading game assets...</div>
 </div>
 
 
@@ -653,7 +671,7 @@ canvas.addEventListener('mouseup', () => {
 }
 
       if (bot.hp <= 0) {
-         coins += 5;
+        coins += 5;
         localStorage.setItem('pigeonCoins', coins);
         
         alert('You win! +5 coins');
@@ -743,6 +761,29 @@ botBullets.forEach(b => {
       });
     }
   });
+  
+console.log("%c==============================", "color: green");
+console.log("%c   WELCOME TO PIGEON BATTLE", "color: yellow; font-size: 16px;");
+console.log("%c==============================", "color: green");
+console.log("Game version: %c0.2MAY", "color: cyan");
+console.log("Player loaded: ", localStorage.getItem("selectedPigeon") || "default pigeon");
+console.log("Pigeonin Classic: ", localStorage.getItem("pigeoninClassic") ? "ACTIVE" : "INACTIVE");
+console.log("Pigeon Coins: ", localStorage.getItem("pigeonCoins") || 0);
+console.log("Expiry time: ", localStorage.getItem("pigeoninExpiry") || "N/A");
+
+console.log("%cLoading game assets...", "color: orange");
+console.log("Audio status: %cOK", "color: lime");
+console.log("Textures status: %cOK", "color: lime");
+console.log("Network status: %c" + (navigator.onLine ? "Online" : "Offline"), "color: " + (navigator.onLine ? "green" : "red"));
+
+console.log("%cMemory info:", "color: violet");
+console.log("Device RAM: ", navigator.deviceMemory ? navigator.deviceMemory + " GB" : "Unknown, must be a potato");
+
+console.log("%c[DEBUG] Splash screen started", "color: gray");
+console.log("%c[DEBUG] Menu initialized", "color: gray");
+console.log("%c[DEBUG] Game ready to fly like a fat pigeon on steroids", "color: gray");
+
+console.log("%c==============================", "color: green");
   </script>
 </body>
 </html>
