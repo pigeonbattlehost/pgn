@@ -275,8 +275,7 @@ h1, h2, h3 {
     <p>Pigeonin Classic (SALE!)<br>+10 attack<br>+0.6 damage<br>300 (but now 225!) pigeon coins<br>24 hours active</p>
     <button onclick="buyClassicPigeon()">Buy</button>
   </div>
-  
-
+   
 
   <button onclick="closeShop()">Back</button>
 </div>
@@ -609,9 +608,9 @@ function checkGameEnd() {
 
   if (bot.hp <= 0) {
     gameOver = true;
-    coins += 5;
+    coins += 10;
     localStorage.setItem('pigeonCoins', coins);
-    alert('You win! +5 coins');
+    alert('You win! +10 coins');
     location.reload();
   }
 
