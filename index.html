@@ -187,7 +187,7 @@ h1, h2, h3 {
     <button id="pigeonsButton">Pigeons</button>
     <button id="wlanm">Local Multiplayer (BETA)</button>
     
-      
+      <button onclick="window.location.href='minigame.html';">MGOTS</button>
     
     <div id="onlineStatus">Made by toiletpigeon (zntsproj)</div>
   </div>
@@ -250,13 +250,7 @@ h1, h2, h3 {
     <p>Sorrel Pigeon<br>55 pigeon coins<br>Deals 0.5 dmg<br>16 attack<br>1500 HP</p>
     <button onclick="buy('sorrelPigeon', 55)">Buy</button>
   </div>
-  
-  <h2>Giveaway</h2>
-  <div class="pigeon-card">
-    <img src="goonpigeon.jpg" alt="Giveaway">
-    <p>Giveaway (100 coins)
-    <button onclick="comp()">get my coins</button>
-  </div>
+
   <h2>PowerUps</h2>
   <div class="pigeon-card">
     <img src="classicpigeon.jpg" alt="Pigeonin Classic">
@@ -280,7 +274,7 @@ h1, h2, h3 {
   </div>
 
   <script>
-      localStorage.removeItem('compensationReceived');
+      
 src="https://cdn.jsdelivr.net/npm/nipplejs@0.8.0/dist/nipplejs.min.js"
     setTimeout(() => {
   const splash = document.getElementById('splash');
@@ -396,11 +390,11 @@ function isQuantumPigeonActive() {
 
 function comp() {
   if (!localStorage.getItem('compensationReceived')) {
-    coins += 100;
+    coins += 1000;
     localStorage.setItem('pigeonCoins', coins);
     localStorage.setItem('compensationReceived', 'true');
     updateCoinsDisplay();
-    alert("100 pigeon coins added. A pigeon’s gotta eat, you know?");
+    alert("1000 pigeon coins added. A pigeon’s gotta eat, you know?");
   } else {
     alert("No double-dipping! The pigeon already got its snack.");
   }
@@ -650,4 +644,106 @@ canvas.addEventListener('mouseup', () => {
     bossTransformed = true;
     bot.hp = bossForm.hp;
     bot.attack = bossForm.attack;
-   
+    bot.speed = bossForm.speed;
+    botImg.src = bossForm.img;
+
+    // Для мигания
+    bossFlashCounter = 30; // мигает 30 кадров
+  }
+}
+
+      if (bot.hp <= 0) {
+         coins += 5;
+        localStorage.setItem('pigeonCoins', coins);
+        
+        alert('You win! +5 coins');
+        location.reload();
+      }
+      if (player.hp <= 0) {
+        alert('You lost!');
+        location.reload();
+      }
+     
+    }
+    function draw() {
+      update();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      ctx.drawImage(playerImg, player.x, player.y, player.w, player.h);
+      if (bossTransformed && bossFlashCounter > 0) {
+  if (bossFlashCounter % 6 < 3) {
+    // мигать — рисовать с перерывами
+    ctx.drawImage(botImg, bot.x, bot.y, bot.w, bot.h);
+  }
+  bossFlashCounter--;
+} else {
+  ctx.drawImage(botImg, bot.x, bot.y, bot.w, bot.h);
+}
+
+      bullets.forEach(b => {
+  ctx.fillStyle = b.color || 'brown';
+  ctx.fillRect(b.x, b.y, b.w, b.h);
+});
+
+botBullets.forEach(b => {
+  ctx.fillStyle = b.color || 'black'; // или другой цвет для вражеских пуль
+  ctx.fillRect(b.x, b.y, b.w, b.h);
+});
+
+      ctx.fillStyle = 'white';
+      ctx.font = '16px sans-serif';
+      ctx.fillText(`Player HP: ${player.hp}`, 10, 20);
+      ctx.fillText(`Bot HP: ${bot.hp}`, 10, 40);
+
+      requestAnimationFrame(draw);
+    }
+
+    const joystick = document.getElementById('joystick');
+    const shootJoystick = document.getElementById('shootJoystick');
+    const shootBtn = document.getElementById('shootBtn');
+    if ('ontouchstart' in window) {
+      joystick.style.display = 'block';
+      
+      shootBtn.style.display = 'block';
+
+      let startX, startY;
+      joystick.addEventListener('touchstart', e => {
+        const touch = e.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+      });
+
+      joystick.addEventListener('touchmove', e => {
+        
+        const touch = e.touches[0];
+        let dx = touch.clientX - startX;
+        let dy = touch.clientY - startY;
+
+        keys['w'] = dy < -20;
+        keys['s'] = dy > 20;
+        keys['a'] = dx < -20;
+        keys['d'] = dx > 20;
+      });
+
+      joystick.addEventListener('touchend', () => {
+        keys['w'] = keys['a'] = keys['s'] = keys['d'] = false;
+      });
+
+      shootBtn.addEventListener('touchstart', () => keys[' '] = true);
+      shootBtn.addEventListener('touchend', () => keys[' '] = false);
+    }
+
+    updateCoinsDisplay();
+    
+    document.addEventListener("DOMContentLoaded", () => {
+    const btn = document.getElementById("wlanm");
+    if (btn) {
+      btn.addEventListener("click", () => {
+        window.location.href = "multiplayer.html";
+      });
+    }
+  });
+  </script>
+</body>
+</html>
+</html>
