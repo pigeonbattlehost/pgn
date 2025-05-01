@@ -600,6 +600,26 @@ canvas.addEventListener('mouseup', () => {
       }
     }, 1000);
 
+let gameOver = false;
+
+function checkGameEnd() {
+  if (gameOver) return;
+
+  if (bot.hp <= 0) {
+    gameOver = true;
+    coins += 5;
+    localStorage.setItem('pigeonCoins', coins);
+    alert('You win! +5 coins');
+    location.reload();
+  }
+
+  if (player.hp <= 0) {
+    gameOver = true;
+    alert('You lost!');
+    location.reload();
+  }
+}
+
     function update() {
       const stats = pigeons[selected];
       const moveSpeed = stats.speed;
@@ -670,17 +690,7 @@ canvas.addEventListener('mouseup', () => {
   }
 }
 
-      if (bot.hp <= 0) {
-        coins += 5;
-        localStorage.setItem('pigeonCoins', coins);
-        
-        alert('You win! +5 coins');
-        location.reload();
-      }
-      if (player.hp <= 0) {
-        alert('You lost!');
-        location.reload();
-      }
+checkGameEnd();
      
     }
     function draw() {
@@ -788,3 +798,4 @@ console.log("%c==============================", "color: green");
 </body>
 </html>
 </html>
+
