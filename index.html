@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -207,7 +208,7 @@ h1, h2, h3 {
     
       
     
-    <div id="onlineStatus">Made by toiletpigeon (zntsproj)</div>
+    <div id="onlineStatus">Loading pigeons...</div>
   </div>
   
  <div id="shop" style="display:none;">
@@ -293,7 +294,24 @@ h1, h2, h3 {
   </div>
 
   <script>
-      
+   // Пинг каждый 5 секунд
+setInterval(() => {
+    fetch("https://pigeonbattle.onrender.com/ping", {
+        method: "POST"
+    }).then(() => {
+        console.log("Pinging server...");
+    }).catch(error => console.error('Ping error:', error));
+}, 30000);
+
+// Получение количества онлайн пижонов
+fetch("https://pigeonbattle.onrender.com/")
+    .then(res => res.json())  // Получаем JSON с количеством пижонов
+    .then(data => {
+      let pigeonText = data.pigeons_online === 1 ? "pigeon online" : "pigeons online";
+      document.getElementById("onlineStatus").innerText = "~ " + data.pigeons_online + " " + pigeonText;
+    })
+    .catch(error => console.error('Error fetching data:', error));
+    
 src="https://cdn.jsdelivr.net/npm/nipplejs@0.8.0/dist/nipplejs.min.js"
     setTimeout(() => {
   const splash = document.getElementById('splash');
