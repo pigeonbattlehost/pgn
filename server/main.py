@@ -49,9 +49,13 @@ def multiplayer():
 def update_position():
     data = request.json
     player_id = data.get("player_id")
-    
+    position = data.get("position")
+
     if not player_id:
         return jsonify({"status": "error", "message": "Player ID missing"}), 400
+
+    if not position or not isinstance(position, dict) or "x" not in position or "y" not in position:
+        return jsonify({"status": "error", "message": "Invalid position data"}), 400
 
     # Шифруем UUID
     encrypted_id = encrypt_uuid(player_id)
@@ -60,7 +64,7 @@ def update_position():
         return jsonify({"status": "error", "message": "Player not found"}), 404
 
     # Обновляем позицию игрока
-    pigeons[encrypted_id]["position"] = data
+    pigeons[encrypted_id]["position"] = position
     return jsonify({"status": "position_updated"})
 
 @app.route("/shoot", methods=["POST"])
