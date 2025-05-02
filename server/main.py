@@ -1,7 +1,8 @@
 from flask import Flask, request, jsonify
-import time
+from flask_cors import CORS  # Импортируем CORS
 
 app = Flask(__name__)
+CORS(app)  # Разрешаем CORS для всего приложения
 
 pigeons = {}
 
@@ -14,7 +15,6 @@ def ping():
 @app.route("/pigeons_online", methods=["GET"])
 def get_online_pigeons():
     now = time.time()
-    # counting pigeons every 30 sec
     online = [ip for ip, t in pigeons.items() if now - t <= 30]
     return jsonify({"pigeons_online": len(online)})
 
