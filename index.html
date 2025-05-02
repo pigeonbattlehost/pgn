@@ -1,6 +1,5 @@
 
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -86,7 +85,27 @@
     #playButton { background: #00aaff; color: white; }
     #shopButton { background: #ffaa00; color: black; }
     #pigeonsButton { background: #aaa; color: black; }
-    #wlanm { background: #000000; color: white; }
+    #multiplayer {
+  background: #000; /* Полностью черный фон */
+  color: white;
+  border: 2px solid #555; /* Легкая граница */
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 8px; /* Скругленные углы */
+  cursor: pointer;
+  transition: all 0.3s ease; /* Плавный переход */
+  text-transform: none; /* Без капса */
+}
+
+#multiplayer:hover {
+  background: #444; /* Немного светлее при наведении */
+  border-color: #666; /* Чуть ярче граница */
+  transform: translateY(-2px); /* Легкое поднятие при наведении */
+}
+
+#multiplayer:active {
+  transform: translateY(1px); /* Эффект при нажатии */
+}
     #gameContainer { display: none; width: 100%; height: 100%; position: relative; }
     canvas { display: block; width: 100%; height: 100%; background: #164704; }
     #version {
@@ -202,9 +221,10 @@ h1, h2, h3 {
     <h3>May Update!</h3>
     <div id="coinsDisplay">Coins: 0</div>
     <button id="playButton">Play</button>
+    <button id="multiplayer">Multiplayer</button>
     <button id="shopButton">Shop</button>
     <button id="pigeonsButton">Pigeons</button>
-    <button id="wlanm">Local Multiplayer (BETA)</button>
+    
     
       
     
@@ -294,23 +314,33 @@ h1, h2, h3 {
   </div>
 
   <script>
+      
    // Пинг каждый 5 секунд
 setInterval(() => {
-    fetch("https://pigeonbattle.onrender.com/ping", {
+   fetch("https://pigeonbattle.onrender.com/ping", {
         method: "POST"
     }).then(() => {
         console.log("Pinging server...");
     }).catch(error => console.error('Ping error:', error));
 }, 30000);
 
-// Получение количества онлайн пижонов
-fetch("https://pigeonbattle.onrender.com/")
-    .then(res => res.json())  // Получаем JSON с количеством пижонов
-    .then(data => {
-      let pigeonText = data.pigeons_online === 1 ? "pigeon online" : "pigeons online";
-      document.getElementById("onlineStatus").innerText = "~ " + data.pigeons_online + " " + pigeonText;
-    })
-    .catch(error => console.error('Error fetching data:', error));
+const playerId = localStorage.getItem('player_id') || crypto.randomUUID();
+localStorage.setItem('player_id', playerId);
+
+// Получение количества онлайн пижонов с UUID
+fetch("https://pigeonbattle.onrender.com/ping", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({ player_id: playerId })
+})
+  .then(res => res.json())  // Получаем JSON с количеством пижонов
+  .then(data => {
+    let pigeonText = data.pigeons_online === 1 ? "pigeon online" : "pigeons online";
+    document.getElementById("onlineStatus").innerText = "~ " + data.pigeons_online + " " + pigeonText;
+  })
+  .catch(error => console.error('Error fetching data:', error));
     
 src="https://cdn.jsdelivr.net/npm/nipplejs@0.8.0/dist/nipplejs.min.js"
     setTimeout(() => {
@@ -783,7 +813,7 @@ botBullets.forEach(b => {
     updateCoinsDisplay();
     
     document.addEventListener("DOMContentLoaded", () => {
-    const btn = document.getElementById("wlanm");
+    const btn = document.getElementById("multiplayer");
     if (btn) {
       btn.addEventListener("click", () => {
         window.location.href = "multiplayer.html";
