@@ -57,10 +57,51 @@ def stop_shooting():
         pigeons[ip]["shooting"] = False
     return jsonify({"status": "stopped_shooting", "shooting": pigeons[ip]["shooting"]})
 
+@app.route('/findEnemy', methods=['GET', 'POST'])
+def find_enemy():
+    if request.method == 'GET':
+        return "Server is alive"
 
-@app.route('/findEnemy', methods=['GET'])
-def debug_get():
-    return "Server is alive"
+    data = request.get_json() or {}
+    player_ip = request.remote_addr
+    player_hp = data.get('hp')
+    selected_pigeon = data.get('pigeon')
+
+    # Initialize or update this player's info
+    if player_ip not in players or players[player_ip]['state'] != 'matched':
+        players[player_ip] = {
+            'hp': player_hp,
+            'pigeon': selected_pigeon,
+            'state': 'waiting',
+            'opponent': None
+        }
+
+    # If already matched
+    if players[player_ip]['state'] == 'matched':
+        opp_ip = players[player_ip]['opponent']
+        opp_info = players.get(opp_ip, {})
+        return jsonify(status="match_found", opponent={
+            "ip": opp_ip,
+            "hp": opp_info.get('hp'),
+            "pigeon": opp_info.get('pigeon')
+        })
+
+    # Try to find opponent
+    for opp_ip, info in players.items():
+        if opp_ip == player_ip:
+            continue
+        if info['state'] == 'waiting' and abs(info['hp'] - player_hp) <= 1000:
+            players[player_ip]['state'] = 'matched'
+            players[player_ip]['opponent'] = opp_ip
+            players[opp_ip]['state'] = 'matched'
+            players[opp_ip]['opponent'] = player_ip
+            return jsonify(status="match_found", opponent={
+                "ip": opp_ip,
+                "hp": info['hp'],
+                "pigeon": info['pigeon']
+            })
+
+    return jsonify(status="waiting")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
