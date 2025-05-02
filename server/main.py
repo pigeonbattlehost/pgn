@@ -1,4 +1,5 @@
 import uuid
+import hashlib
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import time
@@ -10,14 +11,20 @@ CORS(app)
 
 pigeons = {}  # Хранение игроков по уникальному ID
 
+def encrypt_uuid(player_id):
+    return hashlib.sha256(player_id.encode('utf-8')).hexdigest()
+
 @app.route("/ping", methods=["POST"])
 def ping():
     player_id = request.json.get("player_id")
     if not player_id:
         player_id = str(uuid.uuid4())
 
+    # Шифруем UUID
+    encrypted_id = encrypt_uuid(player_id)
+
     # Обновляем время последнего пинга для этого пижона
-    pigeons[player_id] = {"last_ping": time.time()}
+    pigeons[encrypted_id] = {"last_ping": time.time()}
 
     # Считаем пижонов, которые пинговали за последние 5 секунд
     current_time = time.time()
@@ -25,7 +32,7 @@ def ping():
 
     return jsonify({
         "status": "pinged",
-        "player_id": player_id,
+        "player_id": encrypted_id,
         "pigeons_online": online_count
     })
 
@@ -46,8 +53,14 @@ def update_position():
     if not player_id:
         return jsonify({"status": "error", "message": "Player ID missing"}), 400
 
+    # Шифруем UUID
+    encrypted_id = encrypt_uuid(player_id)
+
+    if encrypted_id not in pigeons:
+        return jsonify({"status": "error", "message": "Player not found"}), 404
+
     # Обновляем позицию игрока
-    pigeons[player_id]["position"] = data
+    pigeons[encrypted_id]["position"] = data
     return jsonify({"status": "position_updated"})
 
 @app.route("/shoot", methods=["POST"])
@@ -55,10 +68,16 @@ def shoot():
     data = request.json
     player_id = data.get("player_id")
 
-    if not player_id or player_id not in pigeons:
+    if not player_id:
+        return jsonify({"status": "error", "message": "Player ID missing"}), 400
+
+    # Шифруем UUID
+    encrypted_id = encrypt_uuid(player_id)
+
+    if encrypted_id not in pigeons:
         return jsonify({"status": "error", "message": "Player not found"}), 404
 
-    pigeons[player_id]["shooting"] = True
+    pigeons[encrypted_id]["shooting"] = True
     return jsonify({"status": "shooting"})
 
 @app.route("/stop_shooting", methods=["POST"])
@@ -66,10 +85,16 @@ def stop_shooting():
     data = request.json
     player_id = data.get("player_id")
 
-    if not player_id or player_id not in pigeons:
+    if not player_id:
+        return jsonify({"status": "error", "message": "Player ID missing"}), 400
+
+    # Шифруем UUID
+    encrypted_id = encrypt_uuid(player_id)
+
+    if encrypted_id not in pigeons:
         return jsonify({"status": "error", "message": "Player not found"}), 404
 
-    pigeons[player_id]["shooting"] = False
+    pigeons[encrypted_id]["shooting"] = False
     return jsonify({"status": "stopped_shooting"})
 
 if __name__ == "__main__":
