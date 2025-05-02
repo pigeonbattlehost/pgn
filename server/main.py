@@ -12,13 +12,22 @@ pigeons = {}  # Хранение игроков по уникальному ID
 
 @app.route("/ping", methods=["POST"])
 def ping():
-    # Получаем player_id из запроса, если он не был передан, генерируем новый
     player_id = request.json.get("player_id")
     if not player_id:
-        player_id = str(uuid.uuid4())  # Генерация уникального ID
-    
+        player_id = str(uuid.uuid4())
+
+    # Обновляем время последнего пинга для этого пижона
     pigeons[player_id] = {"last_ping": time.time()}
-    return jsonify({"status": "pinged", "player_id": player_id})
+
+    # Считаем пижонов, которые пинговали за последние 5 секунд
+    current_time = time.time()
+    online_count = sum(1 for p in pigeons.values() if current_time - p["last_ping"] <= 5)
+
+    return jsonify({
+        "status": "pinged",
+        "player_id": player_id,
+        "pigeons_online": online_count
+    })
 
 @app.route("/multiplayer", methods=["GET"])
 def multiplayer():
