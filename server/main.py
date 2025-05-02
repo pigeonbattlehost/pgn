@@ -40,9 +40,13 @@ def ping():
 def multiplayer():
     now = time.time()
     online = [player_id for player_id, data in pigeons.items() if now - data["last_ping"] <= 30]  # Игроки, активные в последние 30 секунд
+
+    # Проверим, что хотя бы 2 игрока активны
+    if len(online) >= 2:
+        # Находим пару игроков для игры
+        players_for_game = online[:2]  # Если больше двух, просто берем первых двух
+        return jsonify({"status": "ready", "players": players_for_game})
     
-    if len(online) > 1:
-        return jsonify({"status": "ready", "players": online[:1]})
     return jsonify({"status": "waiting", "message": "Not enough pigeons!"})
 
 @app.route("/update_position", methods=["POST"])
