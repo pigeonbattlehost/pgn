@@ -1,239 +1,179 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pigeon Battle Multiplayer</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pigeon Battle - Multiplayer</title>
   <style>
-    html, body {
+    body {
       margin: 0;
       padding: 0;
       overflow: hidden;
+      background-color: #003300; /* Темно-зеленый фон */
     }
-    canvas {
-      display: block;
-      background: #164704;
-      width: 100vw;
-      height: 100vh;
-    }
-    #joystick1, #joystick2 {
+    #joystick-container {
       position: absolute;
-      z-index: 10;
+      bottom: 70px;  /* Позиционируем джойстик ближе к низу */
+      left: 60px;
+      transform: translateX(-50%);  /* Центрируем по горизонтали */
     }
-    #joystick1 {
-      left: 20px;
-      bottom: 80px;
-    }
-    #joystick2 {
-      right: 20px;
-      bottom: 80px;
-    }
-    .fire-btn {
+    #waiting-text {
       position: absolute;
-      width: 60px;
-      height: 60px;
-      background: red;
-      border-radius: 50%;
-      z-index: 10;
-    }
-    #fire1 {
-      left: 100px;
-      bottom: 20px;
-    }
-    #fire2 {
-      right: 100px;
-      bottom: 20px;
-    }
-    #stats {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      z-index: 10;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       color: white;
-      font-size: 20px;
-      font-family: monospace;
+      font-size: 24px;
+      text-align: center;
+      display: block; /* Убедимся, что текст сразу виден */
+    }
+    #pigeon-image {
+      position: absolute;
+      top: 50%; /* Установим по центру экрана */
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px; /* Размер изображения пижона */
+      display: block; /* Убедимся, что изображение пижона всегда отображается */
     }
   </style>
+  <!-- Подключаем nipplejs с CDN -->
   <script src="https://cdn.jsdelivr.net/npm/nipplejs@0.10.2/dist/nipplejs.min.js"></script>
 </head>
 <body>
-  <canvas id="gameCanvas"></canvas>
-  <div id="joystick1"></div>
-  <div id="joystick2"></div>
-  <div id="fire1" class="fire-btn"></div>
-  <div id="fire2" class="fire-btn"></div>
-  <div id="stats"></div>
-
+  <div id="waiting-text">Waiting for pigeon...</div>
+  <div id="joystick-container"></div>
+  <img id="pigeon-image" src="" alt="Selected Pigeon" style="display: none;">
+  
   <script>
-    alert("Warning! This 2P Multiplayer Mode is IN BETA STAGE. Report any bugs at discord: ludchoble. Pigeon Battle!");
-
-    // PigeonBattle 2P BETA MODE
-    // report any bugs at discord: ludchoble
-
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    const pigeons = {
-      default: { img: 'pigeon.jpg', speed: 3, attack: 10, damage: 80, hp: 1200, shootType: 'normal_shoot' },
-      wheelPigeon: { img: 'wheelpigeon.jpg', speed: 2.5, attack: 2, damage: 110, hp: 1000 },
-      radioPigeon: { img: 'radiopigeon.jpg', speed: 2.8, attack: 10, damage: 130, hp: 1120 },
-      pigeonCopter: { img: 'pigobomb.jpg', speed: 2.9, attack: 20, damage: 90, hp: 1330 },
-      feetPigeon: { img: 'feetpigeon.jpg', speed: 2.6, attack: 6, damage: 115, hp: 1500 },
-      doublePigeon: { img: 'digeon.jpg', speed: 2.7, attack: 10, damage: 100, hp: 1400 },
-      emiPigeon: { img: 'emipigeon.jpg', speed: 2.9, attack: 8, damage: 105, hp: 1200 },
-      dentistPigeon: { img: 'dentistpigeon.jpg', speed: 2.5, attack: 10, damage: 116, hp: 2000 },
-      armyPigeon: { img: 'armypigeon.jpg', speed: 2.6, attack: 12, damage: 135, hp: 1300 },
-      sorrelPigeon: { img: 'sorrelpigeon.jpg', speed: 3, attack: 16, damage: 100, hp: 1500 },
-      goonPigeon: { img: 'goonpigeon.jpg', speed: 2.4, attack: 13, damage: 106, hp: 1250 }
+    alert("WARNING! This is a beta version of multiplayer. This version can crash, dont even work and other stuff..  So, report any bugs: ludchoble (discord)")
+    let playerData = {
+      x: 0,
+      y: 0,
+      hp: localStorage.getItem('player_hp') || 100, // Получаем ХП из localStorage
+      pigeon: localStorage.getItem('selectedPigeon') || "defaultPigeon" // Получаем пигеона
     };
 
-    const pigeonKeys = Object.keys(pigeons);
+    const pigeons = {
+      default: { img: 'pigeon.jpg', speed: 5, attack: 10, damage: 0.3, hp: 1200, shootType: 'normal_shoot' },
+      wheelPigeon: { img: 'wheelpigeon.jpg', speed: 7, attack: 2, damage: 0.8, hp: 1000, shootType: 'normal_shoot' },
+      radioPigeon: { img: 'radiopigeon.jpg', speed: 5, attack: 10, damage: 0, radiation: true, hp: 1120, shootType: 'normal_shoot' },
+      pigeonCopter: { img: 'pigobomb.jpg', speed: 6, attack: 20, damage: 1.5, hp: 1330, shootType: 'normal_shoot' },
+      feetPigeon: { img: 'feetpigeon.jpg', speed: 5, attack: 6, damage: 1, kick: true, hp: 1500, shootType: 'normal_shoot' },
+      doublePigeon: { img: 'digeon.jpg', speed: 5, attack: 10, damage: 0.6, hp: 1400, shootType: 'normal_shoot' },
+      emiPigeon: { img: 'emipigeon.jpg', speed: 5, attack: 8, damage: 0.655, hp: 1200, shootType: 'emishoot' },
+      dentistPigeon: { img: 'dentistpigeon.jpg', speed: 5, attack: 10, damage: 0.55, hp: 2000, shootType: 'normal_shoot' },
+      armyPigeon: { img: 'armypigeon.jpg', speed: 5, attack: 12, damage: 0.55, hp: 1300, shootType: 'green_short' },
+      sorrelPigeon: { img: 'sorrelpigeon.jpg', speed: 6.5, attack: 16, damage: 0.5, hp: 1500, shootType: 'green_short' },
+      goonPigeon: { img: 'goonpigeon.jpg', speed: 4.5, attack: 13, damage: 0.56, hp: 1250, shootType: 'white_shoot', humanLegs: true, confusionAura: true }
+    };
 
-    class Player {
-      constructor(x, y, direction, fireKey) {
-        const pigeonType = pigeons[pigeonKeys[Math.floor(Math.random() * pigeonKeys.length)]];
-        this.x = x;
-        this.y = y;
-        this.size = 50;
-        this.speed = pigeonType.speed;
-        this.attack = pigeonType.attack;
-        this.damage = pigeonType.damage;
-        this.hp = pigeonType.hp;
-        this.image = new Image();
-        this.image.src = pigeonType.img;
-        this.bullets = [];
-        this.direction = { x: 0, y: 0 };
-        this.fireKey = fireKey;
-        this.dirX = direction;
+    // Здесь указываем правильный URL сервера
+    const serverUrl = 'https://pigeonbattle.onrender.com';
+
+    let joystick = nipplejs.create({
+      zone: document.getElementById('joystick-container'),
+      mode: 'static',
+      position: { left: '50%', top: '50%' },
+      color: 'green'
+    });
+
+    joystick.on('move', (event, data) => {
+      // Управление движением через джойстик
+      playerData.x += data.vector.x * 10; // Умножаем на коэффициент для скорости
+      playerData.y -= data.vector.y * 10;
+      updatePosition();
+    });
+
+    // Управление через клавиши WASD
+    window.addEventListener('keydown', (event) => {
+      switch(event.key) {
+        case 'w':
+          playerData.y -= 10;
+          break;
+        case 'a':
+          playerData.x -= 10;
+          break;
+        case 's':
+          playerData.y += 10;
+          break;
+        case 'd':
+          playerData.x += 10;
+          break;
       }
+      updatePosition();
+    });
 
-      update() {
-        this.x += this.direction.x * this.speed;
-        this.y += this.direction.y * this.speed;
+    function updatePosition() {
+      // Обновление позиции пижона
+      const pigeonImage = document.getElementById('pigeon-image');
+      pigeonImage.style.left = `${playerData.x}px`;
+      pigeonImage.style.top = `${playerData.y}px`;
 
-        this.x = Math.max(0, Math.min(canvas.width - this.size, this.x));
-        this.y = Math.max(0, Math.min(canvas.height - this.size, this.y));
-
-        this.bullets.forEach(b => b.update());
-        this.bullets = this.bullets.filter(b => b.active);
-      }
-
-      draw() {
-        ctx.drawImage(this.image, this.x, this.y, this.size, this.size);
-        this.bullets.forEach(b => b.draw());
-      }
-
-      shoot() {
-        this.bullets.push(new Bullet(this.x + this.size / 2, this.y + this.size / 2, this.dirX, this.damage));
-      }
+      // Отправка обновлений позиции на сервер
+      fetch(`${serverUrl}/update_position`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(playerData)
+      }).catch(error => console.error("Error sending position:", error));
     }
 
-    class Bullet {
-      constructor(x, y, dirX, damage) {
-        this.x = x;
-        this.y = y;
-        this.size = 5;
-        this.speed = 6 * dirX;
-        this.active = true;
-        this.damage = damage;
-      }
-
-      update() {
-        this.x += this.speed;
-        if (this.x < 0 || this.x > canvas.width) this.active = false;
-      }
-
-      draw() {
-        ctx.fillStyle = 'white';
-        ctx.fillRect(this.x - this.size / 2, this.y, this.size, 5);
-      }
-
-      hits(player) {
-        return this.x > player.x && this.x < player.x + player.size &&
-               this.y > player.y && this.y < player.y + player.size;
-      }
+    function checkMultiplayerStatus() {
+      // Запрос на сервер, чтобы проверить статус мультиплеера
+      fetch(`${serverUrl}/multiplayer`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === 'waiting') {
+            document.getElementById('waiting-text').style.display = 'block';
+          } else {
+            document.getElementById('waiting-text').style.display = 'none';
+          }
+        })
+        .catch(error => console.error("Error fetching multiplayer status:", error));
     }
 
-    let gameOver = false;
+    // Запросить статус мультиплеера при загрузке
+    checkMultiplayerStatus();
+    setInterval(checkMultiplayerStatus, 3000); // Проверять каждые 3 секунды
 
-    const player1 = new Player(100, canvas.height / 2, 1, 'fire1');
-    const player2 = new Player(canvas.width - 150, canvas.height / 2, -1, 'fire2');
+    // Отправка пинга на сервер
+    fetch(`${serverUrl}/ping`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        player_id: 'some-player-id' // передаем сюда player_id
+      })
+    }).then(response => response.json())
+      .then(data => console.log(data))
+      .catch(error => console.error("Error sending ping:", error));
 
-    const joystick1 = nipplejs.create({ zone: document.getElementById('joystick1'), mode: 'static', position: { left: '80px', bottom: '120px' } });
-    joystick1.on('move', (e, data) => {
-      player1.direction = { x: data.vector.x, y: -data.vector.y }; // invert Y-axis
-    });
-    joystick1.on('end', () => { player1.direction = { x: 0, y: 0 }; });
-
-    const joystick2 = nipplejs.create({ zone: document.getElementById('joystick2'), mode: 'static', position: { right: '80px', bottom: '120px' } });
-    joystick2.on('move', (e, data) => {
-      player2.direction = { x: data.vector.x, y: -data.vector.y }; // invert Y-axis
-    });
-    joystick2.on('end', () => { player2.direction = { x: 0, y: 0 }; });
-
-    let touchStartTime1 = 0;
-    let touchStartTime2 = 0;
-
-    document.getElementById('fire1').addEventListener('touchstart', () => {
-      touchStartTime1 = Date.now();
-    });
-    document.getElementById('fire1').addEventListener('touchend', () => {
-      if (Date.now() - touchStartTime1 < 300) {
-        player1.shoot();
-      }
-    });
-
-    document.getElementById('fire2').addEventListener('touchstart', () => {
-      touchStartTime2 = Date.now();
-    });
-    document.getElementById('fire2').addEventListener('touchend', () => {
-      if (Date.now() - touchStartTime2 < 300) {
-        player2.shoot();
-      }
-    });
-
-    function gameLoop() {
-      if (gameOver) return;
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      player1.update();
-      player2.update();
-
-      player1.draw();
-      player2.draw();
-
-      player1.bullets.forEach(b => {
-        if (b.hits(player2)) {
-          player2.hp -= b.damage;
-          b.active = false;
-        }
-      });
-
-      player2.bullets.forEach(b => {
-        if (b.hits(player1)) {
-          player1.hp -= b.damage;
-          b.active = false;
-        }
-      });
-
-      document.getElementById('stats').innerText =
-        `P1 HP: ${Math.max(0, Math.floor(player1.hp))} | P2 HP: ${Math.max(0, Math.floor(player2.hp))}`;
-
-      if (player1.hp <= 0) {
-        alert('Player 2 wins!');
-        gameOver = true;
-      } else if (player2.hp <= 0) {
-        alert('Player 1 wins!');
-        gameOver = true;
-      }
-
-      if (!gameOver) requestAnimationFrame(gameLoop);
+    // Функция для отображения картинки выбранного пижона
+    function displayPigeonImage() {
+      const pigeon = pigeons[playerData.pigeon];
+      const pigeonImage = document.getElementById('pigeon-image');
+      pigeonImage.src = pigeon.img;
+      pigeonImage.style.display = 'block'; // Показываем картинку
     }
 
-    gameLoop();
+    // Отображаем картинку пижона сразу после загрузки
+    displayPigeonImage();
+
+    // Проверка выигрыша
+    function checkGameOutcome() {
+      // Пример: если пижон побеждает, показываем alert и прибавляем +10 к монетам
+      let gameResult = "win"; // Или "lose" в случае проигрыша
+      if (gameResult === "win") {
+        alert("You win! +10 coins");
+        let pigeonCoins = parseInt(localStorage.getItem('pigeonCoins')) || 0;
+        pigeonCoins += 10;
+        localStorage.setItem('pigeonCoins', pigeonCoins);
+      } else {
+        alert("You lose! Better luck next time!");
+      }
+    }
   </script>
 </body>
 </html>
