@@ -83,5 +83,17 @@ def find_enemy():
         "pigeon": opponent['pigeon']
     })
 
+@app.route("/getGameData", methods=["GET"])
+def get_game_data():
+    try:
+        
+        game_data = {
+            "players": len(pigeons),  # например, количество игроков
+            "status": "Game data available"
+        }
+        return jsonify(game_data)
+    except Exception as e:
+        return jsonify({"error": f"Getting data server error. {str(e)}"}), 500
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
