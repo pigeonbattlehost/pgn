@@ -19,17 +19,16 @@ def ping():
         players[new_id] = {"last_seen": time.time(), "status": "waiting", "state": {}}
         return jsonify({"player_id": new_id}), 201
 
-# also returning latest count of pigeons for 40 sec
-now = time.time()
-online_count = sum(1 for p in players.values() if now - p["last_seen"] <= 40)
+    # also returning latest count of pigeons for 40 sec
+    now = time.time()
+    online_count = sum(1 for p in players.values() if now - p["last_seen"] <= 40)
 
-return jsonify({
-    "status": "pong",
-    "player_id": player_id,
-    "pigeons_online": online_count
-}), 200
-    players[player_id]["last_seen"] = time.time()
-    return jsonify({"status": "pong", "player_id": player_id}), 200
+    players[player_id]["last_seen"] = now
+    return jsonify({
+        "status": "pong",
+        "player_id": player_id,
+        "pigeons_online": online_count
+    }), 200
 
 @app.route('/multiplayerPing', methods=['GET'])
 def multiplayer_ping():
