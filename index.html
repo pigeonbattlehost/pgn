@@ -86,15 +86,15 @@
     #shopButton { background: #ffaa00; color: black; }
     #pigeonsButton { background: #aaa; color: black; }
     #multiplayer {
-  background: #000; /* Полностью черный фон */
+  background: #333; /* Темный фон, чтобы не сильно выделялась */
   color: white;
   border: 2px solid #555; /* Легкая граница */
   padding: 10px 20px;
   font-size: 16px;
   border-radius: 8px; /* Скругленные углы */
+  text-transform: uppercase; /* Капс */
   cursor: pointer;
   transition: all 0.3s ease; /* Плавный переход */
-  text-transform: none; /* Без капса */
 }
 
 #multiplayer:hover {
@@ -221,7 +221,7 @@ h1, h2, h3 {
     <h3>May Update!</h3>
     <div id="coinsDisplay">Coins: 0</div>
     <button id="playButton">Play</button>
-    <button id="multiplayer">Multiplayer</button>
+    <button id="multiplayerBtn">Multiplayer</button>
     <button id="shopButton">Shop</button>
     <button id="pigeonsButton">Pigeons</button>
     
@@ -315,19 +315,11 @@ h1, h2, h3 {
 
   <script>
       
-   // Пинг каждый 5 секунд
-setInterval(() => {
-   fetch("https://pigeonbattle.onrender.com/ping", {
-        method: "POST"
-    }).then(() => {
-        console.log("Pinging server...");
-    }).catch(error => console.error('Ping error:', error));
-}, 30000);
-
+      
 const playerId = localStorage.getItem('player_id') || crypto.randomUUID();
 localStorage.setItem('player_id', playerId);
 
-// Получение количества онлайн пижонов с UUID
+
 fetch("https://pigeonbattle.onrender.com/ping", {
   method: "POST",
   headers: {
@@ -335,13 +327,12 @@ fetch("https://pigeonbattle.onrender.com/ping", {
   },
   body: JSON.stringify({ player_id: playerId })
 })
-  .then(res => res.json())  // Получаем JSON с количеством пижонов
-  .then(data => {
-    let pigeonText = data.pigeons_online === 1 ? "pigeon online" : "pigeons online";
-    document.getElementById("onlineStatus").innerText = "~ " + data.pigeons_online + " " + pigeonText;
+  .then(res => res.json())  // Получаем количество пижонов
+  .then(onlineCount => {
+    document.getElementById("onlineStatus").innerText = "~ " + onlineCount + " pigeons online";
   })
   .catch(error => console.error('Error fetching data:', error));
-    
+  
 src="https://cdn.jsdelivr.net/npm/nipplejs@0.8.0/dist/nipplejs.min.js"
     setTimeout(() => {
   const splash = document.getElementById('splash');
