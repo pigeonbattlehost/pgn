@@ -19,7 +19,7 @@ def ping():
         players[new_id] = {"last_seen": time.time(), "status": "waiting", "state": {}}
         return jsonify({"player_id": new_id}), 201
 
-# also returning latest count of pigeons for 60 sec
+# also returning latest count of pigeons for 40 sec
 now = time.time()
 online_count = sum(1 for p in players.values() if now - p["last_seen"] <= 40)
 
