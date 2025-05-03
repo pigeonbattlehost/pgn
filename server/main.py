@@ -6,7 +6,7 @@ import time
 app = Flask(__name__)
 CORS(app)
 
-players = {}  # UUID -> dict с инфой
+players = {}  # UUID -> dict with player info
 
 @app.route('/ping', methods=['POST'])
 def ping():
@@ -14,13 +14,17 @@ def ping():
     player_id = data.get('player_id')
 
     if not player_id or player_id not in players:
-        # Новый игрок — выдаём UUID
+        # New player joins — generate UUID
         new_id = str(uuid.uuid4())
         players[new_id] = {"last_seen": time.time(), "status": "waiting", "state": {}}
         return jsonify({"player_id": new_id}), 201
 
     players[player_id]["last_seen"] = time.time()
     return jsonify({"status": "pong", "player_id": player_id}), 200
+
+@app.route('/multiplayerPing', methods=['GET'])
+def multiplayer_ping():
+    return jsonify({"status": "online", "message": "Pigeon Battle multiplayer server is alive!"}), 200
 
 @app.route('/players', methods=['GET'])
 def get_players():
@@ -52,7 +56,7 @@ def match():
 def sync():
     data = request.get_json()
     player_id = data.get("player_id")
-    state = data.get("state")  # позиция, угол, хп, всё что надо
+    state = data.get("state")  # position, angle, hp, etc.
 
     if player_id not in players:
         return jsonify({"error": "Player not found"}), 400
@@ -60,7 +64,7 @@ def sync():
     players[player_id]["last_seen"] = time.time()
     players[player_id]["state"] = state
 
-    # Отдаём инфу о других игроках (без него самого)
+    # Return state of other players (excluding self)
     now = time.time()
     visible = {
         pid: pdata["state"]
