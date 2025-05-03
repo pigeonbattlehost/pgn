@@ -24,13 +24,25 @@ def ping():
 
 @app.route('/multiplayerPing', methods=['GET'])
 def multiplayer_ping():
-    return jsonify({"status": "online", "message": "Pigeon Battle multiplayer server is alive!"}), 200
+    player_id = request.args.get('player_id')
 
-@app.route('/players', methods=['GET'])
-def get_players():
-    now = time.time()
-    active_players = [pid for pid, p in players.items() if now - p["last_seen"] < 10]
-    return jsonify({"active_players": active_players}), 200
+    if not player_id or player_id not in players:
+        # New player — generate UUID
+        new_id = str(uuid.uuid4())
+        players[new_id] = {"last_seen": time.time(), "status": "waiting", "state": {}}
+        return jsonify({
+            "status": "online",
+            "message": "New player created",
+            "player_id": new_id
+        }), 201
+
+    # Existing player — just update activity
+    players[player_id]["last_seen"] = time.time()
+    return jsonify({
+        "status": "online",
+        "message": "Player already active",
+        "player_id": player_id
+    }), 200
 
 @app.route('/match', methods=['POST'])
 def match():
