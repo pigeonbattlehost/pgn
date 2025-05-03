@@ -42,6 +42,13 @@
       background-size: cover;
       background-image: url(pigeon.jpg); /* Изображение пижона */
     }
+    
+    #enemy-pigeon {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  background-size: cover;
+}
 
     .joystick {
       position: absolute;
@@ -102,6 +109,7 @@
   </div>
   <div id="game-container">
     <div id="pigeon"></div>
+    <div id="enemy-pigeon"></div>
     <div id="left-joystick" class="joystick"></div>
     <div id="right-joystick" class="joystick"></div>
   </div>
@@ -131,6 +139,24 @@
       sorrelPigeon: { img: 'sorrelpigeon.jpg', speed: 6.5, attack: 16, damage: 0.5, hp: 1500, shootType: 'green_short' },
       goonPigeon: { img: 'goonpigeon.jpg', speed: 4.5, attack: 13, damage: 0.56, hp: 1250, shootType: 'white_shoot', humanLegs: true, confusionAura: true }
     };
+
+
+
+function shoot(x, y, angle) {
+  const pigeon = pigeons[selectedPigeon];
+  if (shootEffects[pigeon.shootType]) {
+    shootEffects[pigeon.shootType](x, y, angle);
+  }
+}
+
+function updateShooting(x, y, joy2X, joy2Y) {
+  const deadzone = 0.2; // чтобы не срабатывало от малейшего движения
+
+  if (Math.abs(joy2X) > deadzone || Math.abs(joy2Y) > deadzone) {
+    const angle = Math.atan2(joy2Y, joy2X); // вычисляем угол
+    shoot(x, y, angle);
+  }
+}
 
     const shootEffects = {
       normal_shoot: (x, y, direction) => {
@@ -230,16 +256,22 @@
     }
 
     function updateEnemyState(enemy) {
-      enemyHP = enemy.hp;
-      enemyX = enemy.position.x;
-      enemyY = enemy.position.y;
-      enemyAttack = enemy.attack;
-    }
+  enemyHP = enemy.hp;
+  document.getElementById('enemy-health').style.width = `${enemyHP / 20}%`;
 
-    function shoot(x, y, angle) {
-      const pigeon = pigeons[selectedPigeon];
-      shootEffects[pigeon.shootType](x, y, angle);
-    }
+  const enemyElement = document.getElementById('enemy-pigeon');
+  enemyElement.style.left = `${enemy.position.x}px`;
+  enemyElement.style.top = `${enemy.position.y}px`;
+
+  // Врубай вражеский скин
+  let enemySkin = pigeons[enemy.selectedPigeon]?.img || 'pigeon.jpg';
+  enemyElement.style.backgroundImage = `url(${enemySkin})`;
+
+  // И если он атакует — стреляем
+  if (enemy.attack && shootEffects[enemy.attack]) {
+    shootEffects[enemy.attack](enemy.position.x, enemy.position.y, Math.random() * 360); // пофиг направление пока
+  }
+}
 
     const leftJoystick = nipplejs.create({
       zone: document.getElementById('left-joystick'),
