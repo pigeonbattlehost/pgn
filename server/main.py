@@ -100,9 +100,9 @@ def sync():
 
     return jsonify({"others": visible}), 200
 
-# Роут для обновления потраченных коинов
 @app.route('/updateSpentCoins', methods=['POST'])
 def update_spent_coins():
+    global pigeon_fund
     data = request.get_json()
     player_id = data.get('player_id')
     amount = data.get('amount')
@@ -113,9 +113,14 @@ def update_spent_coins():
     if amount is None or not isinstance(amount, int) or amount <= 0:
         return jsonify({"error": "Invalid amount"}), 400
 
-    # Обновляем потраченные коины
     players[player_id]["spent_coins"] += amount
-    return jsonify({"message": f"Spent {amount} coins", "spent_coins": players[player_id]["spent_coins"]}), 200
+    pigeon_fund += amount  # <-- ЭТО ДОБАВЬ, иначе фонд не растёт!
+
+    return jsonify({
+        "message": f"Spent {amount} coins",
+        "spent_coins": players[player_id]["spent_coins"],
+        "total_fund": pigeon_fund
+    }), 200
 
 # Роут для получения потраченных коинов
 @app.route('/getSpentCoins', methods=['GET'])
