@@ -352,7 +352,7 @@ fetch("https://pigeonbattle.onrender.com/getTotalFund")
     document.getElementById("pigeonFundDisplay").innerText = "Pigeon Fund: " + data.pigeon_fund;
   })
   .catch(error => console.error('Error fetching total fund:', error));
-
+  
 fetch("https://pigeonbattle.onrender.com/ping", {
   method: "POST",
   headers: {
@@ -405,9 +405,9 @@ function buyClassicPigeon() {
 
     // Обновляем отображение монет
     updateCoinsDisplay();
+    updateSpentCoins(225);
   } else {
     alert('Already purcashed, or no money..');
-    updateSpentCoins(225);
   }
 }
     // Проверка активности улучшения
@@ -632,8 +632,7 @@ botImg.src = bot.img;
 
     document.getElementById('playButton').onclick = () => {
       document.getElementById('menu').style.display = 'none';
-      
-document.getElementById('gameContainer').style.display = 'block';
+      document.getElementById('gameContainer').style.display = 'block';
       gameStarted = true;
       draw();
     };
