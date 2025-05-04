@@ -241,10 +241,8 @@ h1, h2, h3 {
     <button id="pigeonsButton">Pigeons</button>
     <button class="about-btn" onclick="window.location.href='about.html'">About</button>
     
-    
-      
-    
     <div id="onlineStatus">Loading pigeons...</div>
+    <div id="pigeonFundDisplay">Pigeon Fund: 0</div>
   </div>
   
  <div id="shop" style="display:none;">
@@ -319,6 +317,12 @@ h1, h2, h3 {
     <button onclick="buyClassicPigeon()">Buy</button>
   </div>
   
+  <h2>Cases</h2>
+  <div class="pigeon-card">
+    <img src="pigeoncase.jpg" alt="Pigeon Case">
+    <p>Pigeon Case<br>You can get coins, or pigeon. Take a risk?<br>70 pigeon coins</p>
+    <button onclick="openCase()">Buy</button>
+  </div>
    
 
   <button onclick="closeShop()">Back</button>
@@ -338,11 +342,24 @@ h1, h2, h3 {
 
   <script>
       
-      
+
+  
 const playerId = localStorage.getItem('player_id') || crypto.randomUUID();
 localStorage.setItem('player_id', playerId);
 
 
+fetch(`https://pigeonbattle.onrender.com/getSpentCoins?player_id=${playerId}`, {
+  method: "GET",
+  headers: {
+    "Content-Type": "application/json"
+  }
+})
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("pigeonFundDisplay").innerText = "Pigeon Fund: " + data.spent_coins;
+  })
+  .catch(error => console.error('Error fetching spent coins data:', error));
+  
 fetch("https://pigeonbattle.onrender.com/ping", {
   method: "POST",
   headers: {
@@ -397,6 +414,7 @@ function buyClassicPigeon() {
     updateCoinsDisplay();
   } else {
     alert('Already purcashed, or no money..');
+    updateSpentCoins(225);
   }
 }
     // Проверка активности улучшения
@@ -468,6 +486,78 @@ function isQuantumPigeonActive() {
     let coins = parseInt(localStorage.getItem('pigeonCoins') || '0');
     const owned = JSON.parse(localStorage.getItem('ownedPigeons') || '["default"]');
     let selected = localStorage.getItem('selectedPigeon') || 'default';
+
+function updateSpentCoins(amount) {
+  fetch("https://pigeonbattle.onrender.com/updateSpentCoins", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      player_id: playerId,
+      amount_spent: amount
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    console.log('Successfully updated spent coins:', data);
+  })
+  .catch(error => console.error('Error updating spent coins:', error));
+}
+
+function openCase() {
+    // Subtract 70 coins
+    coins -= 70;
+
+    // Generate a random chance between 0 and 100
+    let chance = Math.random() * 100;
+
+    // If the chance is less than or equal to 75, coins are awarded
+    if (chance <= 75) {
+        let coinAmount = Math.floor(Math.random() * 140) + 10;
+        coins += coinAmount;
+        alert(`You got ${coinAmount} PigeonCoins! Your balance: ${coins}`);
+    } else {
+        // Else, a random pigeon id is chosen from the pigeons object
+        const pigeonIds = Object.keys(pigeons); // Get all pigeon ids
+        let pigeonId = pigeonIds[Math.floor(Math.random() * pigeonIds.length)];
+
+        // Function to calculate rarity based on stats
+        function calculateRarity(pigeon) {
+            let rarity = 0;
+            rarity += pigeon.attack * 0.3;  // Weight attack
+            rarity += pigeon.speed * 0.2;   // Weight speed
+            rarity += pigeon.hp * 0.1;      // Weight hp
+            rarity += pigeon.damage * 0.4;  // Weight damage
+            if (pigeon.shootType === 'green_short' || pigeon.shootType === 'white_shoot' || pigeon.shootType === 'ball_shoot') {
+                rarity += 10; // Extra weight for special shoot types
+            }
+            return rarity;
+        }
+
+        // Check if the pigeon already exists in the inventory
+        let pigeonsStorage = JSON.parse(localStorage.getItem('pigeons')) || [];
+        
+        if (pigeonsStorage.includes(pigeonId)) {
+            alert(`You already have this pigeon with ID: ${pigeonId}. Try again!`);
+        } else {
+            // Calculate the rarity of the selected pigeon
+            let pigeon = pigeons[pigeonId];
+            let rarity = calculateRarity(pigeon);
+
+            // Calculate the probability based on rarity
+            let rarityChance = Math.random() * 100;
+            if (rarityChance < rarity) {
+                pigeonsStorage.push(pigeonId);
+                localStorage.setItem('pigeons', JSON.stringify(pigeonsStorage));
+                alert(`You got a rare pigeon with ID: ${pigeonId}. It's now in your inventory.`);
+            } else {
+                alert(`You got a common pigeon with ID: ${pigeonId}. It's now in your inventory.`);
+updateSpentCoins(70);
+            }
+        }
+    }
+}
 
 function comp() {
   if (!localStorage.getItem('compReceived')) {
@@ -591,10 +681,11 @@ botImg.src = bot.img;
         localStorage.setItem('pigeonCoins', coins);
         localStorage.setItem('ownedPigeons', JSON.stringify(owned));
         alert(id + ' bought!');
-      } else {
+        } else {
         alert('Not enough coins or already owned');
       }
       updateCoinsDisplay();
+      updateSpentCoins(cost);
     }
     
     function shootWhite(player, bullets, dmgBoost) {
