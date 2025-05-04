@@ -128,5 +128,9 @@ def get_spent_coins():
     spent_coins = players[player_id]["spent_coins"]
     return jsonify({"spent_coins": spent_coins}), 200
 
+@app.route('/getTotalFund', methods=['GET'])
+def get_total_fund():
+    return jsonify({"pigeon_fund": pigeon_fund}), 200
+
 if __name__ == '__main__':
     app.run(debug=True)
