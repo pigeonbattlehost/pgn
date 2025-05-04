@@ -4,7 +4,8 @@ import uuid
 import time
 
 app = Flask(__name__)
-CORS(app)
+
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 players = {}  # UUID -> dict with player info
 
