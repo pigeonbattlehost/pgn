@@ -544,7 +544,7 @@ function openCase() {
         }
 
         // Проверяем, есть ли уже такой голубь в инвентаре
-        let pigeonsStorage = JSON.parse(localStorage.getItem('pigeons')) || [];
+        let pigeonsStorage = JSON.parse(localStorage.getItem('ownedPigeons')) || [];
         
         if (pigeonsStorage.includes(pigeonId)) {
             alert(`You already have this pigeon with ID: ${pigeonId}. Try again!`);
