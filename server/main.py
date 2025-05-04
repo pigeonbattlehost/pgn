@@ -9,21 +9,23 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 
 players = {}  # UUID -> dict with player info
 
+# global variable for storing pigeons spend
+pigeon_fund = 0
+
 @app.route('/ping', methods=['POST'])
 def ping():
     data = request.get_json()
     player_id = data.get('player_id')
 
     if not player_id or player_id not in players:
-        # Новый игрок заходит — генерируем UUID
+        # uuid gen
         new_id = str(uuid.uuid4())
         players[new_id] = {"last_seen": time.time(), "status": "waiting", "state": {}, "spent_coins": 0}
     else:
-        # Для существующего игрока обновляем время последнего посещения
         now = time.time()
         players[player_id]["last_seen"] = now
 
-    # Подсчитываем количество онлайн пижонов за последние 40 секунд
+    # counting online
     now = time.time()
     online_count = sum(1 for p in players.values() if now - p["last_seen"] <= 40)
 
@@ -34,7 +36,7 @@ def multiplayer_ping():
     player_id = request.args.get('player_id')
 
     if not player_id or player_id not in players:
-        # Новый игрок — генерируем UUID
+        
         new_id = str(uuid.uuid4())
         players[new_id] = {"last_seen": time.time(), "status": "waiting", "state": {}, "spent_coins": 0}
         return jsonify({
@@ -43,7 +45,7 @@ def multiplayer_ping():
             "player_id": new_id
         }), 201
 
-    # Существующий игрок — просто обновляем активность
+    
     players[player_id]["last_seen"] = time.time()
     return jsonify({
         "status": "online",
