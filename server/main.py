@@ -72,9 +72,9 @@ def match():
 
 @app.route('/sync', methods=['POST'])
 def sync():
-    data = request.get_json()
+    data = request.get_json()  # Данные от клиента
     player_id = data.get("player_id")
-    state = data.get("state")  # position, angle, hp, etc.
+    state = data.get("state")  # Состояние игрока, например позиция, хп, и т.д.
 
     if player_id not in players:
         return jsonify({"error": "Player not found"}), 400
@@ -82,13 +82,18 @@ def sync():
     players[player_id]["last_seen"] = time.time()
     players[player_id]["state"] = state
 
-    # Return state of other players (excluding self)
+    # Логируем полученные данные
+    print(f"Sync received for player {player_id}: {state}")
+
+    # Возвращаем состояние других игроков
     now = time.time()
     visible = {
         pid: pdata["state"]
         for pid, pdata in players.items()
         if pid != player_id and now - pdata["last_seen"] < 10
     }
+
+    print(f"Visible players for {player_id}: {visible}")
 
     return jsonify({"others": visible}), 200
 
