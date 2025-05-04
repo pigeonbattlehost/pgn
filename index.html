@@ -508,46 +508,52 @@ function updateSpentCoins(amount) {
 }
 
 function openCase() {
-    // Subtract 70 coins
+    // Проверка, достаточно ли денег для открытия кейса (70 монет)
+    if (coins < 70) {
+        alert("Not enough coins to open the case!");
+        return; // Прерываем выполнение функции, если нет достаточно средств
+    }
+
+    // Если денег хватает, вычитаем 70 монет
     coins -= 70;
 
-    // Generate a random chance between 0 and 100
+    // Генерируем случайное число от 0 до 100
     let chance = Math.random() * 100;
 
-    // If the chance is less than or equal to 75, coins are awarded
+    // Если шанс меньше или равен 75, даём монеты
     if (chance <= 75) {
         let coinAmount = Math.floor(Math.random() * 140) + 10;
         coins += coinAmount;
         alert(`You got ${coinAmount} PigeonCoins! Your balance: ${coins}`);
     } else {
-        // Else, a random pigeon id is chosen from the pigeons object
-        const pigeonIds = Object.keys(pigeons); // Get all pigeon ids
+        // Иначе, случайным образом выбираем pigeon ID из объекта pigeons
+        const pigeonIds = Object.keys(pigeons); // Получаем все ID голубей
         let pigeonId = pigeonIds[Math.floor(Math.random() * pigeonIds.length)];
 
-        // Function to calculate rarity based on stats
+        // Функция для вычисления редкости на основе статистики
         function calculateRarity(pigeon) {
             let rarity = 0;
-            rarity += pigeon.attack * 0.3;  // Weight attack
-            rarity += pigeon.speed * 0.2;   // Weight speed
-            rarity += pigeon.hp * 0.1;      // Weight hp
-            rarity += pigeon.damage * 0.4;  // Weight damage
+            rarity += pigeon.attack * 0.3;  // Взвешиваем атаку
+            rarity += pigeon.speed * 0.2;   // Взвешиваем скорость
+            rarity += pigeon.hp * 0.1;      // Взвешиваем здоровье
+            rarity += pigeon.damage * 0.4;  // Взвешиваем урон
             if (pigeon.shootType === 'green_short' || pigeon.shootType === 'white_shoot' || pigeon.shootType === 'ball_shoot') {
-                rarity += 10; // Extra weight for special shoot types
+                rarity += 10; // Дополнительный вес для особых типов стрельбы
             }
             return rarity;
         }
 
-        // Check if the pigeon already exists in the inventory
+        // Проверяем, есть ли уже такой голубь в инвентаре
         let pigeonsStorage = JSON.parse(localStorage.getItem('pigeons')) || [];
         
         if (pigeonsStorage.includes(pigeonId)) {
             alert(`You already have this pigeon with ID: ${pigeonId}. Try again!`);
         } else {
-            // Calculate the rarity of the selected pigeon
+            // Вычисляем редкость выбранного голубя
             let pigeon = pigeons[pigeonId];
             let rarity = calculateRarity(pigeon);
 
-            // Calculate the probability based on rarity
+            // Рассчитываем вероятность по редкости
             let rarityChance = Math.random() * 100;
             if (rarityChance < rarity) {
                 pigeonsStorage.push(pigeonId);
@@ -555,8 +561,8 @@ function openCase() {
                 alert(`You got a rare pigeon with ID: ${pigeonId}. It's now in your inventory.`);
             } else {
                 alert(`You got a common pigeon with ID: ${pigeonId}. It's now in your inventory.`);
-updateSpentCoins(70);
             }
+            updateSpentCoins(70);
         }
     }
 }
