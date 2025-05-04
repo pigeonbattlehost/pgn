@@ -48,6 +48,8 @@
   width: 100px;
   height: 100px;
   background-size: cover;
+  border: 2px solid-red;
+  z-index: 192636;
 }
 
     .joystick {
@@ -119,13 +121,16 @@
     const serverUrl = 'https://pigeonbattle.onrender.com';
     let playerId = localStorage.getItem('player_id');
     let selectedPigeon = localStorage.getItem('selectedPigeon') || 'default';
+    
 
     // Начальные параметры пижона
     let playerHP = 1200;
     let playerX = 50;
     let playerY = 50;
     let lastAttackType = 'normal_shoot';
-
+    
+    let playerPosition = { x: playerX, y: playerY };
+    let playerAngle = 0;  // Инициализация угла
     const pigeons = {
       default: { img: 'pigeon.jpg', speed: 5, attack: 10, damage: 0.3, hp: 1200, shootType: 'normal_shoot' },
       wheelPigeon: { img: 'wheelpigeon.jpg', speed: 7, attack: 2, damage: 0.8, hp: 1000, shootType: 'normal_shoot' },
@@ -203,7 +208,11 @@ function updateShooting(x, y, joy2X, joy2Y) {
         document.getElementById('status').innerText = 'Failed to connect to server.';
       }
     }
-    
+    function startSyncLoop() {
+  setInterval(async () => {
+    await syncGameState();  // Отправка состояния игрока на сервер
+  }, 1000);  // Каждую секунду (1000 мс)
+}
     async function findOpponent() {
       try {
         const response = await fetch(`${serverUrl}/match`, {
@@ -228,33 +237,35 @@ function updateShooting(x, y, joy2X, joy2Y) {
       }
     }
 
-    function startSyncLoop() {
-      setInterval(async () => {
-        try {
-          const gameState = {
-            player_id: playerId,
-            hp: playerHP,
-            position: { x: playerX, y: playerY },
-            attack: lastAttackType
-          };
+    const playerState = {
+  position: playerPosition,
+  angle: playerAngle,
+  hp: playerHP
+};
 
-          const response = await fetch(`${serverUrl}/sync`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(gameState)
-          });
+console.log("Sending sync with player state:", playerState);
 
-          const data = await response.json();
+async function syncGameState() {
+  try {
+    const response = await fetch(`${serverUrl}/sync`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        player_id: playerId,
+        state: playerState
+      })
+    });
 
-          if (data.enemy) {
-            updateEnemyState(data.enemy);
-          }
+    const data = await response.json();
 
-        } catch (err) {
-          console.error('Sync error:', err);
-        }
-      }, 1000); 
+    if (data.enemy) {
+      updateEnemyState(data.enemy);
     }
+  } catch (err) {
+    console.error('Sync error:', err);
+  }
+}
+
 
     function updateEnemyState(enemy) {
   enemyHP = enemy.hp;
