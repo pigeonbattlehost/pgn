@@ -17,7 +17,7 @@ def ping():
     if not player_id or player_id not in players:
         # Новый игрок заходит — генерируем UUID
         new_id = str(uuid.uuid4())
-        players[new_id] = {"last_seen": time.time(), "status": "waiting", "state": {}}
+        players[new_id] = {"last_seen": time.time(), "status": "waiting", "state": {}, "spent_coins": 0}
     else:
         # Для существующего игрока обновляем время последнего посещения
         now = time.time()
@@ -34,16 +34,16 @@ def multiplayer_ping():
     player_id = request.args.get('player_id')
 
     if not player_id or player_id not in players:
-        # New player — generate UUID
+        # Новый игрок — генерируем UUID
         new_id = str(uuid.uuid4())
-        players[new_id] = {"last_seen": time.time(), "status": "waiting", "state": {}}
+        players[new_id] = {"last_seen": time.time(), "status": "waiting", "state": {}, "spent_coins": 0}
         return jsonify({
             "status": "online",
             "message": "New player created",
             "player_id": new_id
         }), 201
 
-    # Existing player — just update activity
+    # Существующий игрок — просто обновляем активность
     players[player_id]["last_seen"] = time.time()
     return jsonify({
         "status": "online",
@@ -97,6 +97,34 @@ def sync():
     print(f"Visible players for {player_id}: {visible}")
 
     return jsonify({"others": visible}), 200
+
+# Роут для обновления потраченных коинов
+@app.route('/updateSpentCoins', methods=['POST'])
+def update_spent_coins():
+    data = request.get_json()
+    player_id = data.get('player_id')
+    amount = data.get('amount')
+
+    if not player_id or player_id not in players:
+        return jsonify({"error": "Player not found"}), 400
+
+    if amount is None or not isinstance(amount, int) or amount <= 0:
+        return jsonify({"error": "Invalid amount"}), 400
+
+    # Обновляем потраченные коины
+    players[player_id]["spent_coins"] += amount
+    return jsonify({"message": f"Spent {amount} coins", "spent_coins": players[player_id]["spent_coins"]}), 200
+
+# Роут для получения потраченных коинов
+@app.route('/getSpentCoins', methods=['GET'])
+def get_spent_coins():
+    player_id = request.args.get('player_id')
+
+    if not player_id or player_id not in players:
+        return jsonify({"error": "Player not found"}), 400
+
+    spent_coins = players[player_id]["spent_coins"]
+    return jsonify({"spent_coins": spent_coins}), 200
 
 if __name__ == '__main__':
     app.run(debug=True)
