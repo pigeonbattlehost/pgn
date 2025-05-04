@@ -346,18 +346,13 @@ h1, h2, h3 {
   
 let playerId = localStorage.getItem("playerId");
 
-fetch(`https://pigeonbattle.onrender.com/getSpentCoins?player_id=${playerId}`, {
-  method: "GET",
-  headers: {
-    "Content-Type": "application/json"
-  }
-})
+fetch("https://pigeonbattle.onrender.com/getTotalFund")
   .then(res => res.json())
   .then(data => {
-    document.getElementById("pigeonFundDisplay").innerText = "Pigeon Fund: " + data.spent_coins;
+    document.getElementById("pigeonFundDisplay").innerText = "Pigeon Fund: " + data.pigeon_fund;
   })
-  .catch(error => console.error('Error fetching spent coins data:', error));
-  
+  .catch(error => console.error('Error fetching total fund:', error));
+
 fetch("https://pigeonbattle.onrender.com/ping", {
   method: "POST",
   headers: {
