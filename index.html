@@ -344,9 +344,7 @@ h1, h2, h3 {
       
 
   
-const playerId = localStorage.getItem('player_id') || crypto.randomUUID();
-localStorage.setItem('player_id', playerId);
-
+let playerId = localStorage.getItem("playerId");
 
 fetch(`https://pigeonbattle.onrender.com/getSpentCoins?player_id=${playerId}`, {
   method: "GET",
@@ -487,22 +485,31 @@ function isQuantumPigeonActive() {
     const owned = JSON.parse(localStorage.getItem('ownedPigeons') || '["default"]');
     let selected = localStorage.getItem('selectedPigeon') || 'default';
 
+
+
+if (!playerId) {
+  fetch("https://pigeonbattle.onrender.com/multiplayerPing?player_id=")
+    .then(res => res.json())
+    .then(data => {
+      playerId = data.player_id;
+      localStorage.setItem("playerId", playerId);
+    });
+}
+
 function updateSpentCoins(amount) {
   fetch("https://pigeonbattle.onrender.com/updateSpentCoins", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      player_id: playerId,
-      amount_spent: amount
-    })
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    player_id: playerId,
+    amount
   })
+})
   .then(res => res.json())
-  .then(data => {
-    console.log('Successfully updated spent coins:', data);
-  })
-  .catch(error => console.error('Error updating spent coins:', error));
+  .then(data => console.log("Spent coins updated:", data))
+  .catch(err => console.error("Failed to update coins:", err));
 }
 
 function openCase() {
@@ -630,7 +637,8 @@ botImg.src = bot.img;
 
     document.getElementById('playButton').onclick = () => {
       document.getElementById('menu').style.display = 'none';
-      document.getElementById('gameContainer').style.display = 'block';
+      
+document.getElementById('gameContainer').style.display = 'block';
       gameStarted = true;
       draw();
     };
