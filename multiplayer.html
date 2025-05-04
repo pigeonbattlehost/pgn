@@ -118,6 +118,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/nipplejs@0.10.2/dist/nipplejs.min.js"></script>
   <script>
+      
+   alert("Wait! Because of many reports we are returning multiplayer to beta stage. It cant work, may be unstable... Any reports at discord: ludchoble")
     const serverUrl = 'https://pigeonbattle.onrender.com';
     let playerId = localStorage.getItem('player_id');
     let selectedPigeon = localStorage.getItem('selectedPigeon') || 'default';
@@ -243,7 +245,8 @@ function updateShooting(x, y, joy2X, joy2Y) {
   hp: playerHP
 };
 
-console.log("Sending sync with player state:", playerState);
+console.log('Sending sync with player state:', JSON.stringify(playerState));
+
 
 async function syncGameState() {
   try {
@@ -265,7 +268,6 @@ async function syncGameState() {
     console.error('Sync error:', err);
   }
 }
-
 
     function updateEnemyState(enemy) {
   enemyHP = enemy.hp;
@@ -319,10 +321,15 @@ pigeonElement.style.backgroundImage = `url(${pigeon.img})`;
       }
 
       let left = pigeonElement.offsetLeft + velocity.x * pigeon.speed;
-      let top = pigeonElement.offsetTop + velocity.y * pigeon.speed;
+let top = pigeonElement.offsetTop + velocity.y * pigeon.speed;
 
-      pigeonElement.style.left = `${left}px`;
-      pigeonElement.style.top = `${top}px`;
+pigeonElement.style.left = `${left}px`;
+pigeonElement.style.top = `${top}px`;
+
+// Обновление координат игрока
+playerState.position = { x: left, y: top };  // Обновляем координаты
+      
+      
     });
 
     const rightJoystick = nipplejs.create({
