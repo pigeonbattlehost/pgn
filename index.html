@@ -689,11 +689,11 @@ document.getElementById('gameContainer').style.display = 'block';
         localStorage.setItem('pigeonCoins', coins);
         localStorage.setItem('ownedPigeons', JSON.stringify(owned));
         alert(id + ' bought!');
+        updateSpentCoins(cost);
         } else {
         alert('Not enough coins or already owned');
       }
       updateCoinsDisplay();
-      updateSpentCoins(cost);
     }
     
     function shootWhite(player, bullets, dmgBoost) {
