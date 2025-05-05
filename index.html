@@ -507,63 +507,61 @@ function updateSpentCoins(amount) {
   .catch(err => console.error("Failed to update coins:", err));
 }
 
+
 function openCase() {
-    // Проверка, достаточно ли денег для открытия кейса (70 монет)
     if (coins < 70) {
         alert("Not enough coins to open the case!");
-        return; // Прерываем выполнение функции, если нет достаточно средств
+        return;
     }
 
-    // Если денег хватает, вычитаем 70 монет
     coins -= 70;
+    localStorage.setItem('pigeonCoins', coins.toString());
 
-    // Генерируем случайное число от 0 до 100
     let chance = Math.random() * 100;
 
-    // Если шанс меньше или равен 75, даём монеты
     if (chance <= 75) {
         let coinAmount = Math.floor(Math.random() * 140) + 10;
         coins += coinAmount;
+        localStorage.setItem('pigeonCoins', coins.toString());
         alert(`You got ${coinAmount} PigeonCoins! Your balance: ${coins}`);
     } else {
-        // Иначе, случайным образом выбираем pigeon ID из объекта pigeons
-        const pigeonIds = Object.keys(pigeons); // Получаем все ID голубей
+        const pigeonIds = Object.keys(pigeons);
         let pigeonId = pigeonIds[Math.floor(Math.random() * pigeonIds.length)];
 
-        // Функция для вычисления редкости на основе статистики
         function calculateRarity(pigeon) {
             let rarity = 0;
-            rarity += pigeon.attack * 0.3;  // Взвешиваем атаку
-            rarity += pigeon.speed * 0.2;   // Взвешиваем скорость
-            rarity += pigeon.hp * 0.1;      // Взвешиваем здоровье
-            rarity += pigeon.damage * 0.4;  // Взвешиваем урон
-            if (pigeon.shootType === 'green_short' || pigeon.shootType === 'white_shoot' || pigeon.shootType === 'ball_shoot') {
-                rarity += 10; // Дополнительный вес для особых типов стрельбы
+            rarity += pigeon.attack * 0.3;
+            rarity += pigeon.speed * 0.2;
+            rarity += pigeon.hp * 0.1;
+            rarity += pigeon.damage * 0.4;
+            if (['green_short', 'white_shoot', 'ball_shoot'].includes(pigeon.shootType)) {
+                rarity += 10;
             }
             return rarity;
         }
 
-        // Проверяем, есть ли уже такой голубь в инвентаре
         let pigeonsStorage = JSON.parse(localStorage.getItem('ownedPigeons')) || [];
-        
+
         if (pigeonsStorage.includes(pigeonId)) {
             alert(`You already have this pigeon with ID: ${pigeonId}. Try again!`);
         } else {
-            // Вычисляем редкость выбранного голубя
             let pigeon = pigeons[pigeonId];
             let rarity = calculateRarity(pigeon);
-
-            // Рассчитываем вероятность по редкости
             let rarityChance = Math.random() * 100;
+
+            pigeonsStorage.push(pigeonId);
+            localStorage.setItem('ownedPigeons', JSON.stringify(pigeonsStorage));
+
             if (rarityChance < rarity) {
-                pigeonsStorage.push(pigeonId);
-                localStorage.setItem('pigeons', JSON.stringify(pigeonsStorage));
                 alert(`You got a rare pigeon with ID: ${pigeonId}. It's now in your inventory.`);
             } else {
                 alert(`You got a common pigeon with ID: ${pigeonId}. It's now in your inventory.`);
             }
-            updateSpentCoins(70);
         }
+    }
+
+    if (typeof updateSpentCoins === 'function') {
+        updateSpentCoins(70);
     }
 }
 
@@ -651,38 +649,10 @@ botImg.src = bot.img;
  document.getElementById('pigeonsButton').onclick = () => {
       document.getElementById('menu').style.display = 'none';
       document.getElementById('pigeonsMenu').style.display = 'flex';
-      const container = document.getElementById('ownedPigeons');
-      container.innerHTML = '';
-      owned.forEach(id => {
-  const p = pigeons[id];
-  if (!p) return; // если такого голубя нет - просто скипаем
-  const div = document.createElement('div');
-  div.className = 'pigeon-card';
-  div.innerHTML = `<img src="${p.img}" /><p>${id}</p><button onclick="selectPigeon('${id}')">Select</button>`;
-  container.appendChild(div);
-});
-    };
-    function selectPigeon(id) {
-      selected = id;
-      localStorage.setItem('selectedPigeon', id);
-      alert(id + ' selected!');
-    }
 
-    function closeShop() {
-      document.getElementById('shop').style.display = 'none';
-      document.getElementById('menu').style.display = 'flex';
-      updateCoinsDisplay();
-    }
+     }
 
-    function closePigeons() {
-     
- document.getElementById('pigeonsMenu').style.display = 'none';
-      document.getElementById('menu').style.display = 'flex';
-    }
-
-
-
-    function buy(id, cost) {
+function buy(id, cost) {
       if (!owned.includes(id) && coins >= cost) {
         coins -= cost;
         owned.push(id);
