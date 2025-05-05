@@ -507,7 +507,6 @@ function updateSpentCoins(amount) {
   .catch(err => console.error("Failed to update coins:", err));
 }
 
-
 function openCase() {
     if (coins < 70) {
         alert("Not enough coins to open the case!");
@@ -515,14 +514,12 @@ function openCase() {
     }
 
     coins -= 70;
-    localStorage.setItem('pigeonCoins', coins.toString());
 
     let chance = Math.random() * 100;
 
     if (chance <= 75) {
         let coinAmount = Math.floor(Math.random() * 140) + 10;
         coins += coinAmount;
-        localStorage.setItem('pigeonCoins', coins.toString());
         alert(`You got ${coinAmount} PigeonCoins! Your balance: ${coins}`);
     } else {
         const pigeonIds = Object.keys(pigeons);
@@ -547,8 +544,8 @@ function openCase() {
         } else {
             let pigeon = pigeons[pigeonId];
             let rarity = calculateRarity(pigeon);
-            let rarityChance = Math.random() * 100;
 
+            let rarityChance = Math.random() * 100;
             pigeonsStorage.push(pigeonId);
             localStorage.setItem('ownedPigeons', JSON.stringify(pigeonsStorage));
 
@@ -557,12 +554,13 @@ function openCase() {
             } else {
                 alert(`You got a common pigeon with ID: ${pigeonId}. It's now in your inventory.`);
             }
+
+            updateSpentCoins(70); // если у тебя есть эта функция
         }
     }
 
-    if (typeof updateSpentCoins === 'function') {
-        updateSpentCoins(70);
-    }
+    // Сохраняем обновлённое количество монет
+    localStorage.setItem('pigeonCoins', coins);
 }
 
 function comp() {
@@ -648,11 +646,40 @@ botImg.src = bot.img;
 
  document.getElementById('pigeonsButton').onclick = () => {
       document.getElementById('menu').style.display = 'none';
-      document.getElementById('pigeonsMenu').style.display = 'flex';
+      
+document.getElementById('pigeonsMenu').style.display = 'flex';
+      const container = document.getElementById('ownedPigeons');
+      container.innerHTML = '';
+      owned.forEach(id => {
+  const p = pigeons[id];
+  if (!p) return; // если такого голубя нет - просто скипаем
+  const div = document.createElement('div');
+  div.className = 'pigeon-card';
+  div.innerHTML = `<img src="${p.img}" /><p>${id}</p><button onclick="selectPigeon('${id}')">Select</button>`;
+  container.appendChild(div);
+});
+    };
+    function selectPigeon(id) {
+      selected = id;
+      localStorage.setItem('selectedPigeon', id);
+      alert(id + ' selected!');
+    }
 
-     }
+    function closeShop() {
+      document.getElementById('shop').style.display = 'none';
+      document.getElementById('menu').style.display = 'flex';
+      updateCoinsDisplay();
+    }
 
-function buy(id, cost) {
+    function closePigeons() {
+     
+ document.getElementById('pigeonsMenu').style.display = 'none';
+      document.getElementById('menu').style.display = 'flex';
+    }
+
+
+
+    function buy(id, cost) {
       if (!owned.includes(id) && coins >= cost) {
         coins -= cost;
         owned.push(id);
