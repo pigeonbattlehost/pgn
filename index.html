@@ -183,22 +183,22 @@
     height: 100%;
     overflow-y: auto; /* Добавляем прокрутку */
     padding: 10px;
-    
-    .about-btn {
-    background-color: #6200ea;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 15px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-
-  .about-btn:hover {
-    background-color: #7b1fa2;
-  }
 
   }
+  
+  .about-btn {
+  background-color: #6200ea;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.about-btn:hover {
+  background-color: #7b1fa2;
+}
 
 
 .pigeon-card img {
@@ -822,18 +822,46 @@ function checkGameEnd() {
   }
 }
     
-      // Update bot position to make the bot more dynamic
-      if (bot.x < player.x) {
-        bot.x += bot.speed;
-      } else if (bot.x > player.x) {
-        bot.x -= bot.speed;
-      }
-      if (bot.y < player.y) {
-        bot.y += bot.speed;
-      } else if (bot.y > player.y) {
-        bot.y -= bot.speed;
-      }
+// Check if bot is moving and on screen
 
+// Ensure player has valid last position (this will avoid NaN)
+if (!player.lastX || !player.lastY) {
+  player.lastX = player.x;
+  player.lastY = player.y;
+}
+
+// Calculate distance and direction
+const distX = player.x - bot.x;
+const distY = player.y - bot.y;
+const distance = Math.sqrt(distX * distX + distY * distY); // Distance between player and bot
+
+// Predict the player's future position (to prevent NaN)
+const playerSpeedX = player.x - player.lastX;
+const playerSpeedY = player.y - player.lastY;
+const predictionFactor = 0.2;
+
+// Ensure prediction doesn't cause NaN
+const predictedPlayerX = player.x + (playerSpeedX || 0) * predictionFactor;
+const predictedPlayerY = player.y + (playerSpeedY || 0) * predictionFactor;
+
+// Calculate direction towards predicted player position
+const angleToPredictedPlayer = Math.atan2(predictedPlayerY - bot.y, predictedPlayerX - bot.x);
+
+// Move bot towards predicted position
+bot.x += Math.cos(angleToPredictedPlayer) * bot.speed;
+bot.y += Math.sin(angleToPredictedPlayer) * bot.speed;
+
+// Simple collision check: make sure bot stays within screen bounds
+bot.x = Math.max(0, Math.min(canvas.width, bot.x));
+bot.y = Math.max(0, Math.min(canvas.height, bot.y));
+
+// Update bot's last known position for prediction
+bot.lastX = bot.x;
+bot.lastY = bot.y;
+
+// Debugging log to check bot's position
+console.log("Bot Position: ", bot.x, bot.y);
+      
       bullets.forEach(b => b.x += b.speed);
       botBullets.forEach(b => b.x += b.speed);
 
