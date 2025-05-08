@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pigeonism ID</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #222;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      color: white;
+    }
+
+    .container {
+      background-color: #333;
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      width: 300px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 24px;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0 16px;
+      border: none;
+      border-radius: 8px;
+      background-color: #444;
+      color: white;
+      font-size: 14px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      background-color: #4DA3FF;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #3687db;
+    }
+
+    .bottom-text {
+      font-size: 14px;
+      margin-top: 12px;
+    }
+
+    .bottom-text a {
+      color: #4DA3FF;
+      text-decoration: none;
+      margin-left: 5px;
+      cursor: pointer;
+    }
+
+    #message {
+      margin-top: 10px;
+      color: #aaa;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Pigeonism ID</h1>
+    <input type="text" id="username" placeholder="username" />
+    <input type="password" id="password" placeholder="password" />
+    <button onclick="register()">Register</button>
+    <button onclick="login()">Login</button>
+    <div id="message"></div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "https://pigeonbattle.onrender.com";
+
+    function register() {
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+
+      fetch(`${API_URL}/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("message").innerText = data.message || "Registered!";
+      })
+      .catch(err => {
+        console.error(err);
+        document.getElementById("message").innerText = "Unknown error";
+      });
+    }
+
+    function login() {
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+
+      fetch(`${API_URL}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("message").innerText = data.message || "Logged in!";
+      })
+      .catch(err => {
+        console.error(err);
+        document.getElementById("message").innerText = "Unknown error";
+      });
+    }
+  </script>
+</body>
+</html>
