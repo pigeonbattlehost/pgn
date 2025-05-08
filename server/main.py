@@ -3,6 +3,7 @@ from flask_cors import CORS
 import uuid
 import time
 import sqlite3
+import hashlib
 
 app = Flask(__name__)
 
@@ -46,7 +47,6 @@ def multiplayer_ping():
             "player_id": new_id
         }), 201
 
-    
     players[player_id]["last_seen"] = time.time()
     return jsonify({
         "status": "online",
@@ -138,8 +138,6 @@ def get_spent_coins():
 def get_total_fund():
     return jsonify({"pigeon_fund": pigeon_fund}), 200
 
-app = Flask(__name__)
-
 # Инициализация базы данных
 def init_db():
     conn = sqlite3.connect('pigeon_battle.db')
@@ -191,27 +189,6 @@ def login():
     conn = sqlite3.connect('pigeon_battle.db')
     c = conn.cursor()
     c.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, hashed_password))
-    user = c.fetchone()
-    conn.close()
-
-    if user:
-        return jsonify({'message': 'Login successful!'})
-    else:
-        return jsonify({'message': 'Invalid credentials!'}), 401
-
-if __name__ == '__main__':
-    app.run(debug=True)
-
-# Логин пользователя
-@app.route('/login', methods=['POST'])
-def login():
-    data = request.get_json()
-    username = data['username']
-    password = data['password']
-
-    conn = sqlite3.connect('pigeon_battle.db')
-    c = conn.cursor()
-    c.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, password))
     user = c.fetchone()
     conn.close()
 
