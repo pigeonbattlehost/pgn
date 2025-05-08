@@ -1,18 +1,26 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from flask_socketio import SocketIO, emit
 import uuid
 import time
-import sqlite3
-import hashlib
+import eventlet
+import re
+
+eventlet.monkey_patch()
 
 app = Flask(__name__)
-
 CORS(app, resources={r"/*": {"origins": "*"}})
+socketio = SocketIO(app, cors_allowed_origins="*")
 
-players = {}  # UUID -> dict with player info
-
-# global variable for storing pigeons spend
+players = {}
 pigeon_fund = 0
+last_message_time = {}  # player_id -> timestamp
+
+banned_words = [
+    "nigger", "niga", "kike", "chink", "gook", "wetback", "spic",
+    "faggot", "retard", "tranny", "coon", "towelhead", "camel jockey"
+]
+banned_regex = re.compile(r"|".join(rf"\b{re.escape(word)}\b" for word in banned_words), re.IGNORECASE)
 
 @app.route('/ping', methods=['POST'])
 def ping():
@@ -20,86 +28,14 @@ def ping():
     player_id = data.get('player_id')
 
     if not player_id or player_id not in players:
-        # uuid gen
         new_id = str(uuid.uuid4())
-        players[new_id] = {"last_seen": time.time(), "status": "waiting", "state": {}, "spent_coins": 0}
+        players[new_id] = {"last_seen": time.time(), "spent_coins": 0}
     else:
-        now = time.time()
-        players[player_id]["last_seen"] = now
+        players[player_id]["last_seen"] = time.time()
 
-    # counting online
     now = time.time()
     online_count = sum(1 for p in players.values() if now - p["last_seen"] <= 40)
-
     return jsonify(online_count), 200
-
-@app.route('/multiplayerPing', methods=['GET'])
-def multiplayer_ping():
-    player_id = request.args.get('player_id')
-
-    if not player_id or player_id not in players:
-        
-        new_id = str(uuid.uuid4())
-        players[new_id] = {"last_seen": time.time(), "status": "waiting", "state": {}, "spent_coins": 0}
-        return jsonify({
-            "status": "online",
-            "message": "New player created",
-            "player_id": new_id
-        }), 201
-
-    players[player_id]["last_seen"] = time.time()
-    return jsonify({
-        "status": "online",
-        "message": "Player already active",
-        "player_id": player_id
-    }), 200
-
-@app.route('/match', methods=['POST'])
-def match():
-    player_id = request.json.get('player_id')
-
-    if not player_id or player_id not in players:
-        return jsonify({"error": "Player not found"}), 400
-
-    opponent_id = None
-    for pid, pdata in players.items():
-        if pid != player_id and pdata["status"] == "waiting":
-            opponent_id = pid
-            players[pid]["status"] = "matched"
-            players[player_id]["status"] = "matched"
-            break
-
-    if opponent_id:
-        return jsonify({"message": "Opponent found", "opponent_id": opponent_id}), 200
-    else:
-        return jsonify({"message": "No opponent found, please wait..."}), 200
-
-@app.route('/sync', methods=['POST'])
-def sync():
-    data = request.get_json()  # Данные от клиента
-    player_id = data.get("player_id")
-    state = data.get("state")  # Состояние игрока, например позиция, хп, и т.д.
-
-    if player_id not in players:
-        return jsonify({"error": "Player not found"}), 400
-
-    players[player_id]["last_seen"] = time.time()
-    players[player_id]["state"] = state
-
-    # Логируем полученные данные
-    print(f"Sync received for player {player_id}: {state}")
-
-    # Возвращаем состояние других игроков
-    now = time.time()
-    visible = {
-        pid: pdata["state"]
-        for pid, pdata in players.items()
-        if pid != player_id and now - pdata["last_seen"] < 10
-    }
-
-    print(f"Visible players for {player_id}: {visible}")
-
-    return jsonify({"others": visible}), 200
 
 @app.route('/updateSpentCoins', methods=['POST'])
 def update_spent_coins():
@@ -115,7 +51,7 @@ def update_spent_coins():
         return jsonify({"error": "Invalid amount"}), 400
 
     players[player_id]["spent_coins"] += amount
-    pigeon_fund += amount  # <-- ЭТО ДОБАВЬ, иначе фонд не растёт!
+    pigeon_fund += amount
 
     return jsonify({
         "message": f"Spent {amount} coins",
@@ -123,79 +59,30 @@ def update_spent_coins():
         "total_fund": pigeon_fund
     }), 200
 
-# Роут для получения потраченных коинов
-@app.route('/getSpentCoins', methods=['GET'])
-def get_spent_coins():
-    player_id = request.args.get('player_id')
-
-    if not player_id or player_id not in players:
-        return jsonify({"error": "Player not found"}), 400
-
-    spent_coins = players[player_id]["spent_coins"]
-    return jsonify({"spent_coins": spent_coins}), 200
-
 @app.route('/getTotalFund', methods=['GET'])
 def get_total_fund():
     return jsonify({"pigeon_fund": pigeon_fund}), 200
 
-# Инициализация базы данных
-def init_db():
-    conn = sqlite3.connect('pigeon_battle.db')
-    c = conn.cursor()
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT NOT NULL,
-            password TEXT NOT NULL
-        )
-    ''')
-    conn.commit()
-    conn.close()
+@socketio.on('send_message')
+def handle_message(data):
+    nickname = data.get('nickname', 'Anonymous')
+    text = data.get('text', '')
+    player_id = data.get('player_id', 'anon')
 
-init_db()
+    now = time.time()
 
-# Функция для хеширования пароля
-def hash_password(password):
-    return hashlib.sha256(password.encode()).hexdigest()
+    # Антифлуд
+    if player_id in last_message_time and now - last_message_time[player_id] < 5:
+        emit('receive_message', {"nickname": "System", "text": "Slow down! Wait 5 seconds."}, room=request.sid)
+        return
 
-# Регистрация нового пользователя
-@app.route('/register', methods=['POST'])
-def register():
-    data = request.get_json()
-    username = data['username']
-    password = data['password']
+    # Фильтр токсик-контента
+    if banned_regex.search(text):
+        emit('receive_message', {"nickname": "System", "text": "Message blocked for inappropriate content."}, room=request.sid)
+        return
 
-    # Хешируем пароль перед сохранением
-    hashed_password = hash_password(password)
-
-    conn = sqlite3.connect('pigeon_battle.db')
-    c = conn.cursor()
-    c.execute('INSERT INTO users (username, password) VALUES (?, ?)', (username, hashed_password))
-    conn.commit()
-    conn.close()
-
-    return jsonify({'message': 'User registered successfully!'})
-
-# Логин пользователя
-@app.route('/login', methods=['POST'])
-def login():
-    data = request.get_json()
-    username = data['username']
-    password = data['password']
-
-    # Хешируем введённый пароль
-    hashed_password = hash_password(password)
-
-    conn = sqlite3.connect('pigeon_battle.db')
-    c = conn.cursor()
-    c.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, hashed_password))
-    user = c.fetchone()
-    conn.close()
-
-    if user:
-        return jsonify({'message': 'Login successful!'})
-    else:
-        return jsonify({'message': 'Invalid credentials!'}), 401
+    last_message_time[player_id] = now
+    emit('receive_message', {"nickname": nickname, "text": text}, broadcast=True)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    socketio.run(app, host='0.0.0.0', port=5000)
