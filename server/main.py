@@ -30,12 +30,13 @@ def ping():
     if not player_id or player_id not in players:
         new_id = str(uuid.uuid4())
         players[new_id] = {"last_seen": time.time(), "spent_coins": 0}
+        player_id = new_id  # сохраняем новый player_id
     else:
         players[player_id]["last_seen"] = time.time()
 
     now = time.time()
     online_count = sum(1 for p in players.values() if now - p["last_seen"] <= 40)
-    return jsonify(online_count), 200
+    return jsonify({"online_count": online_count, "player_id": player_id}), 200
 
 @app.route('/updateSpentCoins', methods=['POST'])
 def update_spent_coins():
