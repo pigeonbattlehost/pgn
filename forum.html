@@ -176,17 +176,16 @@
                 socket.emit('join', { playerId });
 
                 socket.on('online_count', (data) => {
-                    // Если один игрок, показываем много онлайн
                     const onlineText = data.count === 1 ? 'Pigeons online: A lot' : `Pigeons online: ${data.count}`;
                     onlineCountElement.textContent = onlineText;
                 });
 
                 socket.on('receive_message', (data) => {
                     addMessage(data.nickname, data.text);
+                    saveMessage(data.nickname, data.text);
                 });
 
                 socket.on('disconnect', () => {
-                    // Останавливаем пинг, если игрок вышел
                     if (pingInterval) {
                         clearInterval(pingInterval);
                     }
@@ -195,8 +194,10 @@
                 chatContainer.style.display = 'flex';
                 updateOnlineCount();
 
-                // Пинг только после подключения
                 pingInterval = setInterval(updateOnlineCount, 5000);
+
+                // Загружаем историю сообщений
+                loadMessages();
             }
         });
 
@@ -205,6 +206,7 @@
             if (message && playerId && socket) {
                 socket.emit('send_message', { nickname: playerId, text: message });
                 messageInput.value = '';
+                saveMessage(playerId, message); // Сохраняем сообщение
             }
         });
 
@@ -215,9 +217,46 @@
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
+        function saveMessage(player, message) {
+    const messages = JSON.parse(localStorage.getItem('chatHistory')) || [];
+    
+    // Проверяем, если это сообщение уже есть в истории, не сохраняем его
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage && lastMessage.player === player && lastMessage.message === message) {
+        return; // Если сообщение уже есть, не сохраняем его
+    }
+
+    messages.push({ player, message });
+    localStorage.setItem('chatHistory', JSON.stringify(messages));
+}
+
+function loadMessages() {
+    const messages = JSON.parse(localStorage.getItem('chatHistory')) || [];
+    
+    // Добавляем только те сообщения, которых еще нет в чате
+    messages.forEach((msg) => {
+        if (!isMessageInChat(msg)) {
+            addMessage(msg.player, msg.message);
+        }
+    });
+}
+
+// Функция для проверки, есть ли уже это сообщение в чате
+function isMessageInChat(msg) {
+    const chatMessages = Array.from(chatBox.children);
+    return chatMessages.some((messageElement) => messageElement.textContent === `${msg.player}: ${msg.message}`);
+}
+
+        function loadMessages() {
+            const messages = JSON.parse(localStorage.getItem('chatHistory')) || [];
+            messages.forEach((msg) => {
+                addMessage(msg.player, msg.message);
+            });
+        }
+
         async function updateOnlineCount() {
             try {
-                if (playerId) { // Проверяем, не отправляем запрос самому себе
+                if (playerId) {
                     const response = await fetch('https://pigeonbattle.onrender.com/ping', {
                         method: 'POST',
                         headers: {
