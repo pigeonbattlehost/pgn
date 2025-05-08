@@ -200,6 +200,28 @@
   background-color: #7b1fa2;
 }
 
+.pigeonism-btn {
+  background-color: #357a87;
+  color: white;
+  border: 2px solid #2f6e7d;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.pigeonism-btn:hover {
+  background-color: #2f6e7d;
+  border-color: #4f9dc6;
+  transform: scale(1.05);
+}
+
+.pigeonism-btn:active {
+  background-color: #2a5762;
+  transform: scale(0.98);
+}
+
 
 .pigeon-card img {
   max-width: 75%;
@@ -236,13 +258,12 @@ h1, h2, h3 {
     <h3>May Update!</h3>
     <div id="coinsDisplay">Coins: 0</div>
     <button id="playButton">Play</button>
-    <button id="multiplayer">Multiplayer</button>
     <button id="shopButton">Shop</button>
     <button id="pigeonsButton">Pigeons</button>
-    <button class="about-btn" onclick="window.location.href='about.html'">About</button>
+    <button class="pigeonism-btn" id="pigeonism-btn">Pigeon Chat</button>
+
     
     <div id="onlineStatus">Loading pigeons...</div>
-    <div id="pigeonFundDisplay">Pigeon Fund: 0</div>
   </div>
   
  <div id="shop" style="display:none;">
@@ -346,12 +367,6 @@ h1, h2, h3 {
   
 let playerId = localStorage.getItem("playerId");
 
-fetch("https://pigeonbattle.onrender.com/getTotalFund")
-  .then(res => res.json())
-  .then(data => {
-    document.getElementById("pigeonFundDisplay").innerText = "Pigeon Fund: " + data.pigeon_fund;
-  })
-  .catch(error => console.error('Error fetching total fund:', error));
   
 fetch("https://pigeonbattle.onrender.com/ping", {
   method: "POST",
@@ -965,11 +980,11 @@ botBullets.forEach(b => {
 
     updateCoinsDisplay();
     
-    document.addEventListener("DOMContentLoaded", () => {
-    const btn = document.getElementById("multiplayer");
+document.addEventListener("DOMContentLoaded", () => {
+    const btn = document.getElementById("pigeonism-btn");
     if (btn) {
       btn.addEventListener("click", () => {
-        window.location.href = "multiplayer.html";
+        window.location.href = "forum.html";
       });
     }
   });
