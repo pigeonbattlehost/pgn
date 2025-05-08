@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import uuid
 import time
+import sqlite3
 
 app = Flask(__name__)
 
@@ -136,6 +137,57 @@ def get_spent_coins():
 @app.route('/getTotalFund', methods=['GET'])
 def get_total_fund():
     return jsonify({"pigeon_fund": pigeon_fund}), 200
+
+app = Flask(__name__)
+
+# Инициализация базы данных
+def init_db():
+    conn = sqlite3.connect('pigeon_battle.db')
+    c = conn.cursor()
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL,
+            password TEXT NOT NULL
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+init_db()
+
+# Регистрация нового пользователя
+@app.route('/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    username = data['username']
+    password = data['password']
+
+    conn = sqlite3.connect('pigeon_battle.db')
+    c = conn.cursor()
+    c.execute('INSERT INTO users (username, password) VALUES (?, ?)', (username, password))
+    conn.commit()
+    conn.close()
+
+    return jsonify({'message': 'User registered successfully!'})
+
+# Логин пользователя
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    username = data['username']
+    password = data['password']
+
+    conn = sqlite3.connect('pigeon_battle.db')
+    c = conn.cursor()
+    c.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, password))
+    user = c.fetchone()
+    conn.close()
+
+    if user:
+        return jsonify({'message': 'Login successful!'})
+    else:
+        return jsonify({'message': 'Invalid credentials!'}), 401
 
 if __name__ == '__main__':
     app.run(debug=True)
