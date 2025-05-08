@@ -1,12 +1,12 @@
+import eventlet
+eventlet.monkey_patch()
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
 import uuid
 import time
-import eventlet
 import re
-
-eventlet.monkey_patch()
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -30,13 +30,12 @@ def ping():
     if not player_id or player_id not in players:
         new_id = str(uuid.uuid4())
         players[new_id] = {"last_seen": time.time(), "spent_coins": 0}
-        player_id = new_id  # сохраняем новый player_id
     else:
         players[player_id]["last_seen"] = time.time()
 
     now = time.time()
     online_count = sum(1 for p in players.values() if now - p["last_seen"] <= 40)
-    return jsonify({"online_count": online_count, "player_id": player_id}), 200
+    return jsonify(online_count), 200
 
 @app.route('/updateSpentCoins', methods=['POST'])
 def update_spent_coins():
