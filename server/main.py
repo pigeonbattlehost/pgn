@@ -156,6 +156,10 @@ def init_db():
 
 init_db()
 
+# Функция для хеширования пароля
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
+
 # Регистрация нового пользователя
 @app.route('/register', methods=['POST'])
 def register():
@@ -163,13 +167,40 @@ def register():
     username = data['username']
     password = data['password']
 
+    # Хешируем пароль перед сохранением
+    hashed_password = hash_password(password)
+
     conn = sqlite3.connect('pigeon_battle.db')
     c = conn.cursor()
-    c.execute('INSERT INTO users (username, password) VALUES (?, ?)', (username, password))
+    c.execute('INSERT INTO users (username, password) VALUES (?, ?)', (username, hashed_password))
     conn.commit()
     conn.close()
 
     return jsonify({'message': 'User registered successfully!'})
+
+# Логин пользователя
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    username = data['username']
+    password = data['password']
+
+    # Хешируем введённый пароль
+    hashed_password = hash_password(password)
+
+    conn = sqlite3.connect('pigeon_battle.db')
+    c = conn.cursor()
+    c.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, hashed_password))
+    user = c.fetchone()
+    conn.close()
+
+    if user:
+        return jsonify({'message': 'Login successful!'})
+    else:
+        return jsonify({'message': 'Invalid credentials!'}), 401
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
 # Логин пользователя
 @app.route('/login', methods=['POST'])
