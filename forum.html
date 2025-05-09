@@ -194,7 +194,7 @@
                 chatContainer.style.display = 'flex';
                 updateOnlineCount();
 
-                pingInterval = setInterval(updateOnlineCount, 5000);
+               
 
                 // Загружаем историю сообщений
                 loadMessages();
@@ -202,6 +202,12 @@
         });
 
         sendBtn.addEventListener('click', () => {
+        messageInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault(); // чтобы не делал перенос строки
+        sendBtn.click();
+    }
+});
             const message = messageInput.value.trim();
             if (message && playerId && socket) {
                 socket.emit('send_message', { nickname: playerId, text: message });
