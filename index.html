@@ -116,7 +116,6 @@
       color: white;
     }
     
-    }
     #shop img, .pigeon-card img {
       max-width: 200px;
       border-radius: 15px;
@@ -895,7 +894,7 @@ console.log("Bot Position: ", bot.x, bot.y);
       });
       if (!bossTransformed && bot.hp < 250) {
   const chance = Math.random(); // шанс от 0 до 1
-  if (chance < 0.0015) { // most rare, because it very often before
+  if (chance < 0.000015) { // most rare, because it very often before
     bossTransformed = true;
     bot.hp = bossForm.hp;
     bot.attack = bossForm.attack;
