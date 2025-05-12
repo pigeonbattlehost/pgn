@@ -174,7 +174,7 @@
 
   }
   
-  .about-btn {
+  #about-btn {
   background-color: #6200ea;
   color: white;
   border: none;
@@ -249,6 +249,7 @@ h1, h2, h3 {
     <button id="shopButton">Shop</button>
     <button id="pigeonsButton">Pigeons</button>
     <button class="pigeonism-btn" id="pigeonism-btn">Pigeon Chat</button>
+    <button id="about-btn">About</button>
 
     
     <div id="onlineStatus">Loading pigeons...</div>
@@ -947,6 +948,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
   
+document.addEventListener("DOMContentLoaded", () => {
+    const btn = document.getElementById("about-btn");
+    if (btn) {
+      btn.addEventListener("click", () => {
+        window.location.href = "about.html";
+      });
+    }
+  });
+
 console.log("PigeonBattle. Made by toiletpigeon, enjoy the game like a fat pigeon sitting on a toilet...")
 
   </script>
