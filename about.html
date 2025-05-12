@@ -23,6 +23,9 @@
       width: 90%;
       max-width: 600px;
       transition: background-color 0.3s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     .section:hover {
@@ -54,13 +57,23 @@
     .link:hover {
       background-color: #7b1fa2;
     }
+
+    .avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-left: 20px;
+    }
   </style>
 </head>
 <body>
   <div class="title">ABOUT</div>
 
   <div class="section red-text">
+      <img src="law.png" alt="Law" class="avatar">
     Testers: Pigeon named "Law"
+
   </div>
 
   <div class="section">
