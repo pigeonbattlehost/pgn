@@ -31,7 +31,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999; /* чтобы был поверх всего */
+  z-index: 9999;
 }
     #loadingText {
   position: absolute;
@@ -67,7 +67,7 @@
   justify-content: flex-start;
   align-items: center;
   height: 100%;
-  overflow-y: auto; /* Добавляем прокрутку */
+  overflow-y: auto;
   padding: 10px;
 }
     #menu h1, #shop h2 {
@@ -85,26 +85,15 @@
     #playButton { background: #00aaff; color: white; }
     #shopButton { background: #ffaa00; color: black; }
     #pigeonsButton { background: #aaa; color: black; }
-    #multiplayer {
-  background: #333; /* Темный фон, чтобы не сильно выделялась */
-  color: white;
-  border: 2px solid #555; /* Легкая граница */
-  padding: 10px 20px;
-  font-size: 16px;
-  border-radius: 8px; /* Скругленные углы */
-  text-transform: uppercase; /* Капс */
-  cursor: pointer;
-  transition: all 0.3s ease; /* Плавный переход */
-}
 
 #multiplayer:hover {
-  background: #444; /* Немного светлее при наведении */
-  border-color: #666; /* Чуть ярче граница */
-  transform: translateY(-2px); /* Легкое поднятие при наведении */
+  background: #444;
+  border-color: #666;
+  transform: translateY(-2px);
 }
 
 #multiplayer:active {
-  transform: translateY(1px); /* Эффект при нажатии */
+  transform: translateY(1px);
 }
     #gameContainer { display: none; width: 100%; height: 100%; position: relative; }
     canvas { display: block; width: 100%; height: 100%; background: #164704; }
@@ -180,7 +169,7 @@
     justify-content: flex-start;
     align-items: center;
     height: 100%;
-    overflow-y: auto; /* Добавляем прокрутку */
+    overflow-y: auto;
     padding: 10px;
 
   }
@@ -234,7 +223,7 @@
   justify-content: flex-start;
   align-items: center;
   height: 100%;
-  overflow-y: auto; /* Добавляем прокрутку */
+  overflow-y: auto;
   padding: 10px;
 }
 
@@ -323,6 +312,12 @@ h1, h2, h3 {
   <button onclick="buy('clownPigeon', 130)">Buy</button>
    </div>
    
+   <div class="pigeon-card">
+       <img src="wizardpigeon.jpg" alt="Wizard Pigeon">
+  <p>Wizard Pigeon<br>+7.5 speed<br>+40 attack<br>Deals firesquares<br>1000 pigeon coins</p>
+  <button onclick="buy('wizardPigeon', 1000)">Buy</button>
+   </div>
+   
   <h2>Skins</h2>
   <div class="pigeon-card">
     <img src="sorrelpigeon.jpg" alt="Sorrel Pigeon">
@@ -333,7 +328,7 @@ h1, h2, h3 {
   <h2>PowerUps</h2>
   <div class="pigeon-card">
     <img src="classicpigeon.jpg" alt="Pigeonin Classic">
-    <p>Pigeonin Classic (SALE!)<br>+10 attack<br>+0.6 damage<br>300 (but now 225!) pigeon coins<br>24 hours active</p>
+    <p>Pigeonin Classic<br>+10 attack<br>+0.6 damage<br>300 pigeon coins<br>24 hours active</p>
     <button onclick="buyClassicPigeon()">Buy</button>
   </div>
   
@@ -355,7 +350,7 @@ h1, h2, h3 {
   </div>
   <div id="gameContainer">
     <canvas id="gameCanvas"></canvas>
-    <div id="version">PigeonBattle 0.2MAY</div>
+    <div id="version">PigeonBattle 0.2d</div>
     <div id="joystick"></div>
     <div id="shootBtn">bang</div>
   </div>
@@ -374,7 +369,7 @@ fetch("https://pigeonbattle.onrender.com/ping", {
   },
   body: JSON.stringify({ player_id: playerId })
 })
-  .then(res => res.json())  // Получаем количество пижонов
+  .then(res => res.json())  // get pigeon count
   .then(onlineCount => {
     document.getElementById("onlineStatus").innerText = "~ " + onlineCount + " pigeons online";
   })
@@ -384,8 +379,8 @@ src="https://cdn.jsdelivr.net/npm/nipplejs@0.8.0/dist/nipplejs.min.js"
     setTimeout(() => {
   const splash = document.getElementById('splash');
   splash.style.opacity = '0';
-  splash.style.transition = 'opacity 0.5s ease'; // плавное исчезание
-  setTimeout(() => splash.remove(), 500); // удаляем его после анимации
+  splash.style.transition = 'opacity 0.5s ease'; // slowly fade
+  setTimeout(() => splash.remove(), 500); // delete ts after animation
 }, 900);
 
     function selectPigeon(pigeon) {
@@ -398,91 +393,44 @@ src="https://cdn.jsdelivr.net/npm/nipplejs@0.8.0/dist/nipplejs.min.js"
         playerImg.src = 'pigeon.jpg';
       }
     }
-    // Добавляем переменную для отслеживания улучшений
+    
 let pigeoninClassic = localStorage.getItem('pigeoninClassic');
-const pigeoninExpiry = localStorage.getItem('pigeoninExpiry'); // Время окончания улучшения
-     // Функция для покупки улучшения Pigeonin Classic
+const pigeoninExpiry = localStorage.getItem('pigeoninExpiry'); 
+
 function buyClassicPigeon() {
   if (coins >= 300 && !pigeoninClassic) {
-    // Если у игрока достаточно монет и улучшение еще не куплено
     coins -= 300
     localStorage.setItem('pigeonCoins', coins);
 
-    // Активируем улучшение на 24 часа
     pigeoninClassic = true;
     const expiryDate = new Date();
     expiryDate.setHours(expiryDate.getHours() + 24); // 24 часа от текущего момента
     localStorage.setItem('pigeoninClassic', pigeoninClassic);
-    localStorage.setItem('pigeoninExpiry', expiryDate.toISOString()); // Сохраняем время окончания
+    localStorage.setItem('pigeoninExpiry', expiryDate.toISOString());
 
     alert('Pigeonin Classic is purcashed!');
 
-    // Обновляем отображение монет
     updateCoinsDisplay();
-    updateSpentCoins(225);
   } else {
     alert('Already purcashed, or no money..');
   }
 }
-    // Проверка активности улучшения
+
 function isClassicPigeonActive() {
   if (pigeoninClassic) {
     const now = new Date();
     const expiryDate = new Date(pigeoninExpiry);
     if (now < expiryDate) {
-      return true; // Улучшение активно
+      return true;
     } else {
-      // Если улучшение про                localStorage.removeItem('pigeoninClassic');
+                localStorage.removeItem('pigeoninClassic');
       localStorage.removeItem('pigeoninExpiry');
       return false;
     }
   }
-  return false; // Если улучшение не куплено
+  return false;
 }
 
-// Добавляем переменную для отслеживания улучшений
-let quantumPigeon = localStorage.getItem('quantumPigeon');
-const quantumExpiry = localStorage.getItem('quantumExpiry'); // Время окончания улучшения
-
-// Функция для покупки улучшения Quantum Pigeon
-function buyQuantumPigeon() {
-  if (coins >= 450 && !quantumPigeon) {
-    // Если у игрока достаточно монет и улучшение еще не куплено
-    coins -= 450;
-    localStorage.setItem('pigeonCoins', coins);
-
-    // Активируем улучшение на 24 часа
-    quantumPigeon = true;
-    const expiryDate = new Date();
-    expiryDate.setHours(expiryDate.getHours() + 24); // 24 часа от текущего момента
-    localStorage.setItem('quantumPigeon', quantumPigeon);
-    localStorage.setItem('quantumExpiry', expiryDate.toISOString()); // Сохраняем время окончания
-
-    alert('Quantum Pigeon is purchased!');
-
-    // Обновляем отображение монет
-    updateCoinsDisplay();
-  } else {
-    alert('Already purchased, or not enough coins...');
-  }
-}
-
-// Проверка активности улучшения Quantum Pigeon
-function isQuantumPigeonActive() {
-  if (quantumPigeon) {
-    const now = new Date();
-    const expiryDate = new Date(quantumExpiry);
-    if (now < expiryDate) {
-      return true; // Улучшение активно
-    } else {
-      // Если улучшение прошло, удаляем из локалсториджа
-      localStorage.removeItem('quantumPigeon');
-      localStorage.removeItem('quantumExpiry');
-      return false;
-    }
-  }
-  return false; // Если улучшение не куплено
-}
     const canvas = document.getElementById('gameCanvas');
     
     const ctx = canvas.getContext('2d');
@@ -569,11 +517,10 @@ function openCase() {
                 alert(`You got a common pigeon with ID: ${pigeonId}. It's now in your inventory.`);
             }
 
-            updateSpentCoins(70); // если у тебя есть эта функция
+            updateSpentCoins(70);
         }
     }
 
-    // Сохраняем обновлённое количество монет
     localStorage.setItem('pigeonCoins', coins);
 }
 
@@ -601,7 +548,8 @@ const pigeons = {
   armyPigeon: { img: 'armypigeon.jpg', speed: 5, attack: 12, damage: 0.2, hp: 1300, shootType: 'green_short' },
   sorrelPigeon: { img: 'sorrelpigeon.jpg', speed: 6.5, attack: 16, damage: 0.4, hp: 1500, shootType: 'green_short' },
   goonPigeon: { img: 'goonpigeon.jpg', speed: 4.5, attack: 13, damage: 0.5, hp: 1250, shootType: 'white_shoot', humanLegs: true, confusionAura: true },
-  clownPigeon: { img: 'clownpigeon.jpg', speed: 5, attack: 30, damage: 0.6, hp: 1600, shootType: 'ball_shoot'}
+  clownPigeon: { img: 'clownpigeon.jpg', speed: 5, attack: 30, damage: 0.6, hp: 1600, shootType: 'ball_shoot'},
+  wizardPigeon: { img: 'wizardpigeon.jpg', speed: 7.5, attack: 40, damage: 2, hp: 2200, shootType: 'fireball_shoot'}
 };
 
    const enemies = [
@@ -624,17 +572,17 @@ let bossFlashCounter = 0;
 
 const player = { x: 100, y: 250, w: 64, h: 64, hp: pigeons[selected].hp };
 
-// Список врагов
 const bots = [
-  { img: 'angrypigeon.jpg', hp: 2200, speed: 2, attack: 40 },
-  { img: 'milkpigeon.jpg', hp: 1800, speed: 3, attack: 50 },
-  { img: 'skinnybirb.jpg', hp: 3000, speed: 1.5, attack: 35 },
-  { img: 'nuclearbird.jpg', hp: 2400, speed: 2, attack: 40},
-  { img: 'screaming.jpg', hp: 1300, speed: 1, attack: 20},
-  { img: 'oldpigeon.jpg', hp: 2900, speed: 0.9, attack: 15}
+  { img: 'angrypigeon.jpg',    hp: 2200, speed: 2,   attack: 40, damage: 120 },
+  { img: 'milkpigeon.jpg',     hp: 1800, speed: 3,   attack: 50, damage: 180 },
+  { img: 'skinnybirb.jpg',     hp: 3000, speed: 1.5, attack: 35, damage: 90 },
+  { img: 'nuclearbird.jpg',    hp: 2400, speed: 2,   attack: 40, damage: 250 },
+  { img: 'screaming.jpg',      hp: 1300, speed: 1,   attack: 20, damage: 70 },
+  { img: 'oldpigeon.jpg',      hp: 2900, speed: 0.9, attack: 15, damage: 55 },
+  { img: 'sbbrother.jpg',      hp: 2400, speed: 4,   attack: 13, damage: 450 }
 ];
 
-// Рандомный выбор врага
+// random enemy
 const chosenBot = bots[Math.floor(Math.random() * bots.length)];
 const bot = { x: 600, y: 250, w: 64, h: 64, ...chosenBot };
 
@@ -666,7 +614,7 @@ document.getElementById('pigeonsMenu').style.display = 'flex';
       container.innerHTML = '';
       owned.forEach(id => {
   const p = pigeons[id];
-  if (!p) return; // если такого голубя нет - просто скипаем
+  if (!p) return; // no pigeon then skip
   const div = document.createElement('div');
   div.className = 'pigeon-card';
   div.innerHTML = `<img src="${p.img}" /><p>${id}</p><button onclick="selectPigeon('${id}')">Select</button>`;
@@ -721,13 +669,13 @@ document.getElementById('pigeonsMenu').style.display = 'flex';
    
    function shootBall(player, balls, dmgBoost) {
   balls.push({
-    x: player.x + player.w,                // старт прямо из правого края плеера
-    y: player.y + player.h / 2 - 5,        // центрируем по высоте
-    w: 10,                                 // ширина шарика
-    h: 10,                                 // высота шарика (тут условно круг)
-    speed: 10,                             // скорость полёта
-    dmg: 5 * dmgBoost,                     // урон с бустом
-    color: 'red'                           // красненький огонёк
+    x: player.x + player.w,
+    y: player.y + player.h / 2 - 5,
+    w: 10,
+    h: 10,
+    speed: 10,
+    dmg: 5 * dmgBoost,
+    color: 'red'
   });
 }
 
@@ -735,11 +683,11 @@ document.getElementById('pigeonsMenu').style.display = 'flex';
   bullets.push({
     x: from.x + from.w,
     y: from.y + from.h / 2 - 5,
-    w: 10,  // Толщина пули
-    h: 50,  // Длина пули
+    w: 10,  // weight
+    h: 50,  // height
     speed: from === player ? speed : -speed,
     dmg: dmg,
-    color: 'blue' // Цвет пули
+    color: 'blue' // color
   });
 }
 
@@ -749,9 +697,21 @@ function shootGreen(player, bullets, dmgBoost) {
     y: player.y + player.h / 2 - 5,
     w: 15,
     h: 5,
-    speed: 12, // Слишком быстрая пуля для интенсивной стрельбы
-    dmg: 10 * dmgBoost,
+    speed: 12,
+    dmg: 1 * dmgBoost,
     color: 'green'
+  });
+}
+
+function shootFireball(player, bullets, dmgBoost) {
+  bullets.push({
+    x: player.x + player.w,
+    y: player.y + player.h / 2 - 5,
+    w: 15,
+    h: 15,
+    speed: 12,
+    dmg: 2 * dmgBoost,
+    color: 'orange'
   });
 }
 
@@ -824,15 +784,17 @@ function checkGameEnd() {
   const shootType = stats.shootType || 'normal_shoot';
 
   if (shootType === 'emishoot') {
-    shootEmi(player, bullets, dmgBoost); // Эмитированная стрельба
+    shootEmi(player, bullets, dmgBoost); // emi shoot
   } else if (shootType === 'white_shoot') {
-    shootWhite(player, bullets, dmgBoost); // Белая стрельба
+    shootWhite(player, bullets, dmgBoost); // white shoot
   } else if (shootType === 'green_short') {
-    shootGreen(player, bullets, dmgBoost); // Зелёная короткая стрельба
+    shootGreen(player, bullets, dmgBoost); // green shoot
   } else if (shootType === 'ball_shoot') {
     shootBall(player, bullets, dmgBoost); // ball shoot
+  } else if (shootType === 'fireball_shoot') {
+    shootFireball(player, bullets, dmgBoost); // firesquare shoot
   } else {
-    shoot(player, bullets, dmgBoost); // Обычная стрельба
+    shoot(player, bullets, dmgBoost); // classic shoot
   }
 }
     
@@ -893,16 +855,14 @@ console.log("Bot Position: ", bot.x, bot.y);
         }
       });
       if (!bossTransformed && bot.hp < 250) {
-  const chance = Math.random(); // шанс от 0 до 1
+  const chance = Math.random(); // 0-1 chance
   if (chance < 0.000015) { // most rare, because it very often before
     bossTransformed = true;
     bot.hp = bossForm.hp;
     bot.attack = bossForm.attack;
     bot.speed = bossForm.speed;
     botImg.src = bossForm.img;
-
-    // Для мигания
-    bossFlashCounter = 30; // мигает 30 кадров
+    bossFlashCounter = 30;
   }
 }
 
@@ -916,7 +876,6 @@ checkGameEnd();
       ctx.drawImage(playerImg, player.x, player.y, player.w, player.h);
       if (bossTransformed && bossFlashCounter > 0) {
   if (bossFlashCounter % 6 < 3) {
-    // мигать — рисовать с перерывами
     ctx.drawImage(botImg, bot.x, bot.y, bot.w, bot.h);
   }
   bossFlashCounter--;
@@ -930,7 +889,7 @@ checkGameEnd();
 });
 
 botBullets.forEach(b => {
-  ctx.fillStyle = b.color || 'black'; // или другой цвет для вражеских пуль
+  ctx.fillStyle = b.color || 'black';
   ctx.fillRect(b.x, b.y, b.w, b.h);
 });
 
