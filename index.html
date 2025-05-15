@@ -54,7 +54,7 @@
       position: absolute;
       width: 100%;
       height: 100%;
-      background: #2e3a2f;
+      background: #222;
       color: white;
       display: flex;
       flex-direction: column;
@@ -86,15 +86,6 @@
     #shopButton { background: #ffaa00; color: black; }
     #pigeonsButton { background: #aaa; color: black; }
 
-#multiplayer:hover {
-  background: #444;
-  border-color: #666;
-  transform: translateY(-2px);
-}
-
-#multiplayer:active {
-  transform: translateY(1px);
-}
     #gameContainer { display: none; width: 100%; height: 100%; position: relative; }
     canvas { display: block; width: 100%; height: 100%; background: #164704; }
     #version {
@@ -243,7 +234,7 @@ h1, h2, h3 {
 
   <div id="menu">
     <h1>Pigen Battle</h1>
-    <h3>May Update!</h3>
+    <h3>May Update</h3>
     <div id="coinsDisplay">Coins: 0</div>
     <button id="playButton">Play</button>
     <button id="shopButton">Shop</button>
@@ -257,18 +248,12 @@ h1, h2, h3 {
   
  <div id="shop" style="display:none;">
   <h2>Shop</h2>
-  <h3>MAY SEASON!</h3>
+  <h3>Radio Pigeon has left us.</h3>
 
   <div class="pigeon-card">
     <img src="wheelpigeon.jpg" alt="Wheel Pigeon">
     <p>Wheel pigeon<br>+2 speed<br>+1.5 attack<br>25 pigeon coins</p>
     <button onclick="buy('wheelPigeon', 25)">Buy</button>
-  </div>
-
-  <div class="pigeon-card">
-    <img src="radiopigeon.jpg" alt="Radio Pigeon">
-    <p>RadioPigeon<br>60 pigeon coins<br>Deals 5 dmg/sec with radiation<br>Auto-aim longwave shots</p>
-    <button onclick="buy('radioPigeon', 60)">Buy</button>
   </div>
 
   <div class="pigeon-card">
@@ -315,8 +300,8 @@ h1, h2, h3 {
    
    <div class="pigeon-card">
        <img src="wizardpigeon.jpg" alt="Wizard Pigeon">
-  <p>Wizard Pigeon<br>+7.5 speed<br>+40 attack<br>Deals firesquares<br>1000 pigeon coins</p>
-  <button onclick="buy('wizardPigeon', 1000)">Buy</button>
+  <p>Wizard Pigeon<br>+7.5 speed<br>+40 attack<br>Deals firesquares<br>1100 pigeon coins</p>
+  <button onclick="buy('wizardPigeon', 1100)">Buy</button>
    </div>
    
   <h2>Skins</h2>
@@ -540,10 +525,8 @@ function comp() {
 const pigeons = {
   default: { img: 'pigeon.jpg', speed: 5, attack: 10, damage: 0.3, hp: 1200, shootType: 'normal_shoot' },
   wheelPigeon: { img: 'wheelpigeon.jpg', speed: 7, attack: 2, damage: 0.8, hp: 1000, shootType: 'normal_shoot' },
-  radioPigeon: { img: 'radiopigeon.jpg', speed: 5, attack: 10, damage: 0, radiation: true, hp: 1120, shootType: 'normal_shoot' },
   pigeonCopter: { img: 'pigobomb.jpg', speed: 6, attack: 20, damage: 1.5, hp: 1330, shootType: 'normal_shoot' },
   feetPigeon: { img: 'feetpigeon.jpg', speed: 5, attack: 6, damage: 1, kick: true, hp: 1500, shootType: 'normal_shoot' },
-  doublePigeon: { img: 'digeon.jpg', speed: 5, attack: 10, damage: 0.6, hp: 1400, shootType: 'normal_shoot' },
   emiPigeon: { img: 'emipigeon.jpg', speed: 5, attack: 8, damage: 0.655, hp: 1200, shootType: 'emishoot' },
   dentistPigeon: { img: 'dentistpigeon.jpg', speed: 5, attack: 10, damage: 0.3, hp: 2000, shootType: 'normal_shoot' },
   armyPigeon: { img: 'armypigeon.jpg', speed: 5, attack: 12, damage: 0.2, hp: 1300, shootType: 'green_short' },
@@ -705,12 +688,28 @@ function shootGreen(player, bullets, dmgBoost) {
 }
 
 function shootFireball(player, bullets, dmgBoost) {
+  const originX = player.x + player.w / 2;
+  const originY = player.y + player.h / 2;
+  const speed = 12;
+
+  let velX = speed;
+  let velY = 0;
+
+  if (bot && typeof bot.x !== "undefined") {
+    const targetX = bot.x + bot.w / 2;
+    const targetY = bot.y + bot.h / 2;
+    const angle = Math.atan2(targetY - originY, targetX - originX);
+    velX = Math.cos(angle) * speed;
+    velY = Math.sin(angle) * speed;
+  }
+
   bullets.push({
-    x: player.x + player.w,
-    y: player.y + player.h / 2 - 5,
+    x: originX,
+    y: originY,
     w: 15,
     h: 15,
-    speed: 12,
+    speedX: velX,
+    speedY: velY,
     dmg: 2 * dmgBoost,
     color: 'orange'
   });
@@ -767,109 +766,126 @@ function checkGameEnd() {
   }
 }
 
-    function update() {
-      const stats = pigeons[selected];
-      const moveSpeed = stats.speed;
-      const dmgBoost = stats.damage;
-      
-      if (isClassicPigeonActive()) {
+function update() {
+  const stats = pigeons[selected];
+  const moveSpeed = stats.speed;
+  const dmgBoost = stats.damage;
+
+  // Classic pigeon bonus
+  if (isClassicPigeonActive()) {
     stats.damage += 0.6;
-    stats.attack += 10; // pigeons attack
+    stats.attack += 10;
   }
-  
-      if (keys['w']) player.y -= moveSpeed;
-      if (keys['s']) player.y += moveSpeed;
-      if (keys['a']) player.x -= moveSpeed;
-      if (keys['d']) player.x += moveSpeed;
-      if (keys[' ']) {
-  const shootType = stats.shootType || 'normal_shoot';
 
-  if (shootType === 'emishoot') {
-    shootEmi(player, bullets, dmgBoost); // emi shoot
-  } else if (shootType === 'white_shoot') {
-    shootWhite(player, bullets, dmgBoost); // white shoot
-  } else if (shootType === 'green_short') {
-    shootGreen(player, bullets, dmgBoost); // green shoot
-  } else if (shootType === 'ball_shoot') {
-    shootBall(player, bullets, dmgBoost); // ball shoot
-  } else if (shootType === 'fireball_shoot') {
-    shootFireball(player, bullets, dmgBoost); // firesquare shoot
-  } else {
-    shoot(player, bullets, dmgBoost); // classic shoot
-  }
-}
-    
-// Check if bot is moving and on screen
+  // Player movement
+  if (keys['w']) player.y -= moveSpeed;
+  if (keys['s']) player.y += moveSpeed;
+  if (keys['a']) player.x -= moveSpeed;
+  if (keys['d']) player.x += moveSpeed;
 
-// Ensure player has valid last position (this will avoid NaN)
-if (!player.lastX || !player.lastY) {
-  player.lastX = player.x;
-  player.lastY = player.y;
-}
+  // Shooting logic
+  if (keys[' ']) {
+    const shootType = stats.shootType || 'normal_shoot';
 
-// Calculate distance and direction
-const distX = player.x - bot.x;
-const distY = player.y - bot.y;
-const distance = Math.sqrt(distX * distX + distY * distY); // Distance between player and bot
-
-// Predict the player's future position (to prevent NaN)
-const playerSpeedX = player.x - player.lastX;
-const playerSpeedY = player.y - player.lastY;
-const predictionFactor = 0.2;
-
-// Ensure prediction doesn't cause NaN
-const predictedPlayerX = player.x + (playerSpeedX || 0) * predictionFactor;
-const predictedPlayerY = player.y + (playerSpeedY || 0) * predictionFactor;
-
-// Calculate direction towards predicted player position
-const angleToPredictedPlayer = Math.atan2(predictedPlayerY - bot.y, predictedPlayerX - bot.x);
-
-// Move bot towards predicted position
-bot.x += Math.cos(angleToPredictedPlayer) * bot.speed;
-bot.y += Math.sin(angleToPredictedPlayer) * bot.speed;
-
-// Simple collision check: make sure bot stays within screen bounds
-bot.x = Math.max(0, Math.min(canvas.width, bot.x));
-bot.y = Math.max(0, Math.min(canvas.height, bot.y));
-
-// Update bot's last known position for prediction
-bot.lastX = bot.x;
-bot.lastY = bot.y;
-
-// Debugging log to check bot's position
-console.log("Bot Position: ", bot.x, bot.y);
-      
-      bullets.forEach(b => b.x += b.speed);
-      botBullets.forEach(b => b.x += b.speed);
-
-      bullets.forEach(b => {
-        if (b.x < bot.x + bot.w && b.x + b.w > bot.x && b.y < bot.y + bot.h && b.y + b.h > bot.y) {
-          bot.hp -= b.dmg;
-          b.hit = true;
-        }
-      });
-
-      botBullets.forEach(b => {
-        if (b.x < player.x + player.w && b.x + b.w > player.x && b.y < player.y + player.h && b.y + b.h > player.y) {
-          player.hp -= b.dmg;
-          b.hit = true;
-        }
-      });
-      if (!bossTransformed && bot.hp < 250) {
-  const chance = Math.random(); // 0-1 chance
-  if (chance < 0.000015) { // most rare, because it very often before
-    bossTransformed = true;
-    bot.hp = bossForm.hp;
-    bot.attack = bossForm.attack;
-    bot.speed = bossForm.speed;
-    botImg.src = bossForm.img;
-    bossFlashCounter = 30;
-  }
-}
-
-checkGameEnd();
-     
+    if (shootType === 'emishoot') {
+      shootEmi(player, bullets, dmgBoost);
+    } else if (shootType === 'white_shoot') {
+      shootWhite(player, bullets, dmgBoost);
+    } else if (shootType === 'green_short') {
+      shootGreen(player, bullets, dmgBoost);
+    } else if (shootType === 'ball_shoot') {
+      shootBall(player, bullets, dmgBoost);
+    } else if (shootType === 'fireball_shoot') {
+      shootFireball(player, bullets, dmgBoost);
+    } else {
+      shoot(player, bullets, dmgBoost);
     }
+  }
+
+  // Bot movement towards player with prediction
+  if (!player.lastX || !player.lastY) {
+    player.lastX = player.x;
+    player.lastY = player.y;
+  }
+
+  const playerSpeedX = player.x - player.lastX;
+  const playerSpeedY = player.y - player.lastY;
+  const predictionFactor = 0.2;
+
+  const predictedPlayerX = player.x + (playerSpeedX || 0) * predictionFactor;
+  const predictedPlayerY = player.y + (playerSpeedY || 0) * predictionFactor;
+
+  const angleToPlayer = Math.atan2(
+    predictedPlayerY - (bot.y + bot.h / 2),
+    predictedPlayerX - (bot.x + bot.w / 2)
+  );
+
+  const botSmooth = 0.6;
+  bot.x += Math.cos(angleToPlayer) * bot.speed * botSmooth;
+  bot.y += Math.sin(angleToPlayer) * bot.speed * botSmooth;
+
+  // Clamp bot to canvas
+  bot.x = Math.max(0, Math.min(canvas.width, bot.x));
+  bot.y = Math.max(0, Math.min(canvas.height, bot.y));
+
+  bot.lastX = bot.x;
+  bot.lastY = bot.y;
+
+  // Bullets movement (with auto-aim support)
+  bullets.forEach(b => {
+    if (typeof b.speedX !== "undefined" && typeof b.speedY !== "undefined") {
+      b.x += b.speedX;
+      b.y += b.speedY;
+    } else {
+      b.x += b.speed;
+    }
+  });
+
+  botBullets.forEach(b => b.x += b.speed);
+
+  // Collision: player bullets hit bot
+  bullets.forEach(b => {
+    if (
+      b.x < bot.x + bot.w &&
+      b.x + b.w > bot.x &&
+      b.y < bot.y + bot.h &&
+      b.y + b.h > bot.y
+    ) {
+      bot.hp -= b.dmg;
+      b.hit = true;
+    }
+  });
+
+  // Collision: bot bullets hit player
+  botBullets.forEach(b => {
+    if (
+      b.x < player.x + player.w &&
+      b.x + b.w > player.x &&
+      b.y < player.y + player.h &&
+      b.y + b.h > player.y
+    ) {
+      player.hp -= b.dmg;
+      b.hit = true;
+    }
+  });
+
+  // Boss transformation
+  if (!bossTransformed && bot.hp < 250) {
+    const chance = Math.random();
+    if (chance < 0.000015) {
+      bossTransformed = true;
+      bot.hp = bossForm.hp;
+      bot.attack = bossForm.attack;
+      bot.speed = bossForm.speed;
+      botImg.src = bossForm.img;
+      bossFlashCounter = 30;
+    }
+  }
+
+  // END GAME CHECK!
+  checkGameEnd();
+}
+
     function draw() {
       update();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
