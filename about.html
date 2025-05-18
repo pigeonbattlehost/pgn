@@ -65,15 +65,29 @@
       object-fit: cover;
       margin-left: 20px;
     }
+
+    .reset-btn {
+      background-color: #ff3333;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 8px 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .reset-btn:hover {
+      background-color: #cc0000;
+    }
   </style>
 </head>
 <body>
   <div class="title">ABOUT</div>
 
   <div class="section red-text">
-      <img src="law.png" alt="Law" class="avatar">
+    <img src="law.png" alt="Law" class="avatar">
     Testers: Pigeon named "Law"
-
   </div>
 
   <div class="section">
@@ -86,5 +100,17 @@
       Go to GitHub
     </a>
   </div>
+
+  <div class="section">
+    Reset your progress
+    <button class="reset-btn" onclick="reset()">Reset</button>
+  </div>
+
+  <script>
+    function reset() {
+      localStorage.clear();
+      alert('Successfully!');
+    }
+  </script>
 </body>
 </html>
