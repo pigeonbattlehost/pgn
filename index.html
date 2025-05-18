@@ -334,20 +334,29 @@ h1, h2, h3 {
     <div id="ownedPigeons"></div>
     <button onclick="closePigeons()">Back</button>
   </div>
+ <div id="communityShop" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:black; color:white; z-index:10000; justify-content:center; align-items:center; flex-direction:column; font-family: 'Poppins', sans-serif;">
+  <h1>Secret Shop</h1>
+  <p id="spgcoinDisplay">Super Pigeon Coins: 0</p>
+  
+  <div class="pigeon-card">
+    <img src="lawpigeon.jpg" alt="Law Pigeon">
+    <p>Law Pigeon<br>cat pigeon hybrid. Yes<br>20 spgc<br>40 attack<br>2000 HP, 0.7 dmg</p>
+    <button onclick="buysuper('lawPigeon', 20)">Buy</button>
+  </div>
+  
+  <button onclick="closeCommunityShop()" style="margin-top:20px; padding:10px 20px; font-size:16px;">Back</button>
+</div>
   <div id="gameContainer">
     <canvas id="gameCanvas"></canvas>
     <div id="version">PigeonBattle 0.2d</div>
     <div id="joystick"></div>
     <div id="shootBtn">bang</div>
   </div>
-
   <script>
-      
+ 
 
-  
 let playerId = localStorage.getItem("playerId");
 
-  
 fetch("https://pigeonbattle.onrender.com/ping", {
   method: "POST",
   headers: {
@@ -510,6 +519,8 @@ function openCase() {
     localStorage.setItem('pigeonCoins', coins);
 }
 
+let superPigeonCoins = parseInt(localStorage.getItem("spgcoins")) || 0;
+
 function comp() {
   if (!localStorage.getItem('compReceived')) {
     coins += 100;
@@ -533,7 +544,8 @@ const pigeons = {
   sorrelPigeon: { img: 'sorrelpigeon.jpg', speed: 6.5, attack: 16, damage: 0.4, hp: 1500, shootType: 'green_short' },
   goonPigeon: { img: 'goonpigeon.jpg', speed: 4.5, attack: 13, damage: 0.5, hp: 1250, shootType: 'white_shoot', humanLegs: true, confusionAura: true },
   clownPigeon: { img: 'clownpigeon.jpg', speed: 5, attack: 30, damage: 0.6, hp: 1600, shootType: 'ball_shoot'},
-  wizardPigeon: { img: 'wizardpigeon.jpg', speed: 7.5, attack: 40, damage: 2, hp: 2200, shootType: 'fireball_shoot'}
+  wizardPigeon: { img: 'wizardpigeon.jpg', speed: 7.5, attack: 40, damage: 2, hp: 2200, shootType: 'fireball_shoot'},
+  lawPigeon: { img: 'lawpigeon.jpg', speed: 4, attack: 40, damage: 0.7, hp: 1600}
 };
 
    const enemies = [
@@ -637,6 +649,18 @@ document.getElementById('pigeonsMenu').style.display = 'flex';
         alert('Not enough coins or already owned');
       }
       updateCoinsDisplay();
+    }
+    
+    function buysuper(id, cost) {
+      if (!owned.includes(id) && superPigeonCoins >= cost) {
+        superPigeonCoins -= cost;
+        owned.push(id);
+        localStorage.setItem('spgcoins', coins);
+        localStorage.setItem('ownedPigeons', JSON.stringify(owned));
+        alert(id + ' bought!');
+        } else {
+        alert('Not enough coins or already owned');
+      }
     }
     
     function shootWhite(player, bullets, dmgBoost) {
@@ -754,8 +778,10 @@ function checkGameEnd() {
   if (bot.hp <= 0) {
     gameOver = true;
     coins += 10;
+    superPigeonCoins += 1;
+    localStorage.setItem('spgcoins', superPigeonCoins);
     localStorage.setItem('pigeonCoins', coins);
-    alert('You win! +10 coins');
+    alert('You win! +10 coins, +1 sPGC');
     location.reload();
   }
 
@@ -973,8 +999,35 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+
+let clickCount = 0;
+let clickTimeout = null;
+
+document.getElementById("onlineStatus").addEventListener("click", () => {
+  clickCount++;
+  if (clickTimeout) clearTimeout(clickTimeout);
+  clickTimeout = setTimeout(() => clickCount = 0, 1000); // сброс за 1 сек
+
+  if (clickCount >= 3) {
+    openCommunityShop();
+    clickCount = 0;
+  }
+});
+
+function openCommunityShop() {
+  const shop = document.getElementById("communityShop");
+  let spgcoins = parseInt(localStorage.getItem("spgcoins")) || 0;
+  document.getElementById("spgcoinDisplay").textContent = `Super Pigeon Coins: ${spgcoins}`;
+  shop.style.display = "flex";
+}
+
+function closeCommunityShop() {
+  document.getElementById("communityShop").style.display = "none";
+}
+
 console.log("PigeonBattle. Made by toiletpigeon, enjoy the game like a fat pigeon sitting on a toilet...")
 
   </script>
 </body>
 </html>
+ 
