@@ -87,7 +87,7 @@
     #pigeonsButton { background: #aaa; color: black; }
 
     #gameContainer { display: none; width: 100%; height: 100%; position: relative; }
-    canvas { display: block; width: 100%; height: 100%; background: #164704; }
+    canvas { display: block; width: 100%; height: 100%; background: #A3D977; }
     #version {
       position: absolute;
       bottom: 10px;
@@ -234,7 +234,7 @@ h1, h2, h3 {
 
   <div id="menu">
     <h1>Pigen Battle</h1>
-    <h3>May Update</h3>
+    <h3>Summer Update</h3>
     <div id="coinsDisplay">Coins: 0</div>
     <button id="playButton">Play</button>
     <button id="shopButton">Shop</button>
@@ -248,7 +248,7 @@ h1, h2, h3 {
   
  <div id="shop" style="display:none;">
   <h2>Shop</h2>
-  <h3>Radio Pigeon has left us.</h3>
+  <h3>Summer fuckass update.</h3>
 
   <div class="pigeon-card">
     <img src="wheelpigeon.jpg" alt="Wheel Pigeon">
@@ -298,6 +298,11 @@ h1, h2, h3 {
   <button onclick="buy('clownPigeon', 130)">Buy</button>
    </div>
    
+   <div class="pigeon-card">
+       <img src="wizardpigeon.jpg" alt="Wizard Pigeon">
+  <p>Wizard Pigeon<br>+7.5 speed<br>+40 attack<br>Deals firesquares<br>1100 pigeon coins</p>
+  <button onclick="buy('wizardPigeon', 1100)">Buy</button>
+   </div>
    
   <h2>Skins</h2>
   <div class="pigeon-card">
@@ -328,12 +333,22 @@ h1, h2, h3 {
     <h2>Your Pigeons</h2>
     <div id="ownedPigeons"></div>
     <button onclick="closePigeons()">Back</button>
+  </div>
+ <div id="communityShop" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:black; color:white; z-index:10000; justify-content:center; align-items:center; flex-direction:column; font-family: 'Poppins', sans-serif;">
+  <h1>Secret Shop</h1>
+  <p id="spgcoinDisplay">Super Pigeon Coins: 0</p>
   
+  <div class="pigeon-card">
+    <img src="lawpigeon.jpg" alt="Law Pigeon">
+    <p>Law Pigeon<br>cat pigeon hybrid. Yes<br>20 spgc<br>40 attack<br>2000 HP, 0.7 dmg</p>
+    <button onclick="buysuper('lawPigeon', 20)">Buy</button>
+  </div>
   
+  <button onclick="closeCommunityShop()" style="margin-top:20px; padding:10px 20px; font-size:16px;">Back</button>
 </div>
   <div id="gameContainer">
     <canvas id="gameCanvas"></canvas>
-    <div id="version">PigeonBattle 0.2d</div>
+    <div id="version">PigeonBattle 0.3S</div>
     <div id="joystick"></div>
     <div id="shootBtn">bang</div>
   </div>
@@ -528,7 +543,9 @@ const pigeons = {
   armyPigeon: { img: 'armypigeon.jpg', speed: 5, attack: 12, damage: 0.2, hp: 1300, shootType: 'green_short' },
   sorrelPigeon: { img: 'sorrelpigeon.jpg', speed: 6.5, attack: 16, damage: 0.4, hp: 1500, shootType: 'green_short' },
   goonPigeon: { img: 'goonpigeon.jpg', speed: 4.5, attack: 13, damage: 0.5, hp: 1250, shootType: 'white_shoot', humanLegs: true, confusionAura: true },
-  clownPigeon: { img: 'clownpigeon.jpg', speed: 5, attack: 30, damage: 0.6, hp: 1600, shootType: 'ball_shoot'}
+  clownPigeon: { img: 'clownpigeon.jpg', speed: 5, attack: 30, damage: 0.6, hp: 1600, shootType: 'ball_shoot'},
+  wizardPigeon: { img: 'wizardpigeon.jpg', speed: 7.5, attack: 40, damage: 2, hp: 2200, shootType: 'fireball_shoot'},
+  lawPigeon: { img: 'lawpigeon.jpg', speed: 4, attack: 40, damage: 0.7, hp: 1600}
 };
 
    const enemies = [
@@ -997,6 +1014,16 @@ document.getElementById("onlineStatus").addEventListener("click", () => {
   }
 });
 
+function openCommunityShop() {
+  const shop = document.getElementById("communityShop");
+  let spgcoins = parseInt(localStorage.getItem("spgcoins")) || 0;
+  document.getElementById("spgcoinDisplay").textContent = `Super Pigeon Coins: ${spgcoins}`;
+  shop.style.display = "flex";
+}
+
+function closeCommunityShop() {
+  document.getElementById("communityShop").style.display = "none";
+}
 
 console.log("PigeonBattle. Made by toiletpigeon, enjoy the game like a fat pigeon sitting on a toilet...")
 
