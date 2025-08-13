@@ -18,7 +18,8 @@ last_message_time = {}  # player_id -> timestamp
 
 banned_words = [
     "nigger", "niga", "kike", "chink", "gook", "wetback", "spic",
-    "faggot", "retard", "tranny", "coon", "towelhead", "camel jockey"
+    "faggot", "retard", "tranny", "coon", "towelhead", "camel jockey",
+    "reggin", "nigga", "niggеr", "негр"
 ]
 banned_regex = re.compile(r"|".join(rf"\b{re.escape(word)}\b" for word in banned_words), re.IGNORECASE)
 
@@ -71,12 +72,11 @@ def handle_message(data):
 
     now = time.time()
 
-    # Антифлуд
-    if player_id in last_message_time and now - last_message_time[player_id] < 5:
-        emit('receive_message', {"nickname": "System", "text": "Slow down! Wait 5 seconds."}, room=request.sid)
+    #antiflood
+    if player_id in last_message_time and now - last_message_time[player_id] < 3:
+        emit('receive_message', {"nickname": "System", "text": "Slow down! Wait 3 seconds."}, room=request.sid)
         return
 
-    # Фильтр токсик-контента
     if banned_regex.search(text):
         emit('receive_message', {"nickname": "System", "text": "Message blocked for inappropriate content."}, room=request.sid)
         return
