@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -238,7 +240,7 @@ h1, h2, h3 {
     <button id="shopButton">Shop</button>
     <button id="pigeonsButton">Pigeons</button>
     <button class="pigeonism-btn" id="pigeonism-btn">Pigeon Chat</button>
-    <button id="about-btn">About</button>
+    <button id="goonNFTBtn">Goon NFT</button>
 
     
     <div id="onlineStatus">Loading pigeons...</div>
@@ -322,6 +324,13 @@ h1, h2, h3 {
     <p>Pigeon Case<br>You can get coins, or pigeon. Take a risk?<br>70 pigeon coins</p>
     <button onclick="openCase()">Buy</button>
   </div>
+      
+  <h2>GoonNFTs</h2>
+  <div class="pigeon-card">
+    <img src="slimenft.jpg" alt="SlimePigeon">
+    <p>Slime Pigeon<br>LIMITED!! Pigeon NFT. You can buy it. It could become expensive later. Or cheaper.<br>2200</p>
+    <button onclick="openCase()">Buy</button>
+  </div>
    
 
   <button onclick="closeShop()">Back</button>
@@ -346,7 +355,7 @@ h1, h2, h3 {
 </div>
   <div id="gameContainer">
     <canvas id="gameCanvas"></canvas>
-    <div id="version">PigeonBattle 0.3.1</div>
+    <div id="version">PigeonBattle 0.3.2b</div>
     <div id="joystick"></div>
     <div id="shootBtn">bang</div>
   </div>
@@ -409,6 +418,27 @@ function buyClassicPigeon() {
   }
 }
 
+function buyNFT(nft, cost) {
+  if (coins >= cost && !ownedNFTs.some(n => n.id === nft.id)) {
+    coins -= cost;
+    ownedNFTs.push(nft);
+    localStorage.setItem('ownedNFTs', JSON.stringify(ownedNFTs));
+    updateCoinsDisplay();
+    alert(`${nft.name} NFT purchased!`);
+  } else {
+    alert('Not enough coins or already owned');
+  }
+}
+
+function selectNFT(id) {
+  const nft = ownedNFTs.find(n => n.id === id);
+  if (nft) {
+    selectedNFT = id;
+    localStorage.setItem('selectedNFT', selectedNFT);
+    alert(`${nft.name} is now active!`);
+  }
+}
+
 function isClassicPigeonActive() {
   if (pigeoninClassic) {
     const now = new Date();
@@ -434,7 +464,9 @@ function isClassicPigeonActive() {
     let coins = parseInt(localStorage.getItem('pigeonCoins') || '0');
     const owned = JSON.parse(localStorage.getItem('ownedPigeons') || '["default"]');
     let selected = localStorage.getItem('selectedPigeon') || 'default';
-
+    // nfts
+    let ownedNFTs = JSON.parse(localStorage.getItem('ownedNFTs') || '[]');
+    let selectedNFT = localStorage.getItem('selectedNFT') || null;
 
 
 if (!playerId) {
@@ -1023,6 +1055,10 @@ function openCommunityShop() {
 function closeCommunityShop() {
   document.getElementById("communityShop").style.display = "none";
 }
+
+document.getElementById('goonNFTBtn').addEventListener('click', () => {
+    window.location.href = 'GoonNFT.html';
+});
 
 console.log("PigeonBattle. Made by toiletpigeon, enjoy the game like a fat pigeon sitting on a toilet...")
 
