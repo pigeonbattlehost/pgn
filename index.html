@@ -221,7 +221,37 @@ h1, h2, h3 {
 }
 
 
-  </style>
+  
+/* SELL DIALOG (custom styles) */
+.sell-dialog {
+  position: fixed;
+  inset: 0;
+  display: none; /* toggle via JS */
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.45);
+  z-index: 20000;
+}
+.sell-card {
+  background: linear-gradient(180deg,#0b1220,#0f1724);
+  color: #fff;
+  padding: 18px 20px;
+  border-radius: 18px;
+  min-width: 260px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  font-family: 'Poppins', sans-serif;
+}
+#sellText { font-weight:700; margin-bottom:10px; font-size:16px; }
+#sellDots { display:inline-block; width:60px; }
+@keyframes sell-pulse {
+  0% { transform: scale(1); opacity: 0.6 }
+  50% { transform: scale(1.06); opacity: 1 }
+  100% { transform: scale(1); opacity: 0.6 }
+}
+.sell-spinner { display:inline-block; margin-left:6px; width:8px; height:8px; border-radius:50%; background:#fff; animation: sell-pulse 1s infinite; }
+.sell-time { margin-top:8px; font-size:13px; color:#cbd5e1; }
+</style>
 </head>
 <body>
     <div id="splash">
@@ -238,7 +268,7 @@ h1, h2, h3 {
     <button id="shopButton">Shop</button>
     <button id="pigeonsButton">Pigeons</button>
     <button class="pigeonism-btn" id="pigeonism-btn">Pigeon Chat</button>
-    <button id="goonNFTBtn">Goon NFT</button>
+    <button id="about-btn">About</button>
 
     
     <div id="onlineStatus">Loading pigeons...</div>
@@ -322,6 +352,7 @@ h1, h2, h3 {
     <p>Pigeon Case<br>You can get coins, or pigeon. Take a risk?<br>70 pigeon coins</p>
     <button onclick="openCase()">Buy</button>
   </div>
+
     
   <button onclick="closeShop()">Back</button>
 </div>
@@ -334,7 +365,33 @@ h1, h2, h3 {
  <div id="communityShop" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:black; color:white; z-index:10000; justify-content:center; align-items:center; flex-direction:column; font-family: 'Poppins', sans-serif;">
   <h1>Secret Shop</h1>
   <p id="spgcoinDisplay">Super Pigeon Coins: 0</p>
-  
+ <!-- SELL DIALOG -->
+<div id="sellDialog" class="sell-dialog" aria-hidden="true">
+  <div class="sell-card" role="dialog" aria-modal="true">
+    <div id="sellText">Finding a pigeon to sold to.. <span id="sellDots"><span class="sell-spinner"></span></span></div>
+    <div id="sellTime" class="sell-time">Searching...</div>
+  </div>
+</div>
+
+<!-- Добавь это в <body>, где удобно -->
+<div id="toast" style="
+  visibility: hidden;
+  min-width: 200px;
+  margin-left: -100px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 5px;
+  padding: 16px;
+  position: fixed;
+  z-index: 1000;
+  left: 50%;
+  bottom: 30px;
+  font-size: 17px;
+  opacity: 0;
+  transition: opacity 0.5s, bottom 0.5s;
+"></div>
+                    
   <div class="pigeon-card">
     <img src="lawpigeon.jpg" alt="Law Pigeon">
     <p>Law Pigeon<br>cat pigeon hybrid. Yes<br>20 spgc<br>40 attack<br>2000 HP, 0.7 dmg</p>
@@ -345,7 +402,7 @@ h1, h2, h3 {
 </div>
   <div id="gameContainer">
     <canvas id="gameCanvas"></canvas>
-    <div id="version">PigeonBattle 0.3.2b</div>
+    <div id="version">PigeonBattle 0.3.2</div>
     <div id="joystick"></div>
     <div id="shootBtn">bang</div>
   </div>
@@ -385,7 +442,23 @@ src="https://cdn.jsdelivr.net/npm/nipplejs@0.8.0/dist/nipplejs.min.js"
         playerImg.src = 'pigeon.jpg';
       }
     }
-    
+
+
+function toast(message, duration = 3000) {
+  const x = document.getElementById("toast");
+  x.innerText = message;
+  x.style.visibility = "visible";
+  x.style.opacity = "1";
+  x.style.bottom = "50px";
+  setTimeout(() => {
+    x.style.opacity = "0";
+    x.style.bottom = "30px";
+    setTimeout(() => x.style.visibility = "hidden", 500);
+  }, duration);
+}
+
+
+
 let pigeoninClassic = localStorage.getItem('pigeoninClassic');
 const pigeoninExpiry = localStorage.getItem('pigeoninExpiry'); 
 
@@ -1046,13 +1119,114 @@ function closeCommunityShop() {
   document.getElementById("communityShop").style.display = "none";
 }
 
-document.getElementById('goonNFTBtn').addEventListener('click', () => {
-    window.location.href = 'GoonNFT.html';
-});
-
 console.log("PigeonBattle. Made by toiletpigeon, enjoy the game like a fat pigeon sitting on a toilet...")
 
-  </script>
+  
+/* === SELL LOGIC === */
+const pigeonPriceMap = {
+  wheelPigeon: 25,
+  pigeonCopter: 180,
+  feetPigeon: 45,
+  dentistPigeon: 49,
+  emiPigeon: 100,
+  armyPigeon: 55,
+  goonPigeon: 69,
+  clownPigeon: 130,
+  wizardPigeon: 1100,
+  sorrelPigeon: 55,
+  default: 10
+};
+
+function renderOwnedPigeonsUI() {
+  const container = document.getElementById('ownedPigeons');
+  container.innerHTML = '';
+  const ownedArr = JSON.parse(localStorage.getItem('ownedPigeons') || '[]');
+  if (!ownedArr.length) {
+    container.innerHTML = '<div style="padding:12px;color:#ccc">U prolly gambled all ur pigeons.. Hope you got a profit</div>';
+    return;
+  }
+  ownedArr.forEach(id => {
+    const p = pigeons[id] || { img: 'pigeon.jpg' };
+    const div = document.createElement('div');
+    div.style.display = 'flex';
+    div.style.alignItems = 'center';
+    div.style.gap = '12px';
+    div.style.marginBottom = '14px';
+    div.innerHTML = `
+      <img src="${p.img}" style="width:90px;height:90px;object-fit:cover;border-radius:12px" />
+      <div style="flex:1">
+        <div style="font-weight:700">${id}</div>
+        <div style="font-size:13px;color:#ccc">Price: ${pigeonPriceMap[id] ? pigeonPriceMap[id] + ' PGC' : pigeonPriceMap.default + ' PGC'}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <button class="pigeonism-btn" onclick="selectPigeon('${id}')">Select</button>
+        <button class="pigeonism-btn" style="background:#a00" onclick="sellPigeon('${id}', this)">Sell</button>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function showSellingDialog() {
+  return new Promise(resolve => {
+    const dialog = document.getElementById('sellDialog');
+    const timeEl = document.getElementById('sellTime');
+    dialog.style.display = 'flex';
+    dialog.setAttribute('aria-hidden','false');
+    const secs = Math.floor(Math.random() * 26) + 5;
+    let left = secs;
+    timeEl.textContent = `Finding a buyer... ${left}s`;
+    const interval = setInterval(() => {
+      left--;
+      timeEl.textContent = `Finding a buyer... ${left}s`;
+      if (left <= 0) {
+        clearInterval(interval);
+        dialog.style.display = 'none';
+        dialog.setAttribute('aria-hidden','true');
+        resolve(true);
+      }
+    }, 1000);
+  });
+}
+
+function sellPigeon(id, btnEl) {
+  if (btnEl) {
+    btnEl.disabled = true;
+    btnEl.textContent = 'Selling...';
+  }
+  showSellingDialog().then(() => {
+    const arr = JSON.parse(localStorage.getItem('ownedPigeons') || '[]');
+    const idx = arr.indexOf(id);
+    if (idx !== -1) arr.splice(idx, 1);
+    localStorage.setItem('ownedPigeons', JSON.stringify(arr));
+    const price = pigeonPriceMap[id] || pigeonPriceMap.default;
+    coins = (parseInt(localStorage.getItem('pigeonCoins') || coins) || 0) + price;
+    localStorage.setItem('pigeonCoins', coins);
+    updateCoinsDisplay();
+    renderOwnedPigeonsUI();
+    toast(`${id} sold — +${price} PGC`);
+  }).finally(() => {
+    if (btnEl) {
+      btnEl.disabled = false;
+      btnEl.textContent = 'Sell';
+    }
+  });
+}
+
+document.getElementById('pigeonsButton').onclick = () => {
+  document.getElementById('menu').style.display = 'none';
+  document.getElementById('pigeonsMenu').style.display = 'flex';
+  renderOwnedPigeonsUI();
+};
+
+const origBuy = window.buy;
+window.buy = function(id,cost){
+  origBuy && origBuy(id,cost);
+  setTimeout(renderOwnedPigeonsUI, 150);
+};
+
+renderOwnedPigeonsUI();
+</script>
 </body>
 </html>
  
