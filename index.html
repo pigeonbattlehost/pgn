@@ -328,8 +328,14 @@ h1, h2, h3 {
    
    <div class="pigeon-card">
        <img src="wizardpigeon.jpg" alt="Wizard Pigeon">
-  <p>Wizard Pigeon<br>+7.5 speed<br>+40 attack<br>Deals firesquares<br>1100 pigeon coins</p>
-  <button onclick="buy('wizardPigeon', 1100)">Buy</button>
+  <p>Wizard Pigeon<br>+7.5 speed<br>+40 attack<br>Deals firesquares<br>5000 pigeon coins</p>
+  <button onclick="buy('wizardPigeon', 5000)">Buy</button>
+   </div>
+   
+   <div class="pigeon-card">
+       <img src="feetphone.jpg" alt="feet phonepgueon">
+  <p>Google Nexus Feet Pigeon<br>+6 speed<br>+20 attack<br>0.6 damage<br>210 pigeon coins</p>
+  <button onclick="buy('feetphone', 210)">Buy</button>
    </div>
    
   <h2>Skins</h2>
@@ -638,7 +644,8 @@ const pigeons = {
   goonPigeon: { img: 'goonpigeon.jpg', speed: 4.5, attack: 13, damage: 0.5, hp: 1250, shootType: 'white_shoot', humanLegs: true, confusionAura: true },
   clownPigeon: { img: 'clownpigeon.jpg', speed: 5, attack: 30, damage: 0.6, hp: 1600, shootType: 'ball_shoot'},
   wizardPigeon: { img: 'wizardpigeon.jpg', speed: 7.5, attack: 40, damage: 2, hp: 2200, shootType: 'fireball_shoot'},
-  lawPigeon: { img: 'lawpigeon.jpg', speed: 4, attack: 40, damage: 0.7, hp: 1600}
+  lawPigeon: { img: 'lawpigeon.jpg', speed: 4, attack: 40, damage: 0.7, hp: 1600},
+  feetphone: { img: 'feetphone.jpg', speed: 6, attack: 20, damage: 0.6, hp: 2200, shootType: 'normal_shoot' },
 };
 
    const enemies = [
@@ -1132,8 +1139,9 @@ const pigeonPriceMap = {
   armyPigeon: 55,
   goonPigeon: 69,
   clownPigeon: 130,
-  wizardPigeon: 1100,
+  wizardPigeon: 5000,
   sorrelPigeon: 55,
+  feetphone: 210,
   default: 10
 };
 
