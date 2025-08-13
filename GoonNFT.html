@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>NFT Shop</title>
+<style>
+  body {
+    background: linear-gradient(120deg, #6af, #0fa);
+    font-family: 'Comic Sans MS', sans-serif;
+    color: #fff;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:20px;
+  }
+  h1 { margin-bottom:20px; text-shadow: 2px 2px #000; }
+  #coinsDisplay { font-size:20px; margin-bottom:20px; text-shadow:1px 1px #000; }
+  #nftList { display:flex; justify-content:center; flex-wrap:wrap; gap:20px; }
+  .nft-card {
+    background: rgba(0,0,0,0.3);
+    border-radius:20px;
+    padding:15px;
+    width:220px;
+    text-align:center;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .nft-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 25px rgba(0,0,0,0.7);
+  }
+  .nft-card img { width:100%; border-radius:15px; margin-bottom:10px; }
+  .nft-card button {
+    padding:8px 15px;
+    border:none;
+    border-radius:12px;
+    background: #0f0;
+    color:#000;
+    font-weight:bold;
+    cursor:pointer;
+    transition: background 0.2s;
+  }
+  .nft-card button:hover { background:#5f5; }
+</style>
+</head>
+<body>
+
+<h1>GoonNFTs</h1>
+<p id="coinsDisplay">NFT Coins: 0</p>
+<div id="nftList"></div>
+
+<script>
+// ===== COINS FROM LOCAL STORAGE =====
+let coins = parseInt(localStorage.getItem('pigeonCoins') || '500');
+function updateCoinsDisplay(){ document.getElementById('coinsDisplay').textContent='Coins: '+coins; }
+updateCoinsDisplay();
+
+// ===== NFT CATALOG =====
+const nftCatalog = [
+  { 
+    id: 'slimePigeon',
+    name: 'Slime Pigeon',
+    img: 'https://via.placeholder.com/200x200/00ff77/000000?text=Slime+Pigeon',
+    costKey: 'slimePigeonCost',
+    rarity: 'Epic'
+  }
+];
+
+// ===== OWNED NFT =====
+let ownedNFTs = JSON.parse(localStorage.getItem('ownedNFTs')||'[]');
+
+// ===== SET DEFAULT COST IF MISSING =====
+if(!localStorage.getItem('slimePigeonCost')) localStorage.setItem('slimePigeonCost', '300');
+
+// ===== BUY FUNCTION =====
+function buyNFT(nftId){
+  const nft = nftCatalog.find(n=>n.id===nftId);
+  if(!nft) return;
+  if(ownedNFTs.some(o=>o.id===nft.id)){ alert('Already owned!'); return; }
+  const cost = parseInt(localStorage.getItem(nft.costKey));
+  if(coins < cost){ alert('Not enough coins!'); return; }
+  coins -= cost;
+  localStorage.setItem('pigeonCoins', coins);
+  ownedNFTs.push(nft);
+  localStorage.setItem('ownedNFTs', JSON.stringify(ownedNFTs));
+  alert(`${nft.name} NFT purchased!`);
+  renderNFTShop();
+  updateCoinsDisplay();
+}
+
+// ===== SELL FUNCTION =====
+function sellNFT(nftId){
+  const nftIndex = ownedNFTs.findIndex(o => o.id === nftId);
+  if(nftIndex === -1){ alert('You do not own this NFT!'); return; }
+
+  const nft = ownedNFTs[nftIndex];
+
+  coins += cost;
+  localStorage.setItem('pigeonCoins', coins);
+  ownedNFTs.splice(nftIndex, 1);
+  localStorage.setItem('ownedNFTs', JSON.stringify(ownedNFTs));
+
+  alert(`${nft.name} NFT sold back! Coins refunded: ${cost}`);
+  renderNFTShop();
+  updateCoinsDisplay();
+}
+
+// ===== RENDER SHOP =====
+function renderNFTShop(){
+  const container = document.getElementById('nftList');
+  container.innerHTML = '';
+  nftCatalog.forEach(nft=>{
+    const div = document.createElement('div');
+    div.className='nft-card';
+    const isOwned = ownedNFTs.some(o=>o.id===nft.id);
+    const cost = parseInt(localStorage.getItem(nft.costKey));
+    div.innerHTML = `
+      <img src="slimepigeon.jpg" alt="SlimeNFT">
+      <h3>${nft.name}</h3>
+      <p>Rarity: ${nft.rarity}</p>
+      <p>Cost: ${cost} PigeonCoins</p>
+      <button onclick="${isOwned ? `sellNFT('${nft.id}')` : `buyNFT('${nft.id}')`}">
+        ${isOwned ? 'Sell' : 'Buy'}
+      </button>
+    `;
+    container.appendChild(div);
+  });
+}
+
+// ===== INIT =====
+renderNFTShop();
+</script>
+
+</body>
+</html>
+
