@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -325,14 +323,12 @@ h1, h2, h3 {
     <button onclick="openCase()">Buy</button>
   </div>
       
-  <h2>GoonNFTs</h2>
+  
   <div class="pigeon-card">
-    <img src="slimenft.jpg" alt="SlimePigeon">
-    <p>Slime Pigeon<br>LIMITED!! Pigeon NFT. You can buy it. It could become expensive later. Or cheaper.<br>2200</p>
-    <button onclick="openCase()">Buy</button>
+    <p>free 450 pigeon coin<br>Yes</p>
+    <button onclick="comp()">GET</button>
   </div>
-   
-
+    
   <button onclick="closeShop()">Back</button>
 </div>
    
@@ -406,7 +402,7 @@ function buyClassicPigeon() {
 
     pigeoninClassic = true;
     const expiryDate = new Date();
-    expiryDate.setHours(expiryDate.getHours() + 24); // 24 часа от текущего момента
+    expiryDate.setHours(expiryDate.getHours() + 24);
     localStorage.setItem('pigeoninClassic', pigeoninClassic);
     localStorage.setItem('pigeoninExpiry', expiryDate.toISOString());
 
@@ -553,11 +549,11 @@ let superPigeonCoins = parseInt(localStorage.getItem("spgcoins")) || 0;
 
 function comp() {
   if (!localStorage.getItem('compReceived')) {
-    coins += 100;
+    coins += 450;
     localStorage.setItem('pigeonCoins', coins);
     localStorage.setItem('compReceived', 'true');
     updateCoinsDisplay();
-    alert("100 pigeon coins added. A pigeon’s gotta eat, you know?");
+    alert("450 pigeon coins added. A pigeon’s gonna eat, you know? Ruby if u reading ts im gonna finger you");
   } else {
     alert("No double-dipping! The pigeon already got its snack.");
   }
