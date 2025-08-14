@@ -52,7 +52,7 @@
       position: absolute;
       width: 100%;
       height: 100%;
-      background: #111;
+      background: #000;
       color: white;
       display: flex;
       flex-direction: column;
@@ -262,7 +262,6 @@ h1, h2, h3 {
 
   <div id="menu">
     <h1>Pigen Battle</h1>
-    <h3>Summer Update</h3>
     <div id="coinsDisplay">Coins: 0</div>
     <button id="playButton">Play</button>
     <button id="shopButton">Shop</button>
@@ -276,7 +275,6 @@ h1, h2, h3 {
   
  <div id="shop" style="display:none;">
   <h2>Shop</h2>
-  <h3>Summer fuckass update.</h3>
 
   <div class="pigeon-card">
     <img src="wheelpigeon.jpg" alt="Wheel Pigeon">
@@ -338,7 +336,13 @@ h1, h2, h3 {
   <button onclick="buy('feetphone', 210)">Buy</button>
    </div>
    
-  <h2>Skins</h2>
+  
+  <div class="pigeon-card">
+    <img src="spinpigeon.jpg" alt="Spin Pigeon">
+    <p>Spin Pigeon<br>+4 speed<br>+20 attack<br>Deals 0.5 dmg<br>300 pigeon coins</p>
+    <button onclick="buy('spinPigeon', 300)">Buy</button>
+  </div>
+<h2>Skins</h2>
   <div class="pigeon-card">
     <img src="sorrelpigeon.jpg" alt="Sorrel Pigeon">
     <p>Sorrel Pigeon<br>55 pigeon coins<br>Deals 0.5 dmg<br>16 attack<br>1500 HP</p>
@@ -633,6 +637,7 @@ function comp() {
 }
 
 const pigeons = {
+  spinPigeon: { img: 'spinpigeon.jpg', speed: 4, attack: 20, damage: 1.2, hp: 1500, shootType: 'spin_shoot' },
   default: { img: 'pigeon.jpg', speed: 5, attack: 10, damage: 0.3, hp: 1200, shootType: 'normal_shoot' },
   wheelPigeon: { img: 'wheelpigeon.jpg', speed: 7, attack: 2, damage: 0.8, hp: 1000, shootType: 'normal_shoot' },
   pigeonCopter: { img: 'pigobomb.jpg', speed: 6, attack: 20, damage: 1.5, hp: 1330, shootType: 'normal_shoot' },
@@ -645,7 +650,7 @@ const pigeons = {
   clownPigeon: { img: 'clownpigeon.jpg', speed: 5, attack: 30, damage: 0.6, hp: 1600, shootType: 'ball_shoot'},
   wizardPigeon: { img: 'wizardpigeon.jpg', speed: 7.5, attack: 40, damage: 2, hp: 2200, shootType: 'fireball_shoot'},
   lawPigeon: { img: 'lawpigeon.jpg', speed: 4, attack: 40, damage: 0.6254, hp: 1600},
-  feetphone: { img: 'feetphone.jpg', speed: 6, attack: 20, damage: 0.6, hp: 2200, shootType: 'normal_shoot' },
+  feetphone: { img: 'feetphone.jpg', speed: 6, attack: 20, damage: 0.55, hp: 2200, shootType: 'normal_shoot' },
 };
 
    const enemies = [
@@ -684,6 +689,10 @@ const chosenBot = bots[Math.floor(Math.random() * bots.length)];
 const bot = { x: 600, y: 250, w: 64, h: 64, ...chosenBot };
 
 const bullets = [], botBullets = [], keys = {};
+let spinMode = false;
+let spinTimer = 0;
+let spinCooldown = Math.floor(Math.random() * 180) + 60; // 1-3 секунды в кадрах
+
 let gameStarted = false;
 
 const playerImg = new Image();
@@ -853,7 +862,23 @@ canvas.addEventListener('mouseup', () => {
   keys[' '] = false;
 });
 
-    function shoot(from, list, dmg = 10, speed = 5) {
+    
+function shoot360(player, bullets, dmg = 10, speed = 5, color = 'purple') {
+  for (let angle = 0; angle < Math.PI * 2; angle += Math.PI / 8) { // 16 пуль
+    bullets.push({
+      x: player.x + player.w / 2,
+      y: player.y + player.h / 2,
+      w: 8,
+      h: 8,
+      speedX: Math.cos(angle) * speed,
+      speedY: Math.sin(angle) * speed,
+      dmg: dmg,
+      color: color
+    });
+  }
+}
+
+function shoot(from, list, dmg = 10, speed = 5) {
       list.push({ 
         x: from.x + (from === player ? from.w : -10), 
         y: from.y + from.h / 2 - 5, 
@@ -904,6 +929,20 @@ function update() {
     stats.attack += 10;
   }
 
+  
+  // Spin Pigeon режим вращения и 360 стрельбы
+  if (selected === 'spinPigeon') {
+    spinTimer++;
+    if (!spinMode && spinTimer >= spinCooldown) {
+      spinMode = true;
+      spinTimer = 0;
+      spinCooldown = Math.floor(Math.random() * 180) + 60;
+    } else if (spinMode && spinTimer > 30) { // 0.5 сек в кадрах при 60fps
+      spinMode = false;
+      spinTimer = 0;
+    }
+  }
+
   // Player movement
   if (keys['w']) player.y -= moveSpeed;
   if (keys['s']) player.y += moveSpeed;
@@ -914,7 +953,14 @@ function update() {
   if (keys[' ']) {
     const shootType = stats.shootType || 'normal_shoot';
 
-    if (shootType === 'emishoot') {
+    if (shootType === 'spin_shoot') {
+      if (spinMode) {
+        shoot360(player, bullets, stats.damage, 6, 'purple');
+      } else {
+        shoot(player, bullets, stats.damage, 8);
+        bullets[bullets.length - 1].color = 'purple';
+      }
+    } else if (shootType === 'emishoot') {
       shootEmi(player, bullets, dmgBoost);
     } else if (shootType === 'white_shoot') {
       shootWhite(player, bullets, dmgBoost);
@@ -1017,7 +1063,19 @@ function update() {
       update();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      ctx.drawImage(playerImg, player.x, player.y, player.w, player.h);
+      
+      if (selected === 'spinPigeon') {
+        if (!player.spinAngle) player.spinAngle = 0;
+        player.spinAngle += 0.3; // скорость вращения
+        ctx.save();
+        ctx.translate(player.x + player.w / 2, player.y + player.h / 2);
+        ctx.rotate(player.spinAngle);
+        ctx.drawImage(playerImg, -player.w / 2, -player.h / 2, player.w, player.h);
+        ctx.restore();
+      } else {
+        ctx.drawImage(playerImg, player.x, player.y, player.w, player.h);
+      }
+
       if (bossTransformed && bossFlashCounter > 0) {
   if (bossFlashCounter % 6 < 3) {
     ctx.drawImage(botImg, bot.x, bot.y, bot.w, bot.h);
@@ -1142,6 +1200,7 @@ const pigeonPriceMap = {
   wizardPigeon: 5000,
   sorrelPigeon: 55,
   feetphone: 210,
+  spinPigeon: 300,
   default: 10
 };
 
