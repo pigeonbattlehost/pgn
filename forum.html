@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pigeon Forum</title>
     <style>
-        /* Общие стили */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -31,7 +30,7 @@
             align-items: center;
             background-color: #2a2a2a;
             padding: 10px 15px;
-            border-radius: 8px;
+            border-radius: 20px;
         }
 
         #header h1 {
@@ -51,27 +50,39 @@
         }
 
         #nickname {
-            padding: 10px;
+            padding: 12px;
             margin-bottom: 10px;
-            border: 1px solid #6a0dad;
-            border-radius: 5px;
+            border: 3px solid transparent;
+            border-radius: 999px;
             background-color: #2a2a2a;
             color: white;
             font-size: 1rem;
+            background-clip: padding-box;
+            box-shadow: 0 0 0 3px transparent;
+            transition: 0.3s;
+        }
+
+        #nickname:focus {
+            outline: none;
+            border-color: transparent;
+            box-shadow: 0 0 0 3px transparent, 0 0 10px rgba(106, 13, 173, 0.5);
+            border-image: linear-gradient(45deg, #6a0dad, #0d6aad) 1;
         }
 
         #start-btn {
-            background-color: #6a0dad;
+            background: linear-gradient(45deg, #6a0dad, #0d6aad);
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 24px;
             font-size: 1rem;
-            border-radius: 5px;
+            border-radius: 999px;
             cursor: pointer;
+            transition: 0.3s ease;
         }
 
         #start-btn:hover {
-            background-color: #5a0c8c;
+            background: linear-gradient(45deg, #5a0c8c, #0b5c91);
+            transform: scale(1.05);
         }
 
         #chat-container {
@@ -80,7 +91,7 @@
             margin-top: 20px;
             background-color: #222;
             padding: 15px;
-            border-radius: 10px;
+            border-radius: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
 
@@ -91,43 +102,45 @@
         }
 
         #message-input {
-            padding: 10px;
-            border: 1px solid #6a0dad;
-            border-radius: 5px;
+            padding: 12px;
+            border: 3px solid transparent;
+            border-radius: 999px;
             background-color: #2a2a2a;
             color: white;
             font-size: 1rem;
             margin-bottom: 10px;
+            transition: 0.3s;
+        }
+
+        #message-input:focus {
+            outline: none;
+            border-image: linear-gradient(45deg, #6a0dad, #0d6aad) 1;
         }
 
         #send-btn {
-            background-color: #6a0dad;
+            background: linear-gradient(45deg, #6a0dad, #0d6aad);
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 24px;
             font-size: 1rem;
-            border-radius: 5px;
+            border-radius: 999px;
             cursor: pointer;
+            transition: 0.3s ease;
         }
 
         #send-btn:hover {
-            background-color: #5a0c8c;
+            background: linear-gradient(45deg, #5a0c8c, #0b5c91);
+            transform: scale(1.05);
         }
 
         @media (max-width: 600px) {
             #app {
                 padding: 10px;
             }
-
             #header h1 {
                 font-size: 1.5rem;
             }
-
-            #nickname {
-                font-size: 1rem;
-            }
-
-            #message-input {
+            #nickname, #message-input {
                 font-size: 1rem;
             }
         }
@@ -169,10 +182,10 @@
         startBtn.addEventListener('click', () => {
             const nickname = nicknameInput.value.trim();
             if (nickname) {
-                playerId = nickname; // Используем никнейм как ID игрока
+                playerId = nickname;
                 nicknameInput.disabled = true;
                 startBtn.disabled = true;
-                socket = io('https://pigeonbattle.onrender.com');
+                socket = io('https://pgn-3xyh.onrender.com');
                 socket.emit('join', { playerId });
 
                 socket.on('online_count', (data) => {
@@ -193,26 +206,22 @@
 
                 chatContainer.style.display = 'flex';
                 updateOnlineCount();
-
-               
-
-                // Загружаем историю сообщений
                 loadMessages();
             }
         });
 
         sendBtn.addEventListener('click', () => {
-        messageInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault(); // чтобы не делал перенос строки
-        sendBtn.click();
-    }
-});
+            messageInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendBtn.click();
+                }
+            });
             const message = messageInput.value.trim();
             if (message && playerId && socket) {
                 socket.emit('send_message', { nickname: playerId, text: message });
                 messageInput.value = '';
-                saveMessage(playerId, message); // Сохраняем сообщение
+                saveMessage(playerId, message);
             }
         });
 
@@ -224,34 +233,14 @@
         }
 
         function saveMessage(player, message) {
-    const messages = JSON.parse(localStorage.getItem('chatHistory')) || [];
-    
-    // Проверяем, если это сообщение уже есть в истории, не сохраняем его
-    const lastMessage = messages[messages.length - 1];
-    if (lastMessage && lastMessage.player === player && lastMessage.message === message) {
-        return; // Если сообщение уже есть, не сохраняем его
-    }
-
-    messages.push({ player, message });
-    localStorage.setItem('chatHistory', JSON.stringify(messages));
-}
-
-function loadMessages() {
-    const messages = JSON.parse(localStorage.getItem('chatHistory')) || [];
-    
-    // Добавляем только те сообщения, которых еще нет в чате
-    messages.forEach((msg) => {
-        if (!isMessageInChat(msg)) {
-            addMessage(msg.player, msg.message);
+            const messages = JSON.parse(localStorage.getItem('chatHistory')) || [];
+            const lastMessage = messages[messages.length - 1];
+            if (lastMessage && lastMessage.player === player && lastMessage.message === message) {
+                return;
+            }
+            messages.push({ player, message });
+            localStorage.setItem('chatHistory', JSON.stringify(messages));
         }
-    });
-}
-
-// Функция для проверки, есть ли уже это сообщение в чате
-function isMessageInChat(msg) {
-    const chatMessages = Array.from(chatBox.children);
-    return chatMessages.some((messageElement) => messageElement.textContent === `${msg.player}: ${msg.message}`);
-}
 
         function loadMessages() {
             const messages = JSON.parse(localStorage.getItem('chatHistory')) || [];
@@ -263,7 +252,7 @@ function isMessageInChat(msg) {
         async function updateOnlineCount() {
             try {
                 if (playerId) {
-                    const response = await fetch('https://pigeonbattle.onrender.com/ping', {
+                    const response = await fetch('https://pgn-3xyh.onrender.com/ping', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
