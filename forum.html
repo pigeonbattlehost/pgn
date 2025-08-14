@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Pigeon Forum</title>
+    <!-- Google Fonts Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&display=swap" rel="stylesheet">
     <style>
         :root{
             --bg:#121212;
@@ -15,7 +17,7 @@
         }
         html,body{height:100%}
         body {
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: 'Poppins', Arial, Helvetica, sans-serif;
             margin: 0;
             padding: 0;
             background-color: var(--bg);
@@ -27,7 +29,7 @@
         }
         #app { width: 100%; max-width: 600px; padding: 20px; box-sizing: border-box; }
         #header { display: flex; justify-content: space-between; align-items: center; background-color: var(--muted); padding: 12px 16px; border-radius: 20px; }
-        #header h1 { font-size: 1.6rem; margin: 0; }
+        #header h1 { font-size: 1.8rem; margin: 0; font-weight: 700; letter-spacing: 1px; }
         #online-count { font-size: 0.95rem; opacity: 0.95; }
         #nickname-form { display: flex; flex-direction: column; margin-top: 18px; align-items: center; }
         #nickname { padding: 12px; margin-bottom: 10px; border: 3px solid transparent; border-radius: 999px; background-color: var(--muted); color: var(--white); font-size: 1rem; width: 100%; max-width: 380px; box-shadow: 0 0 0 3px transparent; transition: 0.25s; }
@@ -46,11 +48,48 @@
         #emoji-wrapper { position: relative; display: inline-flex; align-items: center; justify-content: center; }
         #emoji-btn { width:44px; height:44px; border-radius: 50%; cursor: pointer; transition: transform .12s ease, box-shadow .12s ease; display:flex; align-items:center; justify-content:center; box-shadow: 0 6px 18px rgba(13, 10, 20, 0.6); flex-shrink: 0; }
         #emoji-btn:active { transform: scale(.96) }
-        #emoji-panel { position: absolute; bottom: 58px; right: -4px; display: none; background: linear-gradient(135deg, rgba(106,13,173,0.98), rgba(13,106,173,0.98)); border-radius: 16px; padding: 10px; box-shadow: 0 16px 40px rgba(6,5,10,0.6); z-index: 300; min-width: 220px; max-width: 320px; gap:6px; flex-wrap: wrap; box-sizing: border-box; }
-        #emoji-panel.show { display:flex; flex-direction: row; }
-        #emoji-panel .emoji { font-size: 26px; padding:8px; border-radius:10px; cursor:pointer; user-select:none; background: rgba(255,255,255,0.03); transition: transform .08s ease, background .12s ease; }
+
+        /* Панель эмодзи с анимацией */
+        #emoji-panel {
+            position: absolute;
+            bottom: 58px;
+            right: -4px;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            background: linear-gradient(135deg, rgba(106,13,173,0.98), rgba(13,106,173,0.98));
+            border-radius: 16px;
+            padding: 10px;
+            box-shadow: 0 16px 40px rgba(6,5,10,0.6);
+            z-index: 300;
+            min-width: 220px;
+            max-width: 320px;
+            gap:6px;
+            overflow-x: auto;
+            box-sizing: border-box;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            pointer-events: none;
+        }
+        #emoji-panel.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+        #emoji-panel .emoji {
+            font-size: 26px;
+            padding:8px;
+            border-radius:10px;
+            cursor:pointer;
+            user-select:none;
+            background: rgba(255,255,255,0.03);
+            transition: transform .08s ease, background .12s ease;
+            flex-shrink: 0;
+        }
         #emoji-panel .emoji:hover { transform: translateY(-3px); background: rgba(255,255,255,0.06); }
-        .emoji.fart { display:flex; align-items:center; gap:8px; padding:8px 12px; font-weight:700; border-radius:12px; background: rgba(0,0,0,0.12); }
+        .emoji.fart { display:flex; align-items:center; gap:8px; padding:8px 12px; font-weight:700; border-radius:12px; background: rgba(0,0,0,0.12); flex-shrink: 0; }
+
         @media (max-width:600px){
             #app { padding: 12px; }
             #emoji-panel { right: -10px; left: auto; bottom: 64px; }
@@ -76,7 +115,7 @@
                 <textarea id="message-input" placeholder="Type your message..." rows="2"></textarea>
                 <div id="controls">
                     <div id="emoji-wrapper">
-                        <svg id="emoji-btn" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" role="button" aria-label="Emoji picker">
+                        <svg id="emoji-btn" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                             <defs>
                                 <linearGradient id="circleGrad" x1="0" y1="0" x2="1" y2="1">
                                     <stop offset="0%" stop-color="#7b2ad6"/>
@@ -104,6 +143,17 @@
                             <div class="emoji">🔥</div>
                             <div class="emoji">💜</div>
                             <div class="emoji">🤘</div>
+                            <div class="emoji">🚀</div>
+                            <div class="emoji">🍕</div>
+                            <div class="emoji">💩</div>
+                            <div class="emoji">❤️</div>
+                            <div class="emoji">🐦</div>
+                            <div class="emoji">☠️</div>
+                            <div class="emoji">👑</div>
+                            <div class="emoji">🌈</div>
+                            <div class="emoji">🥶</div>
+                            <div class="emoji">🤯</div>
+                            <div class="emoji">🕊️🚽</div> <!-- комбо голубь+унитаз -->
                             <div class="emoji fart" data-fart="true">💨 <span style="opacity:.9">Fart</span></div>
                         </div>
                     </div>
@@ -178,7 +228,6 @@ startBtn.addEventListener('click', () => {
 
     socket.on('receive_message', (data) => {
         if(!data) return;
-        // игнорируем свои сообщения, чтобы не дублировать
         if(data.player_id === playerId && data.nickname !== 'System') return;
         if(data.nickname === 'System'){
             addMessage('System', data.text, true);
@@ -206,7 +255,6 @@ function doSend(){
     if(socket && socket.connected){
         socket.emit('send_message', { nickname: playerId, text: msg, player_id: playerId });
     }
-    // убрали локальный addMessage, теперь сервер присылает обратно
     messageInput.value = '';
     messageInput.focus();
 }
@@ -216,9 +264,8 @@ messageInput.addEventListener('keydown', (e) => { if(e.key==='Enter' && !e.shift
 
 emojiBtn.addEventListener('click', (e) => {
     e.stopPropagation();
-    const isShown = emojiPanel.classList.contains('show');
-    emojiPanel.classList.toggle('show', !isShown);
-    emojiPanel.setAttribute('aria-hidden', !isShown ? 'false' : 'true');
+    emojiPanel.classList.toggle('show');
+    emojiPanel.setAttribute('aria-hidden', emojiPanel.classList.contains('show') ? 'false' : 'true');
 });
 
 emojiPanel.querySelectorAll('.emoji').forEach(el => {
