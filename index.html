@@ -137,6 +137,30 @@
       text-align: center;
       line-height: 60px;
     }
+
+    /* NEW: Superbang (emiPigeon ultimate) button on mobile */
+    #superbangBtn {
+      left: 20px;
+      bottom: 140px; /* сверху от джойстика */
+      width: 130px;
+      height: 44px;
+      background: #ffd84d;
+      border-radius: 12px;
+      color: #000;
+      font-weight: 800;
+      display: none;
+      position: absolute;
+      text-align: center;
+      line-height: 44px;
+      z-index: 2000;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+      user-select: none;
+    }
+    #superbangBtn.disabled {
+      opacity: 0.45;
+      pointer-events: none;
+    }
+
     #coinsDisplay {
       margin-bottom: 10px;
       font-size: 18px;
@@ -415,6 +439,8 @@ h1, h2, h3 {
     <div id="version">PigeonBattle 0.3.3b</div>
     <div id="joystick"></div>
     <div id="shootBtn">bang</div>
+    <!-- NEW BUTTON for emiPigeon ultimate on mobile -->
+    <div id="superbangBtn">SUPERBANG</div>
   </div>
   <script>
  
@@ -691,9 +717,20 @@ const bot = { x: 600, y: 250, w: 64, h: 64, ...chosenBot };
 const bullets = [], botBullets = [], keys = {};
 let spinMode = false;
 let spinTimer = 0;
-let spinCooldown = Math.floor(Math.random() * 180) + 60; // 1-3 секунды в кадрах
+let spinCooldown = Math.floor(Math.random() * 180) + 60; 
 
 let gameStarted = false;
+
+const emiUlt = {
+  available: true,
+  active: false,
+  duration: 5000,
+  cooldown: 40000,
+  radius: 140, // pixels
+  damagePerSecond: 30,
+  startedAt: 0,
+  cooldownStartedAt: 0
+};
 
 const playerImg = new Image();
 playerImg.src = pigeons[selected].img;
@@ -918,6 +955,79 @@ function checkGameEnd() {
   }
 }
 
+/* === EMI ULT LOGIC === */
+function canUseEmiUlt() {
+  return selected === 'emiPigeon' && gameStarted && emiUlt.available && !emiUlt.active;
+}
+
+function startEmiUlt() {
+  if (!canUseEmiUlt()) {
+    // silent fail or toast
+    if (selected !== 'emiPigeon') toast('Только у Эми есть супербэнг, чел');
+    return;
+  }
+  emiUlt.active = true;
+  emiUlt.available = false;
+  emiUlt.startedAt = Date.now();
+  // auto stop after duration
+  setTimeout(() => {
+    emiUlt.active = false;
+    emiUlt.cooldownStartedAt = Date.now();
+    // cooldown timer end
+    setTimeout(() => {
+      emiUlt.available = true;
+    }, emiUlt.cooldown);
+  }, emiUlt.duration);
+  toast('SUPERBANG! Беги прятаться, враги горят 🔥', 1800);
+}
+
+/* Hook superbang button events */
+const superbangBtn = document.getElementById('superbangBtn');
+if (superbangBtn) {
+  superbangBtn.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    startEmiUlt();
+  });
+  superbangBtn.addEventListener('click', (e) => {
+    // also allow click for desktop if visible
+    startEmiUlt();
+  });
+}
+
+/* listen for PC key X */
+document.addEventListener('keydown', (e) => {
+  if (e.key && e.key.toLowerCase() === 'x') {
+    startEmiUlt();
+  }
+});
+
+function updateSuperbangUI() {
+  const btn = document.getElementById('superbangBtn');
+  if (!btn) return;
+  // Show button only on touch devices AND only when selected is emiPigeon
+  if ('ontouchstart' in window && selected === 'emiPigeon' && gameStarted) {
+    btn.style.display = 'block';
+  } else {
+    btn.style.display = 'none';
+  }
+
+  if (!emiUlt.available && !emiUlt.active) {
+    // compute remaining cooldown seconds
+    const elapsed = Date.now() - emiUlt.cooldownStartedAt;
+    const left = Math.max(0, Math.ceil((emiUlt.cooldown - elapsed) / 1000));
+    btn.classList.add('disabled');
+    btn.innerText = `SUPERBANG (${left}s)`;
+  } else if (emiUlt.active) {
+    const elapsed = Date.now() - emiUlt.startedAt;
+    const left = Math.max(0, Math.ceil((emiUlt.duration - elapsed) / 1000));
+    btn.classList.add('disabled');
+    btn.innerText = `SUPERBANG ${left}s`;
+  } else {
+    btn.classList.remove('disabled');
+    btn.innerText = 'SUPERBANG';
+  }
+}
+
 function update() {
   const stats = pigeons[selected];
   const moveSpeed = stats.speed;
@@ -929,15 +1039,13 @@ function update() {
     stats.attack += 10;
   }
 
-  
-  // Spin Pigeon режим вращения и 360 стрельбы
   if (selected === 'spinPigeon') {
     spinTimer++;
     if (!spinMode && spinTimer >= spinCooldown) {
       spinMode = true;
       spinTimer = 0;
       spinCooldown = Math.floor(Math.random() * 180) + 60;
-    } else if (spinMode && spinTimer > 30) { // 0.5 сек в кадрах при 60fps
+    } else if (spinMode && spinTimer > 30) {
       spinMode = false;
       spinTimer = 0;
     }
@@ -1055,8 +1163,31 @@ function update() {
     }
   }
 
+  // APPLY EMI ULT DAMAGE (if active)
+  if (emiUlt.active) {
+    // damage per frame (assume ~60fps)
+    const dmgPerFrame = emiUlt.damagePerSecond / 60;
+    const playerCenterX = player.x + player.w / 2;
+    const playerCenterY = player.y + player.h / 2;
+
+    // damage the main bot if inside radius
+    const botCenterX = bot.x + bot.w / 2;
+    const botCenterY = bot.y + bot.h / 2;
+    const dx = botCenterX - playerCenterX;
+    const dy = botCenterY - playerCenterY;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if (dist <= emiUlt.radius) {
+      bot.hp -= dmgPerFrame;
+    }
+
+    // If you had more enemies list, you'd loop and damage them similarly.
+  }
+
   // END GAME CHECK!
   checkGameEnd();
+
+  // Update UI for superbang (cooldown / text)
+  updateSuperbangUI();
 }
 
     function draw() {
@@ -1095,10 +1226,25 @@ botBullets.forEach(b => {
   ctx.fillRect(b.x, b.y, b.w, b.h);
 });
 
+      // Draw EMI ult visual (blue circle) when active
+      if (emiUlt.active) {
+        const cx = player.x + player.w / 2;
+        const cy = player.y + player.h / 2;
+        ctx.save();
+        ctx.beginPath();
+        ctx.fillStyle = 'rgba(60,140,255,0.12)';
+        ctx.strokeStyle = 'rgba(60,140,255,0.7)';
+        ctx.lineWidth = 6;
+        ctx.arc(cx, cy, emiUlt.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      }
+
       ctx.fillStyle = 'white';
       ctx.font = '16px sans-serif';
-      ctx.fillText(`Player HP: ${player.hp}`, 10, 20);
-      ctx.fillText(`Bot HP: ${bot.hp}`, 10, 40);
+      ctx.fillText(`Player HP: ${Math.max(0, Math.round(player.hp))}`, 10, 20);
+      ctx.fillText(`Bot HP: ${Math.max(0, Math.round(bot.hp))}`, 10, 40);
 
       requestAnimationFrame(draw);
     }
@@ -1165,7 +1311,7 @@ let clickTimeout = null;
 document.getElementById("onlineStatus").addEventListener("click", () => {
   clickCount++;
   if (clickTimeout) clearTimeout(clickTimeout);
-  clickTimeout = setTimeout(() => clickCount = 0, 1000); // сброс за 1 сек
+  clickTimeout = setTimeout(() => clickCount = 0, 1000);
 
   if (clickCount >= 3) {
     openCommunityShop();
@@ -1296,4 +1442,3 @@ renderOwnedPigeonsUI();
 </script>
 </body>
 </html>
- 
