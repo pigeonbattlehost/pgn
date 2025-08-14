@@ -84,8 +84,22 @@
     #shopButton { background: #ffaa00; color: black; }
     #pigeonsButton { background: #aaa; color: black; }
 
-    #gameContainer { display: none; width: 100%; height: 100%; position: relative; }
-    canvas { display: block; width: 100%; height: 100%; background: #A3D977; }
+    #gameContainer { 
+    display: none; 
+    width: 100%; 
+    height: 100%; 
+    position: relative; 
+}
+
+    canvas { 
+    display: block; 
+    width: 100%; 
+    height: 100%; 
+    background-image: url('bg.jpg'); 
+    background-size: cover;
+    background-position: center;
+}
+
     #version {
       position: absolute;
       bottom: 10px;
@@ -138,10 +152,9 @@
       line-height: 60px;
     }
 
-    /* NEW: Superbang (emiPigeon ultimate) button on mobile */
     #superbangBtn {
       left: 20px;
-      bottom: 140px; /* сверху от джойстика */
+      bottom: 140px;
       width: 130px;
       height: 44px;
       background: #ffd84d;
@@ -286,6 +299,7 @@ h1, h2, h3 {
 
   <div id="menu">
     <h1>Pigen Battle</h1>
+    <h3>Space Update!</h3>
     <div id="coinsDisplay">Coins: 0</div>
     <button id="playButton">Play</button>
     <button id="shopButton">Shop</button>
@@ -360,12 +374,18 @@ h1, h2, h3 {
   <button onclick="buy('feetphone', 210)">Buy</button>
    </div>
    
-  
   <div class="pigeon-card">
     <img src="spinpigeon.jpg" alt="Spin Pigeon">
     <p>Spin Pigeon<br>+4 speed<br>+20 attack<br>Deals 0.5 dmg<br>300 pigeon coins</p>
     <button onclick="buy('spinPigeon', 300)">Buy</button>
   </div>
+  
+  <div class="pigeon-card">
+    <img src="spacepigeon.jpg" alt="Space Pigeon">
+    <p>Space Pigeon<br>65 pigeon coins<br>Deals 0.452 dmg<br>16 attack<br>1875 HP</p>
+    <button onclick="buy('spacePigeon', 65)">Buy</button>
+  </div>
+  
 <h2>Skins</h2>
   <div class="pigeon-card">
     <img src="sorrelpigeon.jpg" alt="Sorrel Pigeon">
@@ -436,10 +456,9 @@ h1, h2, h3 {
 </div>
   <div id="gameContainer">
     <canvas id="gameCanvas"></canvas>
-    <div id="version">PigeonBattle 0.3.3b</div>
+    <div id="version">PigeonBattle 0.3.4</div>
     <div id="joystick"></div>
     <div id="shootBtn">bang</div>
-    <!-- NEW BUTTON for emiPigeon ultimate on mobile -->
     <div id="superbangBtn">SUPERBANG</div>
   </div>
   <script>
@@ -609,7 +628,7 @@ function openCase() {
         alert(`You got ${coinAmount} PigeonCoins! Your balance: ${coins}`);
     } else {
         const pigeonIds = Object.keys(pigeons);
-        let pigeonId = pigeonIds[Math.floor(Math.random() * pigeonIds.length)];
+        let pigeonId = pigeonIds[Math.floor(Math.random() * pigeons.length)];
 
         function calculateRarity(pigeon) {
             let rarity = 0;
@@ -677,6 +696,7 @@ const pigeons = {
   wizardPigeon: { img: 'wizardpigeon.jpg', speed: 7.5, attack: 40, damage: 2, hp: 2200, shootType: 'fireball_shoot'},
   lawPigeon: { img: 'lawpigeon.jpg', speed: 4, attack: 40, damage: 0.6254, hp: 1600},
   feetphone: { img: 'feetphone.jpg', speed: 6, attack: 20, damage: 0.55, hp: 2200, shootType: 'normal_shoot' },
+  spacePigeon: { img: 'spacepigeon.jpg', speed: 4, attack: 50, damage: 0.452, hp: 1875, shootType: 'purple_shoot' }
 };
 
    const enemies = [
@@ -707,6 +727,7 @@ const bots = [
   { img: 'screaming.jpg',      hp: 1300, speed: 1,   attack: 20, damage: 70 },
   { img: 'oldpigeon.jpg',      hp: 2900, speed: 0.9, attack: 15, damage: 55 },
   { img: 'sbbrother.jpg',      hp: 2400, speed: 4,   attack: 13, damage: 450 },
+  { img: 'spacegooner.jpg',     hp: 2300, speed: 3.2, attack: 20, damage:500 },
   { img: 'evilsorrel.jpg',     hp: 1450, speed: 2.5, attack: 13, damage:450 }
 ];
 
@@ -730,6 +751,20 @@ const emiUlt = {
   damagePerSecond: 30,
   startedAt: 0,
   cooldownStartedAt: 0
+};
+
+const spaceUlt = {
+  available: true,
+  active: false,
+  duration: 5000,
+  cooldown: 40000,
+  startedAt: 0,
+  cooldownStartedAt: 0,
+  blades: [], // will be filled on activation
+  orbitRadius: 90, // distance from player center to blade center
+  bladeSize: 34, // visual triangle size
+  bladeHitRadius: 30, // collision check radius
+  damage: 200
 };
 
 const playerImg = new Image();
@@ -858,6 +893,18 @@ function shootGreen(player, bullets, dmgBoost) {
   });
 }
 
+function shootPurple(player, bullets, dmgBoost) {
+  bullets.push({
+    x: player.x + player.w,
+    y: player.y + player.h / 2 - 5,
+    w: 10,
+    h: 10,
+    speed: 10,
+    dmg: 5 * dmgBoost,
+    color: 'purple'
+  });
+}
+   
 function shootFireball(player, bullets, dmgBoost) {
   const originX = player.x + player.w / 2;
   const originY = player.y + player.h / 2;
@@ -981,49 +1028,115 @@ function startEmiUlt() {
   toast('SUPERBANG! Беги прятаться, враги горят 🔥', 1800);
 }
 
+/* === SPACE PIGEON ULT LOGIC === */
+function canUseSpaceUlt() {
+  return selected === 'spacePigeon' && gameStarted && spaceUlt.available && !spaceUlt.active;
+}
+
+function startSpaceUlt() {
+  if (!canUseSpaceUlt()) {
+    if (selected !== 'spacePigeon') toast('Это ульта только для Space Pigeon 💫');
+    return;
+  }
+  spaceUlt.active = true;
+  spaceUlt.available = false;
+  spaceUlt.startedAt = Date.now();
+  // init 3 blades with angles evenly spaced
+  spaceUlt.blades = [];
+  for (let i = 0; i < 3; i++) {
+    spaceUlt.blades.push({
+      angle: (Math.PI * 2 / 3) * i,
+      speed: 0.1 + Math.random() * 0.08, // rotate speed
+      hit: false // whether this blade already hit the bot in this ult
+    });
+  }
+  // stop after duration
+  setTimeout(() => {
+    spaceUlt.active = false;
+    spaceUlt.cooldownStartedAt = Date.now();
+    setTimeout(() => {
+      spaceUlt.available = true;
+    }, spaceUlt.cooldown);
+  }, spaceUlt.duration);
+
+  toast('SPACE ULT: Лезвия активированы! 🟣', 1800);
+}
+
+/* Unified superbang starter used by button + key */
+function startSuperbang() {
+  // If both are available, priority to selected pigeon
+  if (selected === 'emiPigeon') {
+    startEmiUlt();
+  } else if (selected === 'spacePigeon') {
+    startSpaceUlt();
+  } else {
+    toast('У тебя нет ульты у выбранного голубя 😕');
+  }
+}
+
 /* Hook superbang button events */
 const superbangBtn = document.getElementById('superbangBtn');
 if (superbangBtn) {
   superbangBtn.addEventListener('touchstart', (e) => {
     e.preventDefault();
-    startEmiUlt();
+    startSuperbang();
   });
   superbangBtn.addEventListener('click', (e) => {
     // also allow click for desktop if visible
-    startEmiUlt();
+    startSuperbang();
   });
 }
 
 /* listen for PC key X */
 document.addEventListener('keydown', (e) => {
   if (e.key && e.key.toLowerCase() === 'x') {
-    startEmiUlt();
+    startSuperbang();
   }
 });
 
 function updateSuperbangUI() {
   const btn = document.getElementById('superbangBtn');
   if (!btn) return;
-  // Show button only on touch devices AND only when selected is emiPigeon
-  if ('ontouchstart' in window && selected === 'emiPigeon' && gameStarted) {
+  // Show button only on touch devices AND only when selected is emiPigeon or spacePigeon
+  if ('ontouchstart' in window && (selected === 'emiPigeon' || selected === 'spacePigeon') && gameStarted) {
     btn.style.display = 'block';
   } else {
     btn.style.display = 'none';
   }
 
-  if (!emiUlt.available && !emiUlt.active) {
-    // compute remaining cooldown seconds
-    const elapsed = Date.now() - emiUlt.cooldownStartedAt;
-    const left = Math.max(0, Math.ceil((emiUlt.cooldown - elapsed) / 1000));
-    btn.classList.add('disabled');
-    btn.innerText = `SUPERBANG (${left}s)`;
-  } else if (emiUlt.active) {
-    const elapsed = Date.now() - emiUlt.startedAt;
-    const left = Math.max(0, Math.ceil((emiUlt.duration - elapsed) / 1000));
-    btn.classList.add('disabled');
-    btn.innerText = `SUPERBANG ${left}s`;
+  // update label based on selected pigeon and its cooldown/active state
+  if (selected === 'emiPigeon') {
+    if (!emiUlt.available && !emiUlt.active) {
+      const elapsed = Date.now() - emiUlt.cooldownStartedAt;
+      const left = Math.max(0, Math.ceil((emiUlt.cooldown - elapsed) / 1000));
+      btn.classList.add('disabled');
+      btn.innerText = `SUPERBANG (${left}s)`;
+    } else if (emiUlt.active) {
+      const elapsed = Date.now() - emiUlt.startedAt;
+      const left = Math.max(0, Math.ceil((emiUlt.duration - elapsed) / 1000));
+      btn.classList.add('disabled');
+      btn.innerText = `SUPERBANG ${left}s`;
+    } else {
+      btn.classList.remove('disabled');
+      btn.innerText = 'SUPERBANG';
+    }
+  } else if (selected === 'spacePigeon') {
+    if (!spaceUlt.available && !spaceUlt.active) {
+      const elapsed = Date.now() - spaceUlt.cooldownStartedAt;
+      const left = Math.max(0, Math.ceil((spaceUlt.cooldown - elapsed) / 1000));
+      btn.classList.add('disabled');
+      btn.innerText = `SPACEBANG (${left}s)`;
+    } else if (spaceUlt.active) {
+      const elapsed = Date.now() - spaceUlt.startedAt;
+      const left = Math.max(0, Math.ceil((spaceUlt.duration - elapsed) / 1000));
+      btn.classList.add('disabled');
+      btn.innerText = `SPACEBANG ${left}s`;
+    } else {
+      btn.classList.remove('disabled');
+      btn.innerText = 'SPACEBANG';
+    }
   } else {
-    btn.classList.remove('disabled');
+    btn.classList.add('disabled');
     btn.innerText = 'SUPERBANG';
   }
 }
@@ -1076,6 +1189,8 @@ function update() {
       shootGreen(player, bullets, dmgBoost);
     } else if (shootType === 'ball_shoot') {
       shootBall(player, bullets, dmgBoost);
+    } else if (shootType === 'purple_shoot') {
+      shootPurple(player, bullets, dmgBoost);
     } else if (shootType === 'fireball_shoot') {
       shootFireball(player, bullets, dmgBoost);
     } else {
@@ -1183,6 +1298,33 @@ function update() {
     // If you had more enemies list, you'd loop and damage them similarly.
   }
 
+  // APPLY SPACE PIGEON ULT (blades) logic
+  if (spaceUlt.active) {
+    const px = player.x + player.w / 2;
+    const py = player.y + player.h / 2;
+    // update blade angles and check collisions
+    for (let i = 0; i < spaceUlt.blades.length; i++) {
+      const blade = spaceUlt.blades[i];
+      blade.angle += blade.speed; // rotate
+      // compute blade center
+      const bx = px + Math.cos(blade.angle) * spaceUlt.orbitRadius;
+      const by = py + Math.sin(blade.angle) * spaceUlt.orbitRadius;
+      // collision simple check: distance between blade center and bot center
+      const botCenterX = bot.x + bot.w / 2;
+      const botCenterY = bot.y + bot.h / 2;
+      const dx = botCenterX - bx;
+      const dy = botCenterY - by;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (!blade.hit && dist <= spaceUlt.bladeHitRadius) {
+        // apply damage once per blade per ult
+        bot.hp -= spaceUlt.damage;
+        blade.hit = true;
+        // optional feedback
+        toast('Клинок попал! -500 HP', 900);
+      }
+    }
+  }
+
   // END GAME CHECK!
   checkGameEnd();
 
@@ -1239,6 +1381,42 @@ botBullets.forEach(b => {
         ctx.fill();
         ctx.stroke();
         ctx.restore();
+      }
+
+      // Draw SPACE ULT blades when active
+      if (spaceUlt.active) {
+        const px = player.x + player.w / 2;
+        const py = player.y + player.h / 2;
+        for (let i = 0; i < spaceUlt.blades.length; i++) {
+          const blade = spaceUlt.blades[i];
+          const bx = px + Math.cos(blade.angle) * spaceUlt.orbitRadius;
+          const by = py + Math.sin(blade.angle) * spaceUlt.orbitRadius;
+
+          // triangular blade drawing: rotated isosceles triangle pointing outward
+          ctx.save();
+          ctx.translate(bx, by);
+          ctx.rotate(blade.angle + Math.PI / 2); // align visually
+          ctx.beginPath();
+          const s = spaceUlt.bladeSize;
+          // triangle points
+          ctx.moveTo(0, -s);         // top point
+          ctx.lineTo(-s * 0.6, s);   // bottom-left
+          ctx.lineTo(s * 0.6, s);    // bottom-right
+          ctx.closePath();
+          ctx.fillStyle = 'rgba(160,64,255,0.95)'; // purple blade
+          ctx.fill();
+          // blade glow / outline
+          ctx.strokeStyle = 'rgba(200,150,255,0.9)';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          ctx.restore();
+
+          // optional: debug collision radius (comment out if not needed)
+          // ctx.beginPath();
+          // ctx.strokeStyle = 'rgba(255,0,0,0.25)';
+          // ctx.arc(bx, by, spaceUlt.bladeHitRadius, 0, Math.PI*2);
+          // ctx.stroke();
+        }
       }
 
       ctx.fillStyle = 'white';
@@ -1347,6 +1525,7 @@ const pigeonPriceMap = {
   sorrelPigeon: 55,
   feetphone: 210,
   spinPigeon: 300,
+  spacePigeon: 65,
   default: 10
 };
 
