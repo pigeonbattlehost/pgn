@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Pigeon Forum</title>
     <style>
-        /* === COLORS / VARIABLES === */
         :root{
             --bg:#121212;
             --card:#222;
@@ -14,7 +13,6 @@
             --accent-2:#0d6aad;
             --white: #ffffff;
         }
-
         html,body{height:100%}
         body {
             font-family: Arial, Helvetica, sans-serif;
@@ -27,213 +25,32 @@
             align-items: center;
             height: 100vh;
         }
-
-        #app {
-            width: 100%;
-            max-width: 600px;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        /* HEADER */
-        #header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: var(--muted);
-            padding: 12px 16px;
-            border-radius: 20px;
-        }
-
-        #header h1 {
-            font-size: 1.6rem;
-            margin: 0;
-        }
-
-        #online-count {
-            font-size: 0.95rem;
-            opacity: 0.95;
-        }
-
-        /* NICKNAME INPUT FORM */
-        #nickname-form {
-            display: flex;
-            flex-direction: column;
-            margin-top: 18px;
-            align-items: center;
-        }
-
-        #nickname {
-            padding: 12px;
-            margin-bottom: 10px;
-            border: 3px solid transparent;
-            border-radius: 999px;
-            background-color: var(--muted);
-            color: var(--white);
-            font-size: 1rem;
-            width: 100%;
-            max-width: 380px;
-            box-shadow: 0 0 0 3px transparent;
-            transition: 0.25s;
-        }
-
-        #nickname:focus {
-            outline: none;
-            box-shadow: 0 0 10px rgba(106,13,173,0.25);
-        }
-
-        #start-btn {
-            background: linear-gradient(45deg, var(--accent-1), var(--accent-2));
-            color: var(--white);
-            border: none;
-            padding: 10px 18px;
-            font-size: 1rem;
-            border-radius: 999px;
-            cursor: pointer;
-        }
-
-        /* CHAT CONTAINER */
-        #chat-container {
-            display: none;
-            flex-direction: column;
-            margin-top: 18px;
-            background-color: var(--card);
-            padding: 14px;
-            border-radius: 20px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.6);
-        }
-
-        #chat-box {
-            max-height: 360px;
-            overflow-y: auto;
-            margin-bottom: 12px;
-            padding-right: 6px;
-        }
-
-        .msg {
-            margin-bottom: 8px;
-            line-height: 1.25;
-        }
-
-        .msg.system {
-            color: #ddd;
-            font-style: italic;
-            opacity: 0.95;
-        }
-
-        .msg .nick {
-            font-weight: 700;
-            margin-right: 6px;
-        }
-
-        /* INPUT ROW */
-        #input-row {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        #message-input {
-            padding: 12px;
-            border: 3px solid transparent;
-            border-radius: 999px;
-            background-color: var(--muted);
-            color: var(--white);
-            font-size: 1rem;
-            width: 100%;
-            min-height: 48px;
-            resize: none;
-            transition: 0.2s;
-            box-sizing: border-box;
-        }
-
-        #message-input:focus {
-            outline: none;
-            box-shadow: 0 0 10px rgba(106,13,173,0.18);
-        }
-
-        #controls {
-            display:flex;
-            gap:8px;
-            align-items:center;
-        }
-
-        #send-btn {
-            background: linear-gradient(45deg, var(--accent-1), var(--accent-2));
-            color: var(--white);
-            border: none;
-            padding: 10px 14px;
-            font-size: 1rem;
-            border-radius: 999px;
-            cursor: pointer;
-            min-width: 72px;
-        }
-
-        /* EMOJI BUTTON */
-        #emoji-wrapper {
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #emoji-btn {
-            width:44px;
-            height:44px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: transform .12s ease, box-shadow .12s ease;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            box-shadow: 0 6px 18px rgba(13, 10, 20, 0.6);
-            flex-shrink: 0;
-        }
-
+        #app { width: 100%; max-width: 600px; padding: 20px; box-sizing: border-box; }
+        #header { display: flex; justify-content: space-between; align-items: center; background-color: var(--muted); padding: 12px 16px; border-radius: 20px; }
+        #header h1 { font-size: 1.6rem; margin: 0; }
+        #online-count { font-size: 0.95rem; opacity: 0.95; }
+        #nickname-form { display: flex; flex-direction: column; margin-top: 18px; align-items: center; }
+        #nickname { padding: 12px; margin-bottom: 10px; border: 3px solid transparent; border-radius: 999px; background-color: var(--muted); color: var(--white); font-size: 1rem; width: 100%; max-width: 380px; box-shadow: 0 0 0 3px transparent; transition: 0.25s; }
+        #nickname:focus { outline: none; box-shadow: 0 0 10px rgba(106,13,173,0.25); }
+        #start-btn { background: linear-gradient(45deg, var(--accent-1), var(--accent-2)); color: var(--white); border: none; padding: 10px 18px; font-size: 1rem; border-radius: 999px; cursor: pointer; }
+        #chat-container { display: none; flex-direction: column; margin-top: 18px; background-color: var(--card); padding: 14px; border-radius: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.6); }
+        #chat-box { max-height: 360px; overflow-y: auto; margin-bottom: 12px; padding-right: 6px; }
+        .msg { margin-bottom: 8px; line-height: 1.25; }
+        .msg.system { color: #ddd; font-style: italic; opacity: 0.95; }
+        .msg .nick { font-weight: 700; margin-right: 6px; }
+        #input-row { display: flex; gap: 10px; align-items: center; }
+        #message-input { padding: 12px; border: 3px solid transparent; border-radius: 999px; background-color: var(--muted); color: var(--white); font-size: 1rem; width: 100%; min-height: 48px; resize: none; transition: 0.2s; box-sizing: border-box; }
+        #message-input:focus { outline: none; box-shadow: 0 0 10px rgba(106,13,173,0.18); }
+        #controls { display:flex; gap:8px; align-items:center; }
+        #send-btn { background: linear-gradient(45deg, var(--accent-1), var(--accent-2)); color: var(--white); border: none; padding: 10px 14px; font-size: 1rem; border-radius: 999px; cursor: pointer; min-width: 72px; }
+        #emoji-wrapper { position: relative; display: inline-flex; align-items: center; justify-content: center; }
+        #emoji-btn { width:44px; height:44px; border-radius: 50%; cursor: pointer; transition: transform .12s ease, box-shadow .12s ease; display:flex; align-items:center; justify-content:center; box-shadow: 0 6px 18px rgba(13, 10, 20, 0.6); flex-shrink: 0; }
         #emoji-btn:active { transform: scale(.96) }
-
-        /* EMOJI PANEL */
-        #emoji-panel {
-            position: absolute;
-            bottom: 58px;
-            right: -4px;
-            display: none;
-            background: linear-gradient(135deg, rgba(106,13,173,0.98), rgba(13,106,173,0.98));
-            border-radius: 16px;
-            padding: 10px;
-            box-shadow: 0 16px 40px rgba(6,5,10,0.6);
-            z-index: 300;
-            min-width: 220px;
-            max-width: 320px;
-            gap:6px;
-            flex-wrap: wrap;
-            box-sizing: border-box;
-        }
-
+        #emoji-panel { position: absolute; bottom: 58px; right: -4px; display: none; background: linear-gradient(135deg, rgba(106,13,173,0.98), rgba(13,106,173,0.98)); border-radius: 16px; padding: 10px; box-shadow: 0 16px 40px rgba(6,5,10,0.6); z-index: 300; min-width: 220px; max-width: 320px; gap:6px; flex-wrap: wrap; box-sizing: border-box; }
         #emoji-panel.show { display:flex; flex-direction: row; }
-
-        #emoji-panel .emoji {
-            font-size: 26px;
-            padding:8px;
-            border-radius:10px;
-            cursor:pointer;
-            user-select:none;
-            background: rgba(255,255,255,0.03);
-            transition: transform .08s ease, background .12s ease;
-        }
-
+        #emoji-panel .emoji { font-size: 26px; padding:8px; border-radius:10px; cursor:pointer; user-select:none; background: rgba(255,255,255,0.03); transition: transform .08s ease, background .12s ease; }
         #emoji-panel .emoji:hover { transform: translateY(-3px); background: rgba(255,255,255,0.06); }
-
-        .emoji.fart {
-            display:flex;
-            align-items:center;
-            gap:8px;
-            padding:8px 12px;
-            font-weight:700;
-            border-radius:12px;
-            background: rgba(0,0,0,0.12);
-        }
-
+        .emoji.fart { display:flex; align-items:center; gap:8px; padding:8px 12px; font-weight:700; border-radius:12px; background: rgba(0,0,0,0.12); }
         @media (max-width:600px){
             #app { padding: 12px; }
             #emoji-panel { right: -10px; left: auto; bottom: 64px; }
@@ -257,9 +74,7 @@
 
             <div id="input-row">
                 <textarea id="message-input" placeholder="Type your message..." rows="2"></textarea>
-
                 <div id="controls">
-                    <!-- Emoji button with SVG face inside -->
                     <div id="emoji-wrapper">
                         <svg id="emoji-btn" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" role="button" aria-label="Emoji picker">
                             <defs>
@@ -271,19 +86,13 @@
                                     <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000" flood-opacity="0.35"/>
                                 </filter>
                             </defs>
-
-                            <!-- outer circle -->
                             <circle cx="50" cy="50" r="46" fill="url(#circleGrad)" filter="url(#softShadow)" stroke="rgba(255,255,255,0.08)" stroke-width="1.2"/>
-
-                            <!-- stylized emoji face (vector) -->
                             <ellipse cx="35.5" cy="58" rx="5.6" ry="3.4" fill="rgba(255,255,255,0.06)"/>
                             <ellipse cx="64.5" cy="58" rx="5.6" ry="3.4" fill="rgba(255,255,255,0.06)"/>
                             <path d="M33 40c0-3 4-6 6-3" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.95"/>
                             <path d="M67 40c0-3-4-6-6-3" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.95"/>
                             <path d="M35 52c4 6 16 6 24 0" stroke="#fff" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0.95"/>
                         </svg>
-
-                        <!-- emoji picker panel -->
                         <div id="emoji-panel" aria-hidden="true">
                             <div class="emoji">😀</div>
                             <div class="emoji">😂</div>
@@ -295,183 +104,153 @@
                             <div class="emoji">🔥</div>
                             <div class="emoji">💜</div>
                             <div class="emoji">🤘</div>
-                            <!-- special fart action -->
                             <div class="emoji fart" data-fart="true">💨 <span style="opacity:.9">Fart</span></div>
                         </div>
                     </div>
-
                     <button id="send-btn">Send</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
+<script>
+const startBtn = document.getElementById('start-btn');
+const nicknameInput = document.getElementById('nickname');
+const chatContainer = document.getElementById('chat-container');
+const chatBox = document.getElementById('chat-box');
+const messageInput = document.getElementById('message-input');
+const sendBtn = document.getElementById('send-btn');
+const onlineCountElement = document.getElementById('online-count');
+const emojiBtn = document.getElementById('emoji-btn');
+const emojiPanel = document.getElementById('emoji-panel');
 
-    <script>
-        // --- CLIENT / UI LOGIC ---
-        const startBtn = document.getElementById('start-btn');
-        const nicknameInput = document.getElementById('nickname');
-        const chatContainer = document.getElementById('chat-container');
-        const chatBox = document.getElementById('chat-box');
-        const messageInput = document.getElementById('message-input');
-        const sendBtn = document.getElementById('send-btn');
-        const onlineCountElement = document.getElementById('online-count');
+let playerId = null;
+let socket = null;
+let pingInterval = null;
 
-        const emojiBtn = document.getElementById('emoji-btn');
-        const emojiPanel = document.getElementById('emoji-panel');
+function addMessage(nick, text, isSystem=false){
+    const el = document.createElement('div');
+    el.className = 'msg' + (isSystem ? ' system' : '');
+    if(isSystem){
+        el.textContent = `System: ${text}`;
+    } else {
+        const nickSpan = document.createElement('span');
+        nickSpan.className = 'nick';
+        nickSpan.textContent = nick + ':';
+        el.appendChild(nickSpan);
+        const txt = document.createElement('span');
+        txt.textContent = ' ' + text;
+        el.appendChild(txt);
+    }
+    chatBox.appendChild(el);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
 
-        let playerId = null;
-        let socket = null;
-        let pingInterval = null;
+function saveMessage(player, message){
+    const messages = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+    const lastMessage = messages[messages.length - 1];
+    if(lastMessage && lastMessage.player === player && lastMessage.message === message) return;
+    messages.push({player, message});
+    localStorage.setItem('chatHistory', JSON.stringify(messages));
+}
 
-        // function to append message to chat
-        function addMessage(nick, text, isSystem=false){
-            const el = document.createElement('div');
-            el.className = 'msg' + (isSystem ? ' system' : '');
-            if (isSystem){
-                el.textContent = `System: ${text}`;
-            } else {
-                const nickSpan = document.createElement('span');
-                nickSpan.className = 'nick';
-                nickSpan.textContent = nick + ':';
-                el.appendChild(nickSpan);
-                const txt = document.createElement('span');
-                txt.textContent = ' ' + text;
-                el.appendChild(txt);
-            }
-            chatBox.appendChild(el);
-            chatBox.scrollTop = chatBox.scrollHeight;
+function loadMessages(){
+    const messages = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+    messages.forEach(m => addMessage(m.player, m.message));
+}
+
+startBtn.addEventListener('click', () => {
+    const nickname = nicknameInput.value.trim();
+    if(!nickname) return;
+    playerId = nickname;
+    nicknameInput.disabled = true;
+    startBtn.disabled = true;
+
+    socket = io('https://pgn-3xyh.onrender.com');
+
+    socket.on('connect', () => { try { socket.emit('join', { playerId }); } catch(e){} });
+
+    socket.on('online_count', (data) => {
+        const onlineText = (data && data.count) ? `Pigeons online: ${data.count}` : 'Pigeons online: A lot';
+        onlineCountElement.textContent = onlineText;
+    });
+
+    socket.on('receive_message', (data) => {
+        if(!data) return;
+        // игнорируем свои сообщения, чтобы не дублировать
+        if(data.player_id === playerId && data.nickname !== 'System') return;
+        if(data.nickname === 'System'){
+            addMessage('System', data.text, true);
+        } else {
+            addMessage(data.nickname || 'anon', data.text || '');
         }
+        saveMessage(data.nickname || 'anon', data.text || '');
+    });
 
-        // store messages in localStorage
-        function saveMessage(player, message){
-            const messages = JSON.parse(localStorage.getItem('chatHistory') || '[]');
-            const lastMessage = messages[messages.length - 1];
-            if (lastMessage && lastMessage.player === player && lastMessage.message === message){
-                return;
-            }
-            messages.push({player, message});
-            localStorage.setItem('chatHistory', JSON.stringify(messages));
-        }
+    socket.on('disconnect', () => {
+        if(pingInterval) clearInterval(pingInterval);
+        addMessage('System', 'Disconnected from server', true);
+    });
 
-        function loadMessages(){
-            const messages = JSON.parse(localStorage.getItem('chatHistory') || '[]');
-            messages.forEach(m => addMessage(m.player, m.message));
-        }
+    chatContainer.style.display = 'flex';
+    loadMessages();
 
-        // --- SOCKET / START LOGIC ---
-        startBtn.addEventListener('click', () => {
-            const nickname = nicknameInput.value.trim();
-            if (!nickname) return;
-            playerId = nickname;
-            nicknameInput.disabled = true;
-            startBtn.disabled = true;
+    pingInterval = setInterval(updateOnlineCount, 8000);
+    updateOnlineCount();
+});
 
-            socket = io('https://pgn-3xyh.onrender.com');
+function doSend(){
+    const msg = messageInput.value.trim();
+    if(!msg || !playerId) return;
+    if(socket && socket.connected){
+        socket.emit('send_message', { nickname: playerId, text: msg, player_id: playerId });
+    }
+    // убрали локальный addMessage, теперь сервер присылает обратно
+    messageInput.value = '';
+    messageInput.focus();
+}
 
-            socket.on('connect', () => {
-                try { socket.emit('join', { playerId }); } catch(e){}
-            });
+sendBtn.addEventListener('click', () => doSend());
+messageInput.addEventListener('keydown', (e) => { if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); doSend(); } });
 
-            socket.on('online_count', (data) => {
-                const onlineText = (data && data.count) ? `Pigeons online: ${data.count}` : 'Pigeons online: A lot';
-                onlineCountElement.textContent = onlineText;
-            });
+emojiBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isShown = emojiPanel.classList.contains('show');
+    emojiPanel.classList.toggle('show', !isShown);
+    emojiPanel.setAttribute('aria-hidden', !isShown ? 'false' : 'true');
+});
 
-            socket.on('receive_message', (data) => {
-                if (data && data.nickname === 'System'){
-                    addMessage('System', data.text, true);
-                } else {
-                    addMessage(data.nickname || 'anon', data.text || '');
-                }
-                saveMessage(data.nickname || 'anon', data.text || '');
-            });
+emojiPanel.querySelectorAll('.emoji').forEach(el => {
+    el.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        const isFart = el.dataset.fart === "true";
+        messageInput.value += (messageInput.value ? ' ' : '') + (isFart ? '💨 *farted*' : el.textContent);
+        emojiPanel.classList.remove('show');
+        emojiPanel.setAttribute('aria-hidden','true');
+        messageInput.focus();
+    });
+});
 
-            socket.on('disconnect', () => {
-                if (pingInterval) clearInterval(pingInterval);
-                addMessage('System', 'Disconnected from server', true);
-            });
+document.addEventListener('click', (e) => {
+    if(!emojiPanel.contains(e.target) && !emojiBtn.contains(e.target)){
+        emojiPanel.classList.remove('show');
+        emojiPanel.setAttribute('aria-hidden','true');
+    }
+});
 
-            chatContainer.style.display = 'flex';
-            loadMessages();
-
-            pingInterval = setInterval(updateOnlineCount, 8000);
-            updateOnlineCount();
+async function updateOnlineCount(){
+    try{
+        if(!playerId) return;
+        const res = await fetch('https://pgn-3xyh.onrender.com/ping', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({player_id:playerId})
         });
-
-        // send message
-        function doSend(){
-            const msg = messageInput.value.trim();
-            if (!msg || !playerId) return;
-            if (socket && socket.connected){
-                socket.emit('send_message', { nickname: playerId, text: msg, player_id: playerId });
-            }
-            addMessage(playerId, msg);
-            saveMessage(playerId, msg);
-            messageInput.value = '';
-            messageInput.focus();
-        }
-
-        sendBtn.addEventListener('click', () => doSend());
-
-        messageInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey){
-                e.preventDefault();
-                doSend();
-            }
-        });
-
-        // emoji picker toggle
-        emojiBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const isShown = emojiPanel.classList.contains('show');
-            if (isShown){
-                emojiPanel.classList.remove('show');
-                emojiPanel.setAttribute('aria-hidden','true');
-            } else {
-                emojiPanel.classList.add('show');
-                emojiPanel.setAttribute('aria-hidden','false');
-            }
-        });
-
-        // insert emoji click
-        emojiPanel.querySelectorAll('.emoji').forEach(el => {
-            el.addEventListener('click', (ev) => {
-                ev.stopPropagation();
-                const isFart = el.dataset.fart === "true";
-                if (isFart){
-                    messageInput.value += (messageInput.value ? ' ' : '') + '💨 *farted*';
-                } else {
-                    messageInput.value += el.textContent;
-                }
-                emojiPanel.classList.remove('show');
-                emojiPanel.setAttribute('aria-hidden','true');
-                messageInput.focus();
-            });
-        });
-
-        // close picker if click outside
-        document.addEventListener('click', (e) => {
-            if (!emojiPanel.contains(e.target) && !emojiBtn.contains(e.target)){
-                emojiPanel.classList.remove('show');
-                emojiPanel.setAttribute('aria-hidden','true');
-            }
-        });
-
-        // update online count via /ping endpoint
-        async function updateOnlineCount(){
-            try {
-                if (!playerId) return;
-                const res = await fetch('https://pgn-3xyh.onrender.com/ping', {
-                    method: 'POST',
-                    headers: {'Content-Type':'application/json'},
-                    body: JSON.stringify({ player_id: playerId })
-                });
-                const data = await res.json();
-                onlineCountElement.textContent = `Pigeons online: ${data}`;
-            } catch (err) {}
-        }
-    </script>
+        const data = await res.json();
+        onlineCountElement.textContent = `Pigeons online: ${data}`;
+    } catch(err){}
+}
+</script>
 </body>
 </html>
