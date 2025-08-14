@@ -16,10 +16,16 @@ players = {}
 pigeon_fund = 0
 last_message_time = {}  # player_id -> timestamp
 
+# Новый трекер нарушений и мутов
+violations_count = {}  # nickname -> int
+muted_until = {}       # nickname -> timestamp
+
 banned_words = [
     "nigger", "niga", "kike", "chink", "gook", "wetback", "spic",
     "faggot", "retard", "tranny", "coon", "towelhead", "camel jockey",
-    "reggin", "nigga", "niggеr", "негр"
+    "reggin", "nigga", "niggеr", "негр", "niggers", "niggas", "niggа", "niggаs", "1488", "heil", "hеil",
+    "n1gger", "fag", "faggot", "heeb", "paki", "jap", "n i g g e r", "черножопый", "chiml", "spic", "jew",
+    "al qaeda", "nice bomb plan"
 ]
 banned_regex = re.compile(r"|".join(rf"\b{re.escape(word)}\b" for word in banned_words), re.IGNORECASE)
 
@@ -72,14 +78,27 @@ def handle_message(data):
 
     now = time.time()
 
-    #antiflood
+    # Проверка мута
+    if nickname in muted_until and muted_until[nickname] > now:
+        remaining = int(muted_until[nickname] - now)
+        emit('receive_message', {"nickname": "System", "text": f"You are muted for {remaining} more seconds."}, room=request.sid)
+        return
+
+    # Антифлуд
     if player_id in last_message_time and now - last_message_time[player_id] < 3:
         emit('receive_message', {"nickname": "System", "text": "Slow down! Wait 3 seconds."}, room=request.sid)
         return
 
+    # Проверка на банворды
     if banned_regex.search(text):
-        emit('receive_message', {"nickname": "System", "text": "Message blocked for inappropriate content."}, room=request.sid)
-        return
+        violations_count[nickname] = violations_count.get(nickname, 0) + 1
+        if violations_count[nickname] >= 3:
+            muted_until[nickname] = now + 300
+            emit('receive_message', {"nickname": "System", "text": f"{nickname} has been muted for 5 minutes due to inappropriate language."}, broadcast=True)
+            return
+        else:
+            emit('receive_message', {"nickname": "System", "text": "Message blocked for inappropriate content."}, room=request.sid)
+            return
 
     last_message_time[player_id] = now
     emit('receive_message', {"nickname": nickname, "text": text}, broadcast=True)
