@@ -382,18 +382,18 @@ h1, h2, h3 {
   
   <div class="pigeon-card">
     <img src="spacepigeon.jpg" alt="Space Pigeon">
-    <p>Space Pigeon<br>65 pigeon coins<br>Deals 0.752 dmg<br>16 attack<br>1875 HP</p>
+    <p>Space Pigeon<br>65 pigeon coins<br>Deals 0.452 dmg<br>16 attack<br>1875 HP</p>
     <button onclick="buy('spacePigeon', 65)">Buy</button>
   </div>
+  
 
-  <!-- CANDY PIGEON -->
+  
   <div class="pigeon-card">
     <img src="candypigeon.jpg" alt="Candy Pigeon">
-    <p>Candy Pigeon<br>Shoots red-white striped bullets<br>Has CANDY SUPERPOWER: spawns red/white circles that burn enemies<br>Cost: 250 pigeon coins</p>
-    <button onclick="buy('candyPigeon', 250)">Buy</button>
+    <p>Candy Pigeon<br>+5.5 speed<br>+25 attack<br>0.61 damage<br>1700 HP<br>Shoots red-white candies<br>220 pigeon coins</p>
+    <button onclick="buy('candyPigeon', 220)">Buy</button>
   </div>
-  
-  <h2>PowerUps</h2>
+<h2>PowerUps</h2>
   <div class="pigeon-card">
     <img src="classicpigeon.jpg" alt="Pigeonin Classic">
     <p>Pigeonin Classic<br>+10 attack<br>+0.6 damage<br>300 pigeon coins<br>24 hours active</p>
@@ -456,7 +456,7 @@ h1, h2, h3 {
 </div>
   <div id="gameContainer">
     <canvas id="gameCanvas"></canvas>
-    <div id="version">PigeonBattle 0.3.5a</div>
+    <div id="version">PigeonBattle 0.3.5b</div>
     <div id="joystick"></div>
     <div id="shootBtn">bang</div>
     <div id="superbangBtn">SUPERBANG</div>
@@ -682,22 +682,22 @@ function comp() {
 }
 
 const pigeons = {
-  spinPigeon: { img: 'spinpigeon.jpg', speed: 4, attack: 20, damage: 2.0, hp: 1500, shootType: 'spin_shoot' },
-  default: { img: 'pigeon.jpg', speed: 5, attack: 10, damage: 1.6, hp: 1200, shootType: 'normal_shoot' },
-  wheelPigeon: { img: 'wheelpigeon.jpg', speed: 7, attack: 2, damage: 0.5, hp: 1000, shootType: 'normal_shoot' },
-  pigeonCopter: { img: 'pigobomb.jpg', speed: 6, attack: 20, damage: 1.8, hp: 1330, shootType: 'normal_shoot' },
-  feetPigeon: { img: 'feetpigeon.jpg', speed: 5, attack: 6, damage: 1.5, kick: true, hp: 1500, shootType: 'normal_shoot' },
-  emiPigeon: { img: 'emipigeon.jpg', speed: 5, attack: 8, damage: 1.9, hp: 1200, shootType: 'emishoot' },
-  dentistPigeon: { img: 'dentistpigeon.jpg', speed: 5, attack: 10, damage: 2.0, hp: 2000, shootType: 'normal_shoot' },
-  armyPigeon: { img: 'armypigeon.jpg', speed: 5, attack: 12, damage: 2.0, hp: 1300, shootType: 'green_short' },
-  sorrelPigeon: { img: 'sorrelpigeon.jpg', speed: 6.5, attack: 16, damage: 1.7, hp: 1500, shootType: 'green_short' },
-  goonPigeon: { img: 'goonpigeon.jpg', speed: 4.5, attack: 13, damage: 1.6, hp: 1250, shootType: 'white_shoot', humanLegs: true, confusionAura: true },
-  clownPigeon: { img: 'clownpigeon.jpg', speed: 5, attack: 30, damage: 2.0, hp: 1600, shootType: 'ball_shoot'},
-  wizardPigeon: { img: 'wizardpigeon.jpg', speed: 7.5, attack: 40, damage: 2.0, hp: 2200, shootType: 'fireball_shoot'},
-  lawPigeon: { img: 'lawpigeon.jpg', speed: 4, attack: 40, damage: 2.0, hp: 1600},
-  feetphone: { img: 'feetphone.jpg', speed: 6, attack: 20, damage: 2.0, hp: 2200, shootType: 'normal_shoot' },
-  spacePigeon: { img: 'spacepigeon.jpg', speed: 4, attack: 50, damage: 1.5, hp: 1875, shootType: 'purple_shoot' },
-  candyPigeon: { img: 'candypigeon.jpg', speed: 5, attack: 20, damage: 1.2, hp: 1500, shootType: 'candy_shoot' }
+  candyPigeon: { img: 'candypigeon.jpg', speed: 5.5, attack: 25, damage: 0.61, hp: 1700, shootType: 'candy_shoot' },
+  spinPigeon: { img: 'spinpigeon.jpg', speed: 4, attack: 20, damage: 1.2, hp: 1500, shootType: 'spin_shoot' },
+  default: { img: 'pigeon.jpg', speed: 5, attack: 10, damage: 0.3, hp: 1200, shootType: 'normal_shoot' },
+  wheelPigeon: { img: 'wheelpigeon.jpg', speed: 7, attack: 2, damage: 0.8, hp: 1000, shootType: 'normal_shoot' },
+  pigeonCopter: { img: 'pigobomb.jpg', speed: 6, attack: 20, damage: 1.5, hp: 1330, shootType: 'normal_shoot' },
+  feetPigeon: { img: 'feetpigeon.jpg', speed: 5, attack: 6, damage: 1, kick: true, hp: 1500, shootType: 'normal_shoot' },
+  emiPigeon: { img: 'emipigeon.jpg', speed: 5, attack: 8, damage: 0.322, hp: 1200, shootType: 'emishoot' },
+  dentistPigeon: { img: 'dentistpigeon.jpg', speed: 5, attack: 10, damage: 0.3, hp: 2000, shootType: 'normal_shoot' },
+  armyPigeon: { img: 'armypigeon.jpg', speed: 5, attack: 12, damage: 0.2, hp: 1300, shootType: 'green_short' },
+  sorrelPigeon: { img: 'sorrelpigeon.jpg', speed: 6.5, attack: 16, damage: 0.4, hp: 1500, shootType: 'green_short' },
+  goonPigeon: { img: 'goonpigeon.jpg', speed: 4.5, attack: 13, damage: 0.5, hp: 1250, shootType: 'white_shoot', humanLegs: true, confusionAura: true },
+  clownPigeon: { img: 'clownpigeon.jpg', speed: 5, attack: 30, damage: 0.6, hp: 1600, shootType: 'ball_shoot'},
+  wizardPigeon: { img: 'wizardpigeon.jpg', speed: 7.5, attack: 40, damage: 2, hp: 2200, shootType: 'fireball_shoot'},
+  lawPigeon: { img: 'lawpigeon.jpg', speed: 4, attack: 40, damage: 0.6254, hp: 1600},
+  feetphone: { img: 'feetphone.jpg', speed: 6, attack: 20, damage: 0.55, hp: 2200, shootType: 'normal_shoot' },
+  spacePigeon: { img: 'spacepigeon.jpg', speed: 4, attack: 50, damage: 0.452, hp: 1875, shootType: 'purple_shoot' }
 };
 
    const enemies = [
@@ -766,19 +766,6 @@ const spaceUlt = {
   bladeSize: 34, // visual triangle size
   bladeHitRadius: 30, // collision check radius
   damage: 200
-};
-
-const candyUlt = {
-  available: true,
-  active: false,
-  duration: 6000, // will be randomized between 5000-7000 on activation
-  cooldown: 40000,
-  candies: [],
-  candyCount: 14,
-  candySize: 40,
-  damagePerSecond: 250,
-  startedAt: 0,
-  cooldownStartedAt: 0
 };
 
 const playerImg = new Image();
@@ -859,7 +846,20 @@ document.getElementById('pigeonsMenu').style.display = 'flex';
       }
     }
     
-    function shootWhite(player, bullets, dmgBoost) {
+    
+function shootCandy(player, bullets, dmgBoost) {
+  bullets.push({
+    x: player.x + player.w,
+    y: player.y + player.h / 2 - 5,
+    w: 12,
+    h: 12,
+    speed: 10,
+    dmg: 5 * dmgBoost,
+    color: 'candy'
+  });
+}
+
+function shootWhite(player, bullets, dmgBoost) {
   bullets.push({
     x: player.x + player.w,
     y: player.y + player.h / 2 - 5,
@@ -947,36 +947,12 @@ function shootFireball(player, bullets, dmgBoost) {
   });
 }
 
-// Candy shoot - red/white striped bullets
-function shootCandy(player, bullets, dmgBoost) {
-  bullets.push({
-    x: player.x + player.w,
-    y: player.y + player.h / 2 - 6,
-    w: 12,
-    h: 12,
-    speed: 11,
-    dmg: 8 * dmgBoost,
-    type: 'candy'
-  });
-}
-
     function updateCoinsDisplay() {
       coinsDisplay.textContent = 'Coins: ' + coins;
     }
 
-    
-document.addEventListener('keydown', e => {
-  if (['w','a','s','d',' '].includes(e.key.toLowerCase())) e.preventDefault();
-  keys[e.key.toLowerCase()] = true;
-});
-document.addEventListener('keyup', e => {
-  if (['w','a','s','d',' '].includes(e.key.toLowerCase())) e.preventDefault();
-  keys[e.key.toLowerCase()] = false;
-});
-window.addEventListener('blur', () => {
-  keys['w'] = keys['a'] = keys['s'] = keys['d'] = keys[' '] = false;
-});
-
+    document.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+    document.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
     canvas.addEventListener('mousedown', () => {
   keys[' '] = true;
 });
@@ -1100,49 +1076,6 @@ function startSpaceUlt() {
   toast('SPACE ULT: Лезвия активированы! 🟣', 1800);
 }
 
-/* === CANDY PIGEON ULT LOGIC (NEW) === */
-function canUseCandyUlt() {
-  return selected === 'candyPigeon' && gameStarted && candyUlt.available && !candyUlt.active;
-}
-
-function startCandyUlt() {
-  if (!canUseCandyUlt()) {
-    if (selected !== 'candyPigeon') toast('Эта ульта только для Candy Pigeon 🍬');
-    return;
-  }
-  candyUlt.active = true;
-  candyUlt.available = false;
-  candyUlt.startedAt = Date.now();
-  // randomize duration between 5-7 sec
-  candyUlt.duration = 5000 + Math.floor(Math.random() * 2000);
-  candyUlt.candies = [];
-  const px = player.x + player.w / 2;
-  const py = player.y + player.h / 2;
-  for (let i = 0; i < candyUlt.candyCount; i++) {
-    const angle = (Math.PI * 2 / candyUlt.candyCount) * i;
-    const radius = 30 + Math.random() * 40; // spawn a bit around pigeon
-    const cx = px + Math.cos(angle) * radius;
-    const cy = py + Math.sin(angle) * radius;
-    // small random velocity so they float around
-    const vx = (Math.random() - 0.5) * 1.8;
-    const vy = (Math.random() - 0.5) * 1.8;
-    candyUlt.candies.push({ x: cx, y: cy, vx, vy, size: candyUlt.candySize });
-  }
-
-  // stop after duration
-  setTimeout(() => {
-    candyUlt.active = false;
-    candyUlt.cooldownStartedAt = Date.now();
-    // clear candies
-    candyUlt.candies = [];
-    setTimeout(() => {
-      candyUlt.available = true;
-    }, candyUlt.cooldown);
-  }, candyUlt.duration);
-
-  toast('CANDY ULT ACTIVATED 🍭 Spawning circles!', 1700);
-}
-
 /* Unified superbang starter used by button + key */
 function startSuperbang() {
   // If both are available, priority to selected pigeon
@@ -1150,8 +1083,6 @@ function startSuperbang() {
     startEmiUlt();
   } else if (selected === 'spacePigeon') {
     startSpaceUlt();
-  } else if (selected === 'candyPigeon') {
-    startCandyUlt();
   } else {
     toast('У тебя нет ульты у выбранного голубя 😕');
   }
@@ -1180,8 +1111,8 @@ document.addEventListener('keydown', (e) => {
 function updateSuperbangUI() {
   const btn = document.getElementById('superbangBtn');
   if (!btn) return;
-  // Show button only on touch devices AND only when selected is emiPigeon or spacePigeon or candyPigeon
-  if ('ontouchstart' in window && (selected === 'emiPigeon' || selected === 'spacePigeon' || selected === 'candyPigeon') && gameStarted) {
+  // Show button only on touch devices AND only when selected is emiPigeon or spacePigeon
+  if ('ontouchstart' in window && (selected === 'emiPigeon' || selected === 'spacePigeon') && gameStarted) {
     btn.style.display = 'block';
   } else {
     btn.style.display = 'none';
@@ -1217,21 +1148,6 @@ function updateSuperbangUI() {
     } else {
       btn.classList.remove('disabled');
       btn.innerText = 'SPACEBANG';
-    }
-  } else if (selected === 'candyPigeon') {
-    if (!candyUlt.available && !candyUlt.active) {
-      const elapsed = Date.now() - candyUlt.cooldownStartedAt;
-      const left = Math.max(0, Math.ceil((candyUlt.cooldown - elapsed) / 1000));
-      btn.classList.add('disabled');
-      btn.innerText = `CANDYBANG (${left}s)`;
-    } else if (candyUlt.active) {
-      const elapsed = Date.now() - candyUlt.startedAt;
-      const left = Math.max(0, Math.ceil((candyUlt.duration - elapsed) / 1000));
-      btn.classList.add('disabled');
-      btn.innerText = `CANDYBANG ${left}s`;
-    } else {
-      btn.classList.remove('disabled');
-      btn.innerText = 'CANDYBANG';
     }
   } else {
     btn.classList.add('disabled');
@@ -1272,7 +1188,9 @@ function update() {
   if (keys[' ']) {
     const shootType = stats.shootType || 'normal_shoot';
 
-    if (shootType === 'spin_shoot') {
+    if (shootType === 'candy_shoot') {
+      shootCandy(player, bullets, dmgBoost);
+    } else if (shootType === 'spin_shoot') {
       if (spinMode) {
         shoot360(player, bullets, stats.damage, 6, 'purple');
       } else {
@@ -1291,169 +1209,39 @@ function update() {
       shootPurple(player, bullets, dmgBoost);
     } else if (shootType === 'fireball_shoot') {
       shootFireball(player, bullets, dmgBoost);
-    } else if (shootType === 'candy_shoot') {
-      shootCandy(player, bullets, dmgBoost);
     } else {
       shoot(player, bullets, dmgBoost);
     }
   }
 
-  /* === Smarter Bot AI (stabilized, less jitter, more tactical) === */
-
-// Initialize bot AI if not exists
-if (!bot.ai) {
-  bot.ai = {
-    state: 'patrol', // patrol | seek | flank | attack | retreat | dodge
-    stateTimer: 0,
-    stateMinTime: 0,
-    lastSeenAt: 0,
-    perceptionRadius: 420,
-    attackRange: 220,
-    flankDistance: 140,
-    retreatHP: Math.max(350, bot.hp * 0.25),
-    patrolPoints: [
-      { x: Math.max(60, bot.x - 120), y: Math.max(60, bot.y - 80) },
-      { x: Math.min(canvas.width - 60, bot.x + 120), y: Math.max(60, bot.y - 80) },
-      { x: Math.min(canvas.width - 60, bot.x + 120), y: Math.min(canvas.height - 60, bot.y + 80) },
-      { x: Math.max(60, bot.x - 120), y: Math.min(canvas.height - 60, bot.y + 80) }
-    ],
-    patrolIndex: 0,
-    dodgeCooldown: 0,
-    targetPos: null
-  };
-}
-
-function dist(a, b) {
-  const dx = (a.x || a[0]) - (b.x || b[0]);
-  const dy = (a.y || a[1]) - (b.y || b[1]);
-  return Math.sqrt(dx*dx + dy*dy);
-}
-
-function moveToward(entity, tx, ty, spdMult = 1) {
-  const cx = entity.x + entity.w / 2;
-  const cy = entity.y + entity.h / 2;
-  const angle = Math.atan2(ty - cy, tx - cx);
-  entity.x += Math.cos(angle) * (entity.speed || 2) * spdMult;
-  entity.y += Math.sin(angle) * (entity.speed || 2) * spdMult;
-}
-
-// Track player velocity
-if (!player.lastX || !player.lastY) {
-  player.lastX = player.x;
-  player.lastY = player.y;
-}
-const playerVx = player.x - player.lastX;
-const playerVy = player.y - player.lastY;
-
-const playerCenter = { x: player.x + player.w/2, y: player.y + player.h/2 };
-const botCenter = { x: bot.x + bot.w/2, y: bot.y + bot.h/2 };
-const playerDist = dist(playerCenter, botCenter);
-
-const canSeePlayer = playerDist <= bot.ai.perceptionRadius;
-if (canSeePlayer) bot.ai.lastSeenAt = Date.now();
-
-// Only change state if enough time passed
-function changeState(newState, minTime = 30) {
-  if (bot.ai.state !== newState && bot.ai.stateTimer >= bot.ai.stateMinTime) {
-    bot.ai.state = newState;
-    bot.ai.stateTimer = 0;
-    bot.ai.stateMinTime = minTime;
-    bot.ai.targetPos = null; // reset target
+  // Bot movement towards player with prediction
+  if (!player.lastX || !player.lastY) {
+    player.lastX = player.x;
+    player.lastY = player.y;
   }
-}
 
-// Incoming bullet detection
-let incomingBullet = null;
-for (let b of bullets) {
-  const dx = botCenter.x - b.x;
-  const dy = botCenter.y - b.y;
-  const d = Math.sqrt(dx*dx + dy*dy);
-  if (d < 240 && Math.abs(dy) < 60 && ((b.speed > 0 && dx > 0) || (b.speed < 0 && dx < 0))) {
-    incomingBullet = b;
-    break;
-  }
-}
-if (incomingBullet && bot.ai.dodgeCooldown <= 0) {
-  bot.ai.prevState = bot.ai.state;
-  changeState('dodge', 15);
-  bot.ai.dodgeCooldown = 80;
-}
+  const playerSpeedX = player.x - player.lastX;
+  const playerSpeedY = player.y - player.lastY;
+  const predictionFactor = 0.2;
 
-// State decision logic
-if (bot.hp <= bot.ai.retreatHP) {
-  changeState('retreat', 60);
-} else if (canSeePlayer) {
-  if (playerDist < 100 && bot.hp > 120) {
-    changeState('dodge', 20);
-  } else if (playerDist < bot.ai.attackRange) {
-    if (Math.random() < 0.3) changeState('flank', 60);
-    else changeState('attack', 60);
-  } else {
-    changeState('seek', 60);
-  }
-} else if (Date.now() - bot.ai.lastSeenAt > 5000) {
-  changeState('patrol', 90);
-}
+  const predictedPlayerX = player.x + (playerSpeedX || 0) * predictionFactor;
+  const predictedPlayerY = player.y + (playerSpeedY || 0) * predictionFactor;
 
-// Execute current state
-switch (bot.ai.state) {
-  case 'patrol':
-    if (!bot.ai.targetPos) bot.ai.targetPos = bot.ai.patrolPoints[bot.ai.patrolIndex];
-    moveToward(bot, bot.ai.targetPos.x, bot.ai.targetPos.y, 0.9);
-    if (dist(bot, bot.ai.targetPos) < 20) {
-      bot.ai.patrolIndex = (bot.ai.patrolIndex + 1) % bot.ai.patrolPoints.length;
-      bot.ai.targetPos = bot.ai.patrolPoints[bot.ai.patrolIndex];
-    }
-    break;
-  case 'seek':
-    const predictedX = player.x + playerVx * 8;
-    const predictedY = player.y + playerVy * 8;
-    moveToward(bot, predictedX, predictedY, 1.0);
-    break;
-  case 'flank':
-    if (!bot.ai.targetPos) {
-      const angle = Math.atan2(playerCenter.y - botCenter.y, playerCenter.x - botCenter.x);
-      const side = (Math.random() < 0.5 ? 1 : -1);
-      bot.ai.targetPos = {
-        x: playerCenter.x + Math.cos(angle + Math.PI/2 * side) * bot.ai.flankDistance,
-        y: playerCenter.y + Math.sin(angle + Math.PI/2 * side) * bot.ai.flankDistance
-      };
-    }
-    moveToward(bot, bot.ai.targetPos.x, bot.ai.targetPos.y, 1.0);
-    if (dist(bot, bot.ai.targetPos) < 25) changeState('attack', 60);
-    break;
-  case 'attack':
-    const desiredDist = Math.min(bot.ai.attackRange, Math.max(120, playerDist));
-    const ang = Math.atan2(playerCenter.y - botCenter.y, playerCenter.x - botCenter.x);
-    const tx = playerCenter.x - Math.cos(ang) * desiredDist;
-    const ty = playerCenter.y - Math.sin(ang) * desiredDist;
-    moveToward(bot, tx, ty, 1.0);
-    break;
-  case 'retreat':
-    const safeX = (bot.x < canvas.width/2) ? 40 : canvas.width - 80;
-    const safeY = (bot.y < canvas.height/2) ? 40 : canvas.height - 80;
-    moveToward(bot, safeX, safeY, 1.05);
-    if (playerDist > 300) bot.hp += 0.2;
-    if (bot.hp > bot.ai.retreatHP * 1.2) changeState('seek', 60);
-    break;
-  case 'dodge':
-    if (incomingBullet) {
-      const perp = (Math.random() < 0.5 ? 1 : -1);
-      const dodgeAngle = Math.atan2(botCenter.y - incomingBullet.y, botCenter.x - incomingBullet.x) + Math.PI/2 * perp;
-      bot.x += Math.cos(dodgeAngle) * (bot.speed || 2) * 2.0;
-      bot.y += Math.sin(dodgeAngle) * (bot.speed || 2) * 2.0;
-    }
-    if (bot.ai.stateTimer > bot.ai.stateMinTime) changeState(bot.ai.prevState || 'seek', 40);
-    break;
-}
+  const angleToPlayer = Math.atan2(
+    predictedPlayerY - (bot.y + bot.h / 2),
+    predictedPlayerX - (bot.x + bot.w / 2)
+  );
 
-// Cooldowns and clamps
-if (bot.ai.dodgeCooldown > 0) bot.ai.dodgeCooldown--;
-bot.x = Math.max(0, Math.min(canvas.width - bot.w, bot.x));
-bot.y = Math.max(0, Math.min(canvas.height - bot.h, bot.y));
-bot.lastX = bot.x;
-bot.lastY = bot.y;
-bot.ai.stateTimer++;
+  const botSmooth = 0.6;
+  bot.x += Math.cos(angleToPlayer) * bot.speed * botSmooth;
+  bot.y += Math.sin(angleToPlayer) * bot.speed * botSmooth;
+
+  // Clamp bot to canvas
+  bot.x = Math.max(0, Math.min(canvas.width, bot.x));
+  bot.y = Math.max(0, Math.min(canvas.height, bot.y));
+
+  bot.lastX = bot.x;
+  bot.lastY = bot.y;
 
   // Bullets movement (with auto-aim support)
   bullets.forEach(b => {
@@ -1471,9 +1259,9 @@ bot.ai.stateTimer++;
   bullets.forEach(b => {
     if (
       b.x < bot.x + bot.w &&
-      b.x + (b.w || 10) > bot.x &&
+      b.x + b.w > bot.x &&
       b.y < bot.y + bot.h &&
-      b.y + (b.h || 10) > bot.y
+      b.y + b.h > bot.y
     ) {
       bot.hp -= b.dmg;
       b.hit = true;
@@ -1553,47 +1341,6 @@ bot.ai.stateTimer++;
     }
   }
 
-  // APPLY CANDY ULT (new)
-  if (candyUlt.active) {
-    // candies float around player, damage on touch
-    const dmgPerFrame = candyUlt.damagePerSecond / 60; // approx per frame
-    const px = player.x + player.w / 2;
-    const py = player.y + player.h / 2;
-    for (let i = 0; i < candyUlt.candies.length; i++) {
-      const c = candyUlt.candies[i];
-      // attract a little to player's vicinity so they stay around
-      const ax = (px - c.x) * 0.005;
-      const ay = (py - c.y) * 0.005;
-      c.vx += ax;
-      c.vy += ay;
-      // small friction
-      c.vx *= 0.995;
-      c.vy *= 0.995;
-      c.x += c.vx;
-      c.y += c.vy;
-
-      // collision check with bot
-      const botCenterX = bot.x + bot.w / 2;
-      const botCenterY = bot.y + bot.h / 2;
-      const dx = botCenterX - c.x;
-      const dy = botCenterY - c.y;
-      const dist = Math.sqrt(dx*dx + dy*dy);
-      if (dist <= (c.size/2 + Math.max(bot.w, bot.h)/2)) {
-        bot.hp -= dmgPerFrame;
-      }
-    }
-  }
-
-  // remove hit bullets and out-of-bounds
-  for (let i = bullets.length - 1; i >= 0; i--) {
-    const b = bullets[i];
-    if (b.hit || b.x > canvas.width + 200 || b.x < -200 || b.y > canvas.height + 200 || b.y < -200) bullets.splice(i,1);
-  }
-  for (let i = botBullets.length - 1; i >= 0; i--) {
-    const b = botBullets[i];
-    if (b.hit || b.x > canvas.width + 200) botBullets.splice(i,1);
-  }
-
   // END GAME CHECK!
   checkGameEnd();
 
@@ -1627,33 +1374,33 @@ bot.ai.stateTimer++;
   ctx.drawImage(botImg, bot.x, bot.y, bot.w, bot.h);
 }
 
-      // draw player/bot bullets
       bullets.forEach(b => {
-        if (b.type === 'candy') {
-          // draw red circle with white stripes approximation
-          const cx = b.x + (b.w||12)/2;
-          const cy = b.y + (b.h||12)/2;
-          const r = (b.w||12)/2;
-          // base red
-          ctx.beginPath();
-          ctx.fillStyle = 'rgba(220,40,40,0.95)';
-          ctx.arc(cx, cy, r, 0, Math.PI*2);
-          ctx.fill();
-          // white stripe overlay (one middle stripe)
-          ctx.beginPath();
-          ctx.fillStyle = 'rgba(255,255,255,0.95)';
-          ctx.ellipse(cx, cy, r*0.9, r*0.35, Math.PI/8, 0, Math.PI*2);
-          ctx.fill();
-          // small highlight
-          ctx.beginPath();
-          ctx.fillStyle = 'rgba(255,255,255,0.25)';
-          ctx.arc(cx - r*0.3, cy - r*0.35, r*0.25, 0, Math.PI*2);
-          ctx.fill();
-        } else {
-          ctx.fillStyle = b.color || 'brown';
-          ctx.fillRect(b.x, b.y, b.w || 10, b.h || 10);
-        }
-      });
+  if (b.color === 'candy') {
+    const cx = b.x + b.w / 2;
+    const cy = b.y + b.h / 2;
+    const radius = b.w / 2;
+    ctx.save();
+    ctx.translate(cx, cy);
+    // draw red-white striped candy
+    for (let i = 0; i < 8; i++) {
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.arc(0, 0, radius, i * Math.PI / 4, (i + 0.5) * Math.PI / 4);
+      ctx.closePath();
+      ctx.fillStyle = i % 2 === 0 ? 'red' : 'white';
+      ctx.fill();
+    }
+    ctx.beginPath();
+    ctx.arc(0, 0, radius, 0, Math.PI * 2);
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.restore();
+  } else {
+    ctx.fillStyle = b.color || 'brown';
+    ctx.fillRect(b.x, b.y, b.w, b.h);
+  }
+});
 
 botBullets.forEach(b => {
   ctx.fillStyle = b.color || 'black';
@@ -1708,32 +1455,6 @@ botBullets.forEach(b => {
           // ctx.strokeStyle = 'rgba(255,0,0,0.25)';
           // ctx.arc(bx, by, spaceUlt.bladeHitRadius, 0, Math.PI*2);
           // ctx.stroke();
-        }
-      }
-
-      // Draw CANDY ULT circles when active
-      if (candyUlt.active) {
-        for (let i = 0; i < candyUlt.candies.length; i++) {
-          const c = candyUlt.candies[i];
-          const cx = c.x;
-          const cy = c.y;
-          const r = c.size/2;
-          // red base
-          ctx.beginPath();
-          ctx.fillStyle = 'rgba(220,60,60,0.95)';
-          ctx.arc(cx, cy, r, 0, Math.PI*2);
-          ctx.fill();
-          // white stripe
-          ctx.beginPath();
-          ctx.fillStyle = 'rgba(255,255,255,0.95)';
-          ctx.ellipse(cx, cy, r*0.85, r*0.35, Math.PI/8, 0, Math.PI*2);
-          ctx.fill();
-          // outline glow
-          ctx.beginPath();
-          ctx.strokeStyle = 'rgba(255,200,200,0.15)';
-          ctx.lineWidth = 3;
-          ctx.arc(cx, cy, r+2, 0, Math.PI*2);
-          ctx.stroke();
         }
       }
 
@@ -1840,11 +1561,11 @@ const pigeonPriceMap = {
   goonPigeon: 69,
   clownPigeon: 130,
   wizardPigeon: 5000,
-  sorrelPigeon: 445,
+  sorrelPigeon: 1200,
   feetphone: 210,
   spinPigeon: 300,
   spacePigeon: 65,
-  candyPigeon: 250,
+  candyPigeon: 220,
   default: 10
 };
 
