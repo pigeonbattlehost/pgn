@@ -456,7 +456,7 @@ h1, h2, h3 {
 </div>
   <div id="gameContainer">
     <canvas id="gameCanvas"></canvas>
-    <div id="version">PigeonBattle 0.3.5b</div>
+    <div id="version">PigeonBattle 0.3.5c</div>
     <div id="joystick"></div>
     <div id="shootBtn">bang</div>
     <div id="superbangBtn">SUPERBANG</div>
@@ -742,6 +742,11 @@ let spinTimer = 0;
 let spinCooldown = Math.floor(Math.random() * 180) + 60; 
 
 let gameStarted = false;
+// === FPS measurement ===
+let _lastFrameTime = performance.now();
+let _fps = 0; // smoothed true FPS
+const _fpsAlpha = 0.85; // smoothing (0..1), lower = more responsive
+
 
 const emiUlt = {
   available: true,
@@ -1350,7 +1355,14 @@ function update() {
 
     function draw() {
       update();
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // --- FPS calc ---
+      const __now = performance.now();
+      const __dt = __now - _lastFrameTime;
+      _lastFrameTime = __now;
+      const __instFps = 1000 / (__dt > 0 ? __dt : 1);
+      _fps = _fps ? (_fpsAlpha * _fps + (1 - _fpsAlpha) * __instFps) : __instFps;
+ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       
       if (selected === 'spinPigeon') {
@@ -1463,7 +1475,9 @@ botBullets.forEach(b => {
       ctx.fillText(`Player HP: ${Math.max(0, Math.round(player.hp))}`, 10, 20);
       ctx.fillText(`Bot HP: ${Math.max(0, Math.round(bot.hp))}`, 10, 40);
 
-      requestAnimationFrame(draw);
+      
+      ctx.fillText(`FPS: ${Math.round(_fps)}`, 10, 60);
+requestAnimationFrame(draw);
     }
 
     const joystick = document.getElementById('joystick');
