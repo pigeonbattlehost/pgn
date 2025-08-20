@@ -405,6 +405,7 @@ h1, h2, h3 {
     <img src="pigeoncase.jpg" alt="Pigeon Case">
     <p>Pigeon Case<br>You can get coins, or pigeon. Take a risk?<br>70 pigeon coins</p>
     <button onclick="openCase()">Buy</button>
+    <div id="caseStatus" style="margin-top:8px;font-size:14px;color:#ccc"></div>
   </div>
 
     
@@ -456,7 +457,7 @@ h1, h2, h3 {
 </div>
   <div id="gameContainer">
     <canvas id="gameCanvas"></canvas>
-    <div id="version">PigeonBattle 0.3.5c</div>
+    <div id="version">PigeonBattle 0.3.5d</div>
     <div id="joystick"></div>
     <div id="shootBtn">bang</div>
     <div id="superbangBtn">SUPERBANG</div>
@@ -612,59 +613,109 @@ function updateSpentCoins(amount) {
   .catch(err => console.error("Failed to update coins:", err));
 }
 
+const CASE_COOLDOWN_MS = 90 * 60 * 1000; // 1.5 hrs
+function getCaseCooldownLeft() {
+  const last = parseInt(localStorage.getItem('caseLastOpen') || '0', 10);
+  const now = Date.now();
+  const left = CASE_COOLDOWN_MS - (now - last);
+  return Math.max(0, left);
+}
+function formatLeft(ms) {
+  const totalSec = Math.ceil(ms / 1000);
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  const hh = h > 0 ? `${h}h ` : '';
+  const mm = m > 0 ? `${m}m ` : '';
+  const ss = `${s}s`;
+  return `${hh}${mm}${ss}`.trim();
+}
+function updateCaseStatus() {
+  const el = document.getElementById('caseStatus');
+  const btn = Array.from(document.querySelectorAll('#shop .pigeon-card button'))
+    .find(b => b.getAttribute('onclick') === 'openCase()');
+  if (!el || !btn) return;
+
+  const left = getCaseCooldownLeft();
+  if (left > 0) {
+    el.textContent = `Case on cooldown: ${formatLeft(left)} left`;
+    btn.disabled = true;
+    btn.textContent = 'Cooldown...';
+  } else {
+    el.textContent = 'Case is ready!';
+    btn.disabled = false;
+    btn.textContent = 'Buy';
+  }
+}
+setInterval(updateCaseStatus, 1000);
+document.addEventListener('DOMContentLoaded', updateCaseStatus);
+
 function openCase() {
-    if (coins < 70) {
-        alert("Not enough coins to open the case!");
-        return;
+  // cooldown
+  const left = getCaseCooldownLeft();
+  if (left > 0) {
+    alert(`Case is still on a cooldown!: ${formatLeft(left)} remain.`);
+    updateCaseStatus();
+    return;
+  }
+
+  if (coins < 70) {
+    alert("Not enough coins to open the case!");
+    return;
+  }
+
+  coins -= 70;
+
+  localStorage.setItem('caseLastOpen', Date.now().toString());
+
+  let chance = Math.random() * 100;
+
+  if (chance <= 75) {
+    let coinAmount = Math.floor(Math.random() * 140) + 10;
+    coins += coinAmount;
+    alert(`You got ${coinAmount} PigeonCoins! Your balance: ${coins}`);
+    updateSpentCoins(70);
+  } else {
+    const pigeonIds = Object.keys(pigeons);
+    let pigeonId = pigeonIds[Math.floor(Math.random() * pigeonIds.length)];
+
+    function calculateRarity(pigeon) {
+      let rarity = 0;
+      rarity += pigeon.attack * 0.3;
+      rarity += pigeon.speed * 0.2;
+      rarity += pigeon.hp * 0.1;
+      rarity += pigeon.damage * 0.4;
+      if (['green_short', 'white_shoot', 'ball_shoot'].includes(pigeon.shootType)) {
+        rarity += 10;
+      }
+      return rarity;
     }
 
-    coins -= 70;
+    let pigeonsStorage = JSON.parse(localStorage.getItem('ownedPigeons')) || [];
 
-    let chance = Math.random() * 100;
-
-    if (chance <= 75) {
-        let coinAmount = Math.floor(Math.random() * 140) + 10;
-        coins += coinAmount;
-        alert(`You got ${coinAmount} PigeonCoins! Your balance: ${coins}`);
+    if (pigeonsStorage.includes(pigeonId)) {
+      alert(`You already have this pigeon with ID: ${pigeonId}. Try again!`);
     } else {
-        const pigeonIds = Object.keys(pigeons);
-        let pigeonId = pigeonIds[Math.floor(Math.random() * pigeons.length)];
+      let pigeon = pigeons[pigeonId];
+      let rarity = calculateRarity(pigeon);
 
-        function calculateRarity(pigeon) {
-            let rarity = 0;
-            rarity += pigeon.attack * 0.3;
-            rarity += pigeon.speed * 0.2;
-            rarity += pigeon.hp * 0.1;
-            rarity += pigeon.damage * 0.4;
-            if (['green_short', 'white_shoot', 'ball_shoot'].includes(pigeon.shootType)) {
-                rarity += 10;
-            }
-            return rarity;
-        }
+      let rarityChance = Math.random() * 100;
+      pigeonsStorage.push(pigeonId);
+      localStorage.setItem('ownedPigeons', JSON.stringify(pigeonsStorage));
 
-        let pigeonsStorage = JSON.parse(localStorage.getItem('ownedPigeons')) || [];
-
-        if (pigeonsStorage.includes(pigeonId)) {
-            alert(`You already have this pigeon with ID: ${pigeonId}. Try again!`);
-        } else {
-            let pigeon = pigeons[pigeonId];
-            let rarity = calculateRarity(pigeon);
-
-            let rarityChance = Math.random() * 100;
-            pigeonsStorage.push(pigeonId);
-            localStorage.setItem('ownedPigeons', JSON.stringify(pigeonsStorage));
-
-            if (rarityChance < rarity) {
-                alert(`You got a rare pigeon with ID: ${pigeonId}. It's now in your inventory.`);
-            } else {
-                alert(`You got a common pigeon with ID: ${pigeonId}. It's now in your inventory.`);
-            }
-
-            updateSpentCoins(70);
-        }
+      if (rarityChance < rarity) {
+        alert(`You got a rare pigeon with ID: ${pigeonId}. It's now in your inventory.`);
+      } else {
+        alert(`You got a common pigeon with ID: ${pigeonId}. It's now in your inventory.`);
+      }
+      
+      updateSpentCoins(70);
     }
+  }
 
-    localStorage.setItem('pigeonCoins', coins);
+  localStorage.setItem('pigeonCoins', coins);
+  updateCoinsDisplay();
+  updateCaseStatus();
 }
 
 let superPigeonCoins = parseInt(localStorage.getItem("spgcoins")) || 0;
