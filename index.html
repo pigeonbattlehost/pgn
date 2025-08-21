@@ -1240,6 +1240,11 @@ function update() {
   if (keys['a']) player.x -= moveSpeed;
   if (keys['d']) player.x += moveSpeed;
 
+  if (player.x < 0) player.x = 0;
+  if (player.y < 0) player.y = 0;
+  if (player.x + player.w > canvas.width) player.x = canvas.width - player.w;
+  if (player.y + player.h > canvas.height) player.y = canvas.height - player.h;
+
   // Shooting logic
   if (keys[' ']) {
     const shootType = stats.shootType || 'normal_shoot';
