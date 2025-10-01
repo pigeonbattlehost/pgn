@@ -289,9 +289,22 @@ h1, h2, h3 {
 .sell-spinner { display:inline-block; margin-left:6px; width:8px; height:8px; border-radius:50%; background:#fff; animation: sell-pulse 1s infinite; }
 .sell-time { margin-top:8px; font-size:13px; color:#cbd5e1; }
 </style>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="splash">
+<div id="preloadLog" style="
+  position:fixed;
+  top:10px;
+  left:10px;
+  font-size:10px;
+  font-family:'Press Start 2P', cursive;
+  color:#0f0;
+  text-shadow:0 0 6px #0f0;
+  z-index:99999;
+  line-height:1.6em;
+  white-space:pre-line;
+"></div>
   <h1>PigeonLabs</h1>
   <div id="loadingText">Loading game assets...</div>
 </div>
@@ -299,7 +312,7 @@ h1, h2, h3 {
 
   <div id="menu">
     <h1>Pigen Battle</h1>
-    <h3>Space Update!</h3>
+    <h3>Goon City Apocalypse Update!</h3>
     <div id="coinsDisplay">Coins: 0</div>
     <button id="playButton">Play</button>
     <button id="shopButton">Shop</button>
@@ -386,6 +399,11 @@ h1, h2, h3 {
     <button onclick="buy('spacePigeon', 65)">Buy</button>
   </div>
   
+  <div class="pigeon-card">
+    <img src="blackarmypigeon.jpg" alt="New Army Pigeon">
+    <p>Space Pigeon<br>100 pigeon coins<br>I mean... he is tuff.<br>He has many XP.<br>2440 HP</p>
+    <button onclick="buy('blackarmyPigeon', 100)">Buy</button>
+  </div>
 
   
   <div class="pigeon-card">
@@ -393,6 +411,13 @@ h1, h2, h3 {
     <p>Candy Pigeon<br>+5.5 speed<br>+25 attack<br>0.61 damage<br>1700 HP<br>Shoots red-white candies<br>220 pigeon coins</p>
     <button onclick="buy('candyPigeon', 220)">Buy</button>
   </div>
+
+  <div class="pigeon-card">
+    <img src="twoakspigeon.jpg" alt="Twoaks Pigeon">
+    <p>twoaksPigeon<br>Shoots thin fast black bullets from both sides<br>175 pigeon coins<br>HP: 1966<br>Damage: 0.47</p>
+    <button onclick="buy('twoaksPigeon', 175)">Buy</button>
+  </div>
+
 <h2>PowerUps</h2>
   <div class="pigeon-card">
     <img src="classicpigeon.jpg" alt="Pigeonin Classic">
@@ -407,7 +432,6 @@ h1, h2, h3 {
     <button onclick="openCase()">Buy</button>
     <div id="caseStatus" style="margin-top:8px;font-size:14px;color:#ccc"></div>
   </div>
-
     
   <button onclick="closeShop()">Back</button>
 </div>
@@ -456,7 +480,7 @@ h1, h2, h3 {
 </div>
   <div id="gameContainer">
     <canvas id="gameCanvas"></canvas>
-    <div id="version">PigeonBattle 0.3.6</div>
+    <div id="version">PigeonBattle 0.4</div>
     <div id="joystick"></div>
     <div id="shootBtn">bang</div>
     <div id="superbangBtn">SUPERBANG</div>
@@ -480,12 +504,76 @@ fetch("https://pigeonbattle.onrender.com/ping", {
   .catch(error => console.error('Error fetching data:', error));
   
 src="https://cdn.jsdelivr.net/npm/nipplejs@0.8.0/dist/nipplejs.min.js"
+// === PRELOADER WITH LOG ===
+const preloadLog = document.getElementById("preloadLog");
+
+function logLine(text) {
+  // append with timestamp-ish prefix to make it nicer
+  preloadLog.textContent += text + "\n";
+}
+
+// Список ассетов для предзагрузки
+const assets = [
+  "bg.jpg",
+  "pigeon.jpg",
+  "wheelpigeon.jpg",
+  "pigobomb.jpg",
+  "feetpigeon.jpg",
+  "emipigeon.jpg",
+  "dentistpigeon.jpg",
+  "armypigeon.jpg",
+  "goonpigeon.jpg",
+  "clownpigeon.jpg",
+  "wizardpigeon.jpg",
+  "feetphone.jpg",
+  "spinpigeon.jpg",
+  "spacepigeon.jpg",
+  "blackarmypigeon.jpg",
+  "candypigeon.jpg",
+  "lawpigeon.jpg",
+  "angrypigeon.jpg",
+  "milkpigeon.jpg",
+  "nuclearbird.jpg",
+  "skinnybirb.jpg",
+  "screaming.jpg",
+  "kingpigeon.jpg",
+  "medal.jpg",
+  "twoakspigeon.jpg"
+];
+
+function preloadAssets(list, callback) {
+  let loaded = 0;
+  list.forEach(asset => {
+    logLine("Loading JPG asset " + asset + "...");
+    const img = new Image();
+    img.onload = img.onerror = () => {
+      loaded++;
+      if (loaded === list.length) {
+        callback();
+      }
+    };
+    img.src = asset;
+  });
+}
+
+preloadAssets(assets, () => {
+  setTimeout(() => logLine("Checking pigeons.."), 300);
+  setTimeout(() => logLine("Checking coins..."), 800);
+  setTimeout(() => logLine("[CLIENT] Pinging the PB server :: POST query... 200 OK"), 300);
+  setTimeout(() => logLine("Launching the game"), 1300);
+  setTimeout(() => {
+    logLine("PigeonBattle 0.4 BY zntsproj");
+    const splash = document.getElementById('splash');
+    splash.style.opacity = '0';
+    splash.style.transition = 'opacity 0.5s ease';
     setTimeout(() => {
-  const splash = document.getElementById('splash');
-  splash.style.opacity = '0';
-  splash.style.transition = 'opacity 0.5s ease'; // slowly fade
-  setTimeout(() => splash.remove(), 500); // delete ts after animation
-}, 900);
+      if (splash && splash.parentNode) splash.parentNode.removeChild(splash);
+      // reveal menu explicitly (in case it was hidden behind)
+      const menu = document.getElementById('menu');
+      if (menu) menu.style.display = 'flex';
+    }, 500);
+  }, 1800);
+});
 
     function selectPigeon(pigeon) {
       localStorage.setItem('selectedPigeon', pigeon);
@@ -734,7 +822,7 @@ function comp() {
 const pigeons = {
   candyPigeon: { img: 'candypigeon.jpg', speed: 5.5, attack: 25, damage: 0.61, hp: 1700, shootType: 'candy_shoot' },
   spinPigeon: { img: 'spinpigeon.jpg', speed: 4, attack: 20, damage: 1.2, hp: 1500, shootType: 'spin_shoot' },
-  default: { img: 'pigeon.jpg', speed: 5, attack: 10, damage: 0.3, hp: 1200, shootType: 'normal_shoot' },
+  default: { img: 'pigeon.jpg', speed: 5, attack: 10, damage: 0.35, hp: 1200, shootType: 'normal_shoot' },
   wheelPigeon: { img: 'wheelpigeon.jpg', speed: 7, attack: 2, damage: 0.8, hp: 1000, shootType: 'normal_shoot' },
   pigeonCopter: { img: 'pigobomb.jpg', speed: 6, attack: 20, damage: 1.5, hp: 1330, shootType: 'normal_shoot' },
   feetPigeon: { img: 'feetpigeon.jpg', speed: 5, attack: 6, damage: 1, kick: true, hp: 1500, shootType: 'normal_shoot' },
@@ -747,7 +835,9 @@ const pigeons = {
   wizardPigeon: { img: 'wizardpigeon.jpg', speed: 7.5, attack: 40, damage: 2, hp: 2200, shootType: 'fireball_shoot'},
   lawPigeon: { img: 'lawpigeon.jpg', speed: 4, attack: 40, damage: 0.6254, hp: 1600},
   feetphone: { img: 'feetphone.jpg', speed: 6, attack: 20, damage: 0.55, hp: 2200, shootType: 'normal_shoot' },
-  spacePigeon: { img: 'spacepigeon.jpg', speed: 4, attack: 50, damage: 0.452, hp: 1875, shootType: 'purple_shoot' }
+  spacePigeon: { img: 'spacepigeon.jpg', speed: 4, attack: 50, damage: 0.452, hp: 1875, shootType: 'purple_shoot' },
+  blackarmyPigeon: { img: 'blackarmypigeon.jpg', speed: 5, attack: 25, damage: 0.406, hp: 2440, shootType: 'normal_shoot' },
+  twoaksPigeon: { img: 'twoakspigeon.jpg', speed: 5, attack: 12, damage: 0.47, hp: 1966, shootType: 'twoaks_shoot' },
 };
 
    const enemies = [
@@ -974,7 +1064,19 @@ function shootPurple(player, bullets, dmgBoost) {
   });
 }
    
+function shootTwoaks(player, bullets, dmgBoost) {
+  const leftX = player.x;
+  const rightX = player.x + player.w;
+  const y = player.y + player.h / 2 - 3;
+  const speed = 14;
+  bullets.push({ x: leftX, y: y, w: 4, h: 2, speed: -speed, dmg: dmgBoost, color: 'black' });
+  bullets.push({ x: rightX, y: y, w: 4, h: 2, speed: speed, dmg: dmgBoost, color: 'black' });
+}
+
 function shootFireball(player, bullets, dmgBoost) {
+
+
+
   const originX = player.x + player.w / 2;
   const originY = player.y + player.h / 2;
   const speed = 12;
@@ -1269,6 +1371,8 @@ function update() {
       shootPurple(player, bullets, dmgBoost);
     } else if (shootType === 'fireball_shoot') {
       shootFireball(player, bullets, dmgBoost);
+    } else if (shootType === 'twoaks_shoot') {
+      shootTwoaks(player, bullets, dmgBoost);
     } else {
       shoot(player, bullets, dmgBoost);
     }
@@ -1635,7 +1739,9 @@ const pigeonPriceMap = {
   spinPigeon: 300,
   spacePigeon: 65,
   candyPigeon: 220,
-  default: 10
+  blackarmyPigeon: 100,
+  twoaksPigeon: 175,
+  default: 0
 };
 
 function renderOwnedPigeonsUI() {
@@ -1727,6 +1833,66 @@ window.buy = function(id,cost){
 };
 
 renderOwnedPigeonsUI();
+
+document.addEventListener("DOMContentLoaded", () => {
+  const isMedal = localStorage.getItem("isMedal");
+  const giftDialog = document.getElementById("giftDialog");
+  const giftBtn = document.getElementById("giftOkBtn");
+
+  if (!isMedal) {
+    giftDialog.style.display = "flex";
+  }
+
+  if (giftBtn) {
+    giftBtn.addEventListener("click", () => {
+      giftDialog.style.display = "none";
+      localStorage.setItem("isMedal", "true");
+    });
+  }
+});
+
 </script>
+
+<!-- START GIFT DIALOG -->
+<div id="giftDialog" style="
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.6);
+  z-index: 30000;
+  font-family: 'Poppins', sans-serif;">
+  <div style="
+    background: #111827;
+    color: #fff;
+    padding: 20px;
+    border-radius: 20px;
+    max-width: 340px;
+    text-align: center;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);">
+    
+    <h2 style="margin-bottom:12px;">Hey!</h2>
+    <p style="font-size:14px; margin-bottom:14px;">
+      Pigeon soldier. You was a great gooner.<br>
+      Or you just hopped on the game for the first time..<br><br>
+      Well. There’s a new update! Here’s your gift:
+    </p>
+    <img src="medal.jpg" alt="Goon Medal" style="width:120px; margin:10px auto; display:block; border-radius:12px;">
+    <h3 style="margin:10px 0;">Goon Medal 0.4</h3>
+    <button id="giftOkBtn" style="
+      background:#00aaff;
+      color:white;
+      border:none;
+      padding:10px 20px;
+      border-radius:12px;
+      cursor:pointer;
+      font-size:16px;
+      margin-top:12px;">
+      OK
+    </button>
+  </div>
+</div>
+<!-- END GIFT DIALOG -->
 </body>
 </html>
