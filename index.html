@@ -189,7 +189,20 @@
       color: white;
     }
     
-    #shop {
+    
+
+#pigeonRankDisplay {
+  position: absolute;
+  bottom: 35px;
+  right: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  font-family: 'Poppins', sans-serif;
+  color: gray;
+}
+
+
+  #shop {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -201,7 +214,7 @@
   }
   
   #about-btn {
-  background-color: #6200ea;
+  background-color: #6200ea;ff
   color: white;
   border: none;
   padding: 10px 20px;
@@ -322,6 +335,7 @@ h1, h2, h3 {
 
     
     <div id="onlineStatus">Loading pigeons...</div>
+    <div id="pigeonRankDisplay">PigeonRank: 0</div>
   </div>
   
  <div id="shop" style="display:none;">
@@ -480,7 +494,7 @@ h1, h2, h3 {
 </div>
   <div id="gameContainer">
     <canvas id="gameCanvas"></canvas>
-    <div id="version">PigeonBattle 0.4</div>
+    <div id="version">PigeonBattle 0.4b</div>
     <div id="joystick"></div>
     <div id="shootBtn">bang</div>
     <div id="superbangBtn">SUPERBANG</div>
@@ -558,11 +572,11 @@ function preloadAssets(list, callback) {
 
 preloadAssets(assets, () => {
   setTimeout(() => logLine("Checking pigeons.."), 300);
-  setTimeout(() => logLine("Checking coins..."), 800);
+  setTimeout(() => logLine("Checking coins..."), 100);
   setTimeout(() => logLine("[CLIENT] Pinging the PB server :: POST query... 200 OK"), 300);
-  setTimeout(() => logLine("Launching the game"), 1300);
+  setTimeout(() => logLine("Launching the game"), 200);
   setTimeout(() => {
-    logLine("PigeonBattle 0.4 BY zntsproj");
+    logLine("PigeonBattle 0.4b BY zntsproj");
     const splash = document.getElementById('splash');
     splash.style.opacity = '0';
     splash.style.transition = 'opacity 0.5s ease';
@@ -668,6 +682,41 @@ function isClassicPigeonActive() {
 
     const coinsDisplay = document.getElementById('coinsDisplay');
     let coins = parseInt(localStorage.getItem('pigeonCoins') || '0');
+let pigeonRank = parseInt(localStorage.getItem("pigeonRank") || "0");
+
+function updatePigeonRankDisplay() {
+  const el = document.getElementById("pigeonRankDisplay");
+  el.textContent = "PigeonRank: " + pigeonRank;
+
+  if (pigeonRank < 100) el.style.color = "gray";
+  else if (pigeonRank < 500) el.style.color = "yellow";
+  else if (pigeonRank < 1000) el.style.color = "deepskyblue";
+  else if (pigeonRank < 5000) el.style.color = "red";
+  else if (pigeonRank < 20000) el.style.color = "violet";
+  else if (pigeonRank < 100000) {
+    el.style.color = "gold";
+    el.style.textShadow = "1px 1px 2px black";
+  } else {
+    el.style.background = "linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet)";
+    el.style.webkitBackgroundClip = "text";
+    el.style.webkitTextFillColor = "transparent";
+    el.style.fontWeight = "900";
+  }
+}
+updatePigeonRankDisplay();
+
+function checkPigeonRankMilestones() {
+  const milestone1000 = localStorage.getItem("pigeonRank1000Rewarded");
+  if (pigeonRank >= 1000 && !milestone1000) {
+    coins += 100;
+    localStorage.setItem("pigeonCoins", coins);
+    localStorage.setItem("pigeonRank1000Rewarded", "true");
+    alert("You have 1000 PIGEON RANK NOW! You was helping us, pigeons. Here's your 100 Coins. You deserve it!");
+    updateCoinsDisplay();
+  }
+}
+
+checkPigeonRankMilestones();
     const owned = JSON.parse(localStorage.getItem('ownedPigeons') || '["default"]');
     let selected = localStorage.getItem('selectedPigeon') || 'default';
     // nfts
@@ -1162,13 +1211,54 @@ function checkGameEnd() {
     superPigeonCoins += 1;
     localStorage.setItem('spgcoins', superPigeonCoins);
     localStorage.setItem('pigeonCoins', coins);
-    alert('You win! +10 coins, +1 sPGC');
+    let gain = 10 + Math.floor(Math.random() * 6); 
+    gain += Math.floor(pigeonRank / 5000); 
+    pigeonRank += gain;
+
+    localStorage.setItem("spgcoins", superPigeonCoins);
+    localStorage.setItem("pigeonCoins", coins);
+    localStorage.setItem("pigeonRank", pigeonRank);
+    updatePigeonRankDisplay();
+
+function checkPigeonRankMilestones() {
+  const milestone1000 = localStorage.getItem("pigeonRank1000Rewarded");
+  if (pigeonRank >= 1000 && !milestone1000) {
+    coins += 100;
+    localStorage.setItem("pigeonCoins", coins);
+    localStorage.setItem("pigeonRank1000Rewarded", "true");
+    alert("You have 1000 PIGEON RANK NOW! You was helping us, pigeons. Here's your 100 Coins. You deserve it!");
+    updateCoinsDisplay();
+  }
+}
+
+checkPigeonRankMilestones();
+
+    alert('You win! +10 coins, +1 sPGC, +' + gain + ' PigeonRank');
     location.reload();
   }
 
   if (player.hp <= 0) {
     gameOver = true;
-    alert('You lost!');
+    let loss = 5 + Math.floor(Math.random() * 6);
+    loss += Math.floor(pigeonRank / 5000);
+    pigeonRank = Math.max(0, pigeonRank - loss);
+    localStorage.setItem("pigeonRank", pigeonRank);
+    updatePigeonRankDisplay();
+
+function checkPigeonRankMilestones() {
+  const milestone1000 = localStorage.getItem("pigeonRank1000Rewarded");
+  if (pigeonRank >= 1000 && !milestone1000) {
+    coins += 100;
+    localStorage.setItem("pigeonCoins", coins);
+    localStorage.setItem("pigeonRank1000Rewarded", "true");
+    alert("You have 1000 PIGEON RANK NOW! You was helping us, pigeons. Here's your 100 Coins. You deserve it!");
+    updateCoinsDisplay();
+  }
+}
+
+checkPigeonRankMilestones();
+
+    alert('You lost! -' + loss + ' PigeonRank');
     location.reload();
   }
 }
