@@ -55,7 +55,7 @@
       position: absolute;
       width: 100%;
       height: 100%;
-      background-image: url('bg.jpg'); 
+      background: #000;
       color: white;
       display: flex;
       flex-direction: column;
@@ -98,7 +98,10 @@
     display: block; 
     width: 100%; 
     height: 100%; 
-    background: #430000;
+    /* smoother, less eye-straining green background for battles */
+    background: linear-gradient(135deg, #153b24 0%, #2e7d32 60%, #66bb6a 100%);
+    background-size: cover;
+    background-position: center;
     background-size: cover;
     background-position: center;
 }
@@ -423,6 +426,79 @@ h1, h2, h3 {
   100% { transform: scale(1); opacity: 1 }
 }
 
+
+/* ===== Mobile-friendly UI tweaks (scale down menus/overlays but keep game controls size) ===== */
+@media (max-width: 600px) {
+  /* Menu / shop / lists */
+  #menu h1, #menu h3 { font-size: 1.4rem; }
+  #menu h1 { margin-bottom:6px; }
+  #menu button, #shop button, #pigeonsMenu button, .pigeonism-btn, #about-btn {
+    font-size: 0.95rem;
+    padding: 6px 10px;
+    margin: 3px 2px;
+    border-radius: 10px;
+  }
+  #coinsDisplay, #onlineStatus, #pigeonRankDisplay, #version { font-size: 13px; }
+  #menu { padding: 10px; gap: 6px; }
+  .pigeon-card { margin: 8px; }
+  .pigeon-card img { max-height: 110px; max-width: 70%; }
+
+  /* Case result and battle overlays — smaller but readable */
+  #caseResultOverlay h1, #battleResultOverlay h1 { font-size: 1.8rem; margin-bottom:6px; }
+  #caseResultOverlay p, #battleResultOverlay .subtext, #caseResultOverlay p#caseResultText {
+    font-size: 1rem;
+  }
+  #caseResultOverlay img, #battleResultOverlay img { max-width: 140px; margin: 12px; }
+  #caseCloseBtn, .battle-btn { padding: 8px 12px; font-size: 0.95rem; border-radius: 10px; }
+
+  /* Make result cards fit better on narrow screens */
+  #battleResultCard { min-width: 240px; max-width: 94%; padding: 16px; }
+  #caseResultOverlay { padding: 12px; }
+
+  /* Dialogs */
+  .sell-card, #giftDialog > div { min-width: 200px; max-width: 92%; padding: 12px; border-radius: 12px; }
+
+  /* Toasts and small UI */
+  #toast { font-size: 14px; min-width: 160px; padding: 10px; bottom: 18px; }
+
+  /* Shop lists more compact */
+  #shop .pigeon-card p, #shop .pigeon-card button { font-size: 0.95rem; }
+  #pigeonsMenu { padding: 8px; }
+
+  /* NOTE: We DO NOT scale down in-game touch controls (joystick, shoot button, superbang button)
+     — user asked to keep controls comfortable. So don't modify #joystick, #shootBtn, #superbangBtn here. */
+}
+
+/* ===== Ultra-compact mode for very narrow phones (<=420px) ===== */
+@media (max-width: 420px) {
+  #menu h1, #menu h3 { font-size: 1.1rem; }
+  #menu button, #shop button, #pigeonsMenu button, .pigeonism-btn, #about-btn {
+    font-size: 0.8rem;
+    padding: 5px 8px;
+    margin: 2px;
+    border-radius: 8px;
+  }
+  #coinsDisplay, #onlineStatus, #pigeonRankDisplay, #version { font-size: 11px; }
+  .pigeon-card img { max-height: 90px; max-width: 65%; }
+  .pigeon-card { margin: 4px; }
+
+  #caseResultOverlay h1, #battleResultOverlay h1 { font-size: 1.4rem; margin-bottom:4px; }
+  #caseResultOverlay p, #battleResultOverlay .subtext, #caseResultOverlay p#caseResultText {
+    font-size: 0.9rem;
+  }
+  #caseResultOverlay img, #battleResultOverlay img { max-width: 110px; margin: 8px; }
+  #caseCloseBtn, .battle-btn { padding: 6px 8px; font-size: 0.85rem; }
+
+  #battleResultCard { min-width: 200px; max-width: 95%; padding: 10px; }
+  #caseResultOverlay { padding: 8px; }
+
+  .sell-card, #giftDialog > div { min-width: 180px; max-width: 90%; padding: 8px; border-radius: 10px; }
+
+  #toast { font-size: 12px; min-width: 140px; padding: 8px; bottom: 14px; }
+
+  #shop .pigeon-card p, #shop .pigeon-card button { font-size: 0.85rem; }
+  #pigeonsMenu { padding: 6px; }
+}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
@@ -622,7 +698,7 @@ h1, h2, h3 {
 </div>
   <div id="gameContainer">
     <canvas id="gameCanvas"></canvas>
-    <div id="version">PigeonBattle 0.4.2</div>
+    <div id="version">PigeonBattle 0.4.2b</div>
     <div id="joystick"></div>
     <div id="shootBtn">bang</div>
     <div id="superbangBtn">SUPERBANG</div>
@@ -784,7 +860,7 @@ preloadAssets(assets, () => {
   setTimeout(() => logLine("[CLIENT] Pinging the PB server :: POST query... 200 OK"), 100);
   setTimeout(() => logLine("Launching the game"), 150);
   setTimeout(() => {
-    logLine("PigeonBattle 0.4.2 BY zntsproj");
+    logLine("PigeonBattle 0.4.2b BY zntsproj");
     const splash = document.getElementById('splash');
     splash.style.opacity = '0';
     splash.style.transition = 'opacity 0.5s ease';
@@ -1115,7 +1191,7 @@ function comp() {
 }
 
 const pigeons = {
-  candyPigeon: { img: 'candypigeon.jpg', speed: 5.5, attack: 25, damage: 0.61, hp: 1700, shootType: 'candy_shoot' },
+  candyPigeon: { img: 'candypigeon.jpg', speed: 5.5, attack: 25, damage: 0.6, hp: 1700, shootType: 'candy_shoot' },
   spinPigeon: { img: 'spinpigeon.jpg', speed: 4, attack: 20, damage: 1.2, hp: 1500, shootType: 'spin_shoot' },
   default: { img: 'pigeon.jpg', speed: 5, attack: 10, damage: 0.35, hp: 1200, shootType: 'normal_shoot' },
   wheelPigeon: { img: 'wheelpigeon.jpg', speed: 7, attack: 2, damage: 0.6, hp: 1000, shootType: 'normal_shoot' },
