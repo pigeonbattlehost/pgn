@@ -613,7 +613,7 @@ h1, h2, h3 {
 </div>
   <div id="gameContainer">
     <canvas id="gameCanvas"></canvas>
-    <div id="version">PigeonBattle 0.4.1</div>
+    <div id="version">PigeonBattle 0.4.2</div>
     <div id="joystick"></div>
     <div id="shootBtn">bang</div>
     <div id="superbangBtn">SUPERBANG</div>
@@ -776,7 +776,7 @@ preloadAssets(assets, () => {
   setTimeout(() => logLine("[CLIENT] Pinging the PB server :: POST query... 200 OK"), 300);
   setTimeout(() => logLine("Launching the game"), 200);
   setTimeout(() => {
-    logLine("PigeonBattle 0.4.1 BY zntsproj");
+    logLine("PigeonBattle 0.4.2 BY zntsproj");
     const splash = document.getElementById('splash');
     splash.style.opacity = '0';
     splash.style.transition = 'opacity 0.5s ease';
@@ -2181,9 +2181,7 @@ document.addEventListener("DOMContentLoaded", () => {
     </button>
   </div>
 </div>
-<!-- END GIFT DIALOG -->
 
-<!-- == PATCH: Anti-cheat (2s limit, 2s reload, block all shoot* functions) START == -->
 <style>
 #reloadDisplay {
   position: fixed;
@@ -2324,9 +2322,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
   patchAllShoots();
-  setInterval(patchAllShoots, 2000); // keep patching in case new functions appear
+  setInterval(patchAllShoots, 2000);
 
-  console.log('Patch loaded: anti-cheat active (2s limit, 2s reload, all shoot* blocked during reload)');
 })();
 </script>
 <!-- == PATCH END == -->
