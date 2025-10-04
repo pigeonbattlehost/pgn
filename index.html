@@ -499,10 +499,88 @@ h1, h2, h3 {
   #shop .pigeon-card p, #shop .pigeon-card button { font-size: 0.85rem; }
   #pigeonsMenu { padding: 6px; }
 }
+
+/* New Pigeon achievement toast */
+#newPigeonAchievement {
+  position: fixed;
+  top: -160px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 420px;
+  max-width: 92%;
+  background: linear-gradient(180deg, #111, #1b1b1b);
+  border-radius: 14px;
+  padding: 14px 16px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+  z-index: 60000;
+  font-family: 'Poppins', sans-serif;
+  overflow: visible;
+}
+#newPigeonAchievement .text {
+  flex: 1;
+}
+#newPigeonAchievement .text .title {
+  color: yellow;
+  font-weight: 800;
+  font-size: 1.05rem;
+  margin-bottom: 4px;
+}
+#newPigeonAchievement .text .name {
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+#newPigeonAchievement .imgWrap {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  margin-left: 8px;
+  transform: translateX(18px); /* push image slightly outside the toast to the right */
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  border-radius: 10px;
+  overflow: visible;
+}
+#newPigeonAchievement .imgWrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  transform: scale(1.02);
+}
+/* animation */
+#newPigeonAchievement.show {
+  animation: slideDown 0.6s cubic-bezier(.2,.9,.3,1) forwards;
+}
+#newPigeonAchievement.hide {
+  animation: slideUp 0.5s ease forwards;
+}
+@keyframes slideDown {
+  from { top: -160px; opacity: 0; transform: translateX(-50%) translateY(-8px) scale(0.98); }
+  to   { top: 24px; opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+@keyframes slideUp {
+  from { top: 24px; opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+  to   { top: -160px; opacity: 0; transform: translateX(-50%) translateY(-6px) scale(0.98); }
+}
+
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
+
+<!-- New pigeon achievement (injected) -->
+<div id="newPigeonAchievement" aria-live="polite" role="status" style="display:none;">
+  <div class="text">
+    <div class="title">New pigeon!</div>
+    <div class="name" id="newPigeonName">blackarmyPigeon</div>
+  </div>
+  <div class="imgWrap"><img id="newPigeonImg" src="blackarmypigeon.jpg" alt="blackarmyPigeon"></div>
+</div>
+
     <div id="splash">
 <div id="preloadLog" style="
   position:fixed;
@@ -1475,21 +1553,24 @@ function shootFireball(player, bullets, dmgBoost) {
   });
 }
 
-    
-function checkPromocode(){
+function checkPromocode() {
   const input = document.getElementById('promocodeInput').value.trim();
   const msg = document.getElementById('promoMessage');
-  if(input === "gcaupdate"){
-    if(!localStorage.getItem("promo_gcaupdate_used")){ 
-      coins += 100;
-      localStorage.setItem('pigeonCoins', coins);
-      localStorage.setItem("promo_gcaupdate_used","true"); // 🔑 ставим флаг
-      updateCoinsDisplay();
+  if (input === "fatpigeons72") {
+    if (!localStorage.getItem("promo_fatpigeons72_used")) {
+      let ownedP = JSON.parse(localStorage.getItem('ownedPigeons') || '[]');
+      if (!ownedP.includes('blackarmyPigeon')) {
+        ownedP.push('blackarmyPigeon');
+        localStorage.setItem('ownedPigeons', JSON.stringify(ownedP));
+      }
+      localStorage.setItem("promo_fatpigeons72_used", "true");
       msg.style.color = "lime";
-      msg.textContent = "Promocode is CORRECT!";
+      msg.textContent = "Promocode accepted! New pigeon granted.";
+      updateCoinsDisplay();
+      showNewPigeonAchievement('blackarmyPigeon', 'blackarmypigeon.jpg');
     } else {
       msg.style.color = "gray";
-      msg.textContent = "This promocode was already used!"; 
+      msg.textContent = "This promocode was already used!";
     }
   } else {
     msg.style.color = "gray";
@@ -2570,6 +2651,34 @@ document.addEventListener("DOMContentLoaded", () => {
   setInterval(patchAllShoots, 2000);
 
 })();
+
+// Final part
+if (!localStorage.getItem("firstLaunchWarningShown")) {
+  console.warn("⚠️ Warning: The first launch can take a long time!");
+  localStorage.setItem("firstLaunchWarningShown", "true");
+}
+
+
+
+function showNewPigeonAchievement(name, imgSrc) {
+  try {
+    const el = document.getElementById('newPigeonAchievement');
+    const nameEl = document.getElementById('newPigeonName');
+    const imgEl = document.getElementById('newPigeonImg');
+    nameEl.textContent = name;
+    imgEl.src = imgSrc;
+    el.style.display = 'flex';
+    el.classList.remove('hide');
+    el.classList.add('show');
+    // auto hide after 4 seconds
+    setTimeout(() => {
+      el.classList.remove('show');
+      el.classList.add('hide');
+      setTimeout(()=> el.style.display = 'none', 600);
+    }, 4000);
+  } catch(e) { console.error(e); }
+}
+
 </script>
 <!-- == PATCH END == -->
 
