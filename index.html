@@ -301,6 +301,125 @@ h1, h2, h3 {
 }
 .sell-spinner { display:inline-block; margin-left:6px; width:8px; height:8px; border-radius:50%; background:#fff; animation: sell-pulse 1s infinite; }
 .sell-time { margin-top:8px; font-size:13px; color:#cbd5e1; }
+
+    /* === CASE RESULT OVERLAY === */
+    #caseResultOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      z-index: 30000;
+      text-align: center;
+      animation: fadeIn 0.5s ease forwards;
+    }
+    #caseResultOverlay h1 {
+      font-size: 3em;
+      margin-bottom: 10px;
+      animation: bounceIn 0.6s ease;
+    }
+    #caseResultOverlay p {
+      font-size: 2em;
+      margin-top: 0;
+      animation: fadeInUp 0.8s ease;
+    }
+    #caseResultOverlay img {
+      max-width: 220px;
+      margin: 20px;
+      border-radius: 18px;
+      animation: zoomIn 0.7s ease;
+    }
+    #caseCloseBtn {
+      margin-top: 20px;
+      font-size: 1.4em;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      background: #ffaa00;
+      color: black;
+    }
+
+    @keyframes fadeIn { from {opacity:0} to {opacity:1} }
+    @keyframes fadeInUp { from {opacity:0; transform:translateY(40px)} to {opacity:1; transform:translateY(0)} }
+    @keyframes bounceIn {
+      0% { transform:scale(0.3); opacity:0 }
+      50% { transform:scale(1.05); opacity:1 }
+      70% { transform:scale(0.9) }
+      100% { transform:scale(1) }
+    }
+    @keyframes zoomIn { from {transform:scale(0.3); opacity:0} to {transform:scale(1); opacity:1} }
+
+
+/* === BATTLE RESULT OVERLAY === */
+#battleResultOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8,8,12,0.92);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+  z-index: 35000;
+  text-align: center;
+  padding: 20px;
+  animation: fadeIn 0.35s ease forwards;
+}
+#battleResultCard {
+  background: linear-gradient(180deg, rgba(10,14,18,0.95), rgba(20,24,30,0.96));
+  border-radius: 18px;
+  padding: 26px;
+  min-width: 320px;
+  max-width: 720px;
+  box-shadow: 0 18px 50px rgba(0,0,0,0.6);
+  transform-origin: center center;
+  animation: popIn 0.45s cubic-bezier(.2,.9,.3,1);
+}
+#battleResultOverlay h1 {
+  font-size: 2.4em;
+  margin: 0 0 6px 0;
+  letter-spacing: 1px;
+}
+#battleResultOverlay .subtext {
+  font-size: 1.05em;
+  margin-bottom: 10px;
+  opacity: 0.95;
+}
+#battleResultOverlay .rewards {
+  margin-top: 12px;
+  font-size: 1.05em;
+  line-height: 1.6;
+}
+#battleResultOverlay .rewards span { display:block; }
+#battleResultOverlay .btn-row {
+  margin-top: 16px;
+  display:flex;
+  gap:12px;
+  justify-content:center;
+}
+.battle-btn {
+  padding: 10px 18px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1em;
+}
+.battle-btn.primary { background: #1bd760; color: #00310a; }
+.battle-btn.secondary { background: #2a2f38; color: #fff; }
+
+@keyframes popIn {
+  0% { transform: scale(0.9); opacity: 0 }
+  60% { transform: scale(1.03); opacity: 1 }
+  100% { transform: scale(1); opacity: 1 }
+}
+
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
@@ -331,7 +450,7 @@ h1, h2, h3 {
     <button id="shopButton">Shop</button>
     <button id="pigeonsButton">Pigeons</button>
     <button class="pigeonism-btn" id="pigeonism-btn">Pigeon Chat</button>
-    <button id="about-btn">About The Update</button>
+    <button id="about-btn">About</button>
 
     
     <div id="onlineStatus">Loading pigeons...</div>
@@ -499,7 +618,88 @@ h1, h2, h3 {
     <div id="shootBtn">bang</div>
     <div id="superbangBtn">SUPERBANG</div>
   </div>
-  <script>
+  
+<script>
+// Глобальная функция для показа результата матча (создаёт оверлей, если его ещё нет)
+window.showBattleResult = function(type, data) {
+  // If overlay already exists, use it; otherwise create
+  let overlay = document.getElementById('battleResultOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'battleResultOverlay';
+    overlay.setAttribute('aria-hidden', 'true');
+    overlay.style.display = 'none';
+    overlay.style.position = 'fixed';
+    overlay.style.inset = '0';
+    overlay.style.zIndex = '35000';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.fontFamily = "Poppins, sans-serif";
+    overlay.innerHTML = `
+      <div id="battleResultCard" role="dialog" aria-modal="true" style="background:linear-gradient(180deg, rgba(10,14,18,0.95), rgba(20,24,30,0.96)); border-radius:18px; padding:26px; min-width:320px; max-width:720px; box-shadow:0 18px 50px rgba(0,0,0,0.6);">
+        <h1 id="battleResultTitle" style="font-size:2.4em; margin:0 0 6px 0; letter-spacing:1px;">Result</h1>
+        <div class="subtext" id="battleResultSub" style="font-size:1.05em; margin-bottom:10px; opacity:.95;">Summary</div>
+        <div class="rewards" id="battleResultRewards" style="margin-top:12px; font-size:1.05em; line-height:1.6;"></div>
+        <div class="btn-row" style="margin-top:16px; display:flex; gap:12px; justify-content:center;">
+          <button class="battle-btn primary" id="battleContinueBtn" style="padding:10px 18px; border-radius:12px; border:none; cursor:pointer; font-weight:700; font-size:1em; background:#1bd760; color:#00310a;">Continue</button>
+          <button class="battle-btn secondary" id="battleToMenuBtn" style="padding:10px 18px; border-radius:12px; border:none; cursor:pointer; font-weight:700; font-size:1em; background:#2a2f38; color:#fff;">Back to Menu</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+  }
+
+  const title = document.getElementById('battleResultTitle');
+  const sub = document.getElementById('battleResultSub');
+  const rewards = document.getElementById('battleResultRewards');
+  const continueBtn = document.getElementById('battleContinueBtn');
+  const menuBtn = document.getElementById('battleToMenuBtn');
+
+  // clear old rewards
+  rewards.innerHTML = '';
+
+  if (type === 'win') {
+    title.textContent = 'YOU WIN!';
+    sub.textContent = `Well played — here's your reward:`;
+    if (data && data.coinGain) rewards.innerHTML += `<span>+${data.coinGain} pigeon coins</span>`;
+    if (data && data.spgcGain) rewards.innerHTML += `<span>+${data.spgcGain} SPGC</span>`;
+    if (data && typeof data.rankGain !== 'undefined') rewards.innerHTML += `<span>+${data.rankGain} pigeon rank</span>`;
+  } else if (type === 'lose') {
+    title.textContent = 'YOU LOST!';
+    sub.textContent = `Tough one — better luck next time:`;
+    if (data && typeof data.rankLoss !== 'undefined') rewards.innerHTML += `<span>-${data.rankLoss} pigeon rank</span>`;
+  } else {
+    title.textContent = 'RESULT';
+    sub.textContent = '';
+  }
+
+  // show overlay
+  overlay.style.display = 'flex';
+  overlay.setAttribute('aria-hidden', 'false');
+
+  // button handlers
+  continueBtn.onclick = function() {
+    overlay.style.display = 'none';
+    overlay.setAttribute('aria-hidden', 'true');
+    // reload to start new battle if game running
+    try { 
+      if (document.getElementById('gameContainer') && document.getElementById('gameContainer').style.display === 'block') {
+        location.reload();
+      }
+    } catch(e) { console.error(e); }
+  };
+  menuBtn.onclick = function() {
+    overlay.style.display = 'none';
+    overlay.setAttribute('aria-hidden', 'true');
+    try {
+      document.getElementById('gameContainer').style.display = 'none';
+      document.getElementById('menu').style.display = 'flex';
+      location.reload();
+    } catch(e) { location.reload(); }
+  };
+};
+</script>
+<script>
  
 
 let playerId = localStorage.getItem("playerId");
@@ -786,73 +986,73 @@ function updateCaseStatus() {
 setInterval(updateCaseStatus, 1000);
 document.addEventListener('DOMContentLoaded', updateCaseStatus);
 
+
+function showCaseResult(type, data) {
+  const overlay = document.getElementById("caseResultOverlay");
+  const title = document.getElementById("caseResultTitle");
+  const img = document.getElementById("caseResultImg");
+  const text = document.getElementById("caseResultText");
+
+  if (type === "coins") {
+    title.textContent = "Coins!";
+    text.textContent = `+${data}`;
+    img.style.display = "none";
+  } else if (type === "pigeon") {
+    title.textContent = "New Pigeon!!!";
+    text.textContent = data.name;
+    img.src = data.img;
+    img.style.display = "block";
+  }
+  overlay.style.display = "flex";
+}
+
+function closeCaseResult() {
+  document.getElementById("caseResultOverlay").style.display = "none";
+}
+
 function openCase() {
-  // cooldown
   const left = getCaseCooldownLeft();
   if (left > 0) {
-    alert(`Case is still on a cooldown!: ${formatLeft(left)} remain.`);
+    alert(`Case is still on cooldown: ${formatLeft(left)} remain.`);
     updateCaseStatus();
     return;
   }
-
   if (coins < 70) {
     alert("Not enough coins to open the case!");
     return;
   }
 
   coins -= 70;
-
   localStorage.setItem('caseLastOpen', Date.now().toString());
-
   let chance = Math.random() * 100;
 
   if (chance <= 75) {
     let coinAmount = Math.floor(Math.random() * 140) + 10;
     coins += coinAmount;
-    alert(`You got ${coinAmount} PigeonCoins! Your balance: ${coins}`);
     updateSpentCoins(70);
+    localStorage.setItem('pigeonCoins', coins);
+    updateCoinsDisplay();
+    updateCaseStatus();
+    showCaseResult("coins", coinAmount);
   } else {
     const pigeonIds = Object.keys(pigeons);
     let pigeonId = pigeonIds[Math.floor(Math.random() * pigeonIds.length)];
-
-    function calculateRarity(pigeon) {
-      let rarity = 0;
-      rarity += pigeon.attack * 0.3;
-      rarity += pigeon.speed * 0.2;
-      rarity += pigeon.hp * 0.1;
-      rarity += pigeon.damage * 0.4;
-      if (['green_short', 'white_shoot', 'ball_shoot'].includes(pigeon.shootType)) {
-        rarity += 10;
-      }
-      return rarity;
-    }
-
     let pigeonsStorage = JSON.parse(localStorage.getItem('ownedPigeons')) || [];
 
-    if (pigeonsStorage.includes(pigeonId)) {
-      alert(`You already have this pigeon with ID: ${pigeonId}. Try again!`);
-    } else {
-      let pigeon = pigeons[pigeonId];
-      let rarity = calculateRarity(pigeon);
-
-      let rarityChance = Math.random() * 100;
+    if (!pigeonsStorage.includes(pigeonId)) {
       pigeonsStorage.push(pigeonId);
       localStorage.setItem('ownedPigeons', JSON.stringify(pigeonsStorage));
-
-      if (rarityChance < rarity) {
-        alert(`You got a rare pigeon with ID: ${pigeonId}. It's now in your inventory.`);
-      } else {
-        alert(`You got a common pigeon with ID: ${pigeonId}. It's now in your inventory.`);
-      }
-      
       updateSpentCoins(70);
+      localStorage.setItem('pigeonCoins', coins);
+      updateCoinsDisplay();
+      updateCaseStatus();
+      showCaseResult("pigeon", { name: pigeonId, img: pigeons[pigeonId].img });
+    } else {
+      alert(`You already have this pigeon: ${pigeonId}. Try again!`);
     }
   }
-
-  localStorage.setItem('pigeonCoins', coins);
-  updateCoinsDisplay();
-  updateCaseStatus();
 }
+
 
 let superPigeonCoins = parseInt(localStorage.getItem("spgcoins")) || 0;
 
@@ -1233,8 +1433,7 @@ function checkPigeonRankMilestones() {
 
 checkPigeonRankMilestones();
 
-    alert('You win! +10 coins, +1 sPGC, +' + gain + ' PigeonRank');
-    location.reload();
+    showBattleResult('win', {coinGain: 10, spgcGain: 1, rankGain: gain});
   }
 
   if (player.hp <= 0) {
@@ -1258,8 +1457,7 @@ function checkPigeonRankMilestones() {
 
 checkPigeonRankMilestones();
 
-    alert('You lost! -' + loss + ' PigeonRank');
-    location.reload();
+    showBattleResult('lose', {rankLoss: loss});
   }
 }
 
@@ -1779,7 +1977,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const btn = document.getElementById("about-btn");
     if (btn) {
       btn.addEventListener("click", () => {
-        window.location.href = "atu.html";
+        window.location.href = "about.html";
       });
     }
   });
@@ -2132,6 +2330,15 @@ document.addEventListener("DOMContentLoaded", () => {
 })();
 </script>
 <!-- == PATCH END == -->
+
+
+  <!-- === CASE RESULT OVERLAY === -->
+  <div id="caseResultOverlay">
+    <h1 id="caseResultTitle"></h1>
+    <img id="caseResultImg" src="" alt="" style="display:none;">
+    <p id="caseResultText"></p>
+    <button id="caseCloseBtn" onclick="closeCaseResult()">OK</button>
+  </div>
 
 </body>
 </html>
