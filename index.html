@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
     <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="favicon.png">
+    <link rel="shortcut icon" href="favicon.png" type="image/png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Pigeon Battle</title>
@@ -566,6 +569,12 @@ h1, h2, h3 {
     <div id="caseStatus" style="margin-top:8px;font-size:14px;color:#ccc"></div>
   </div>
     
+  
+  <h2>Promocodes</h2>
+  <input id="promocodeInput" type="text" placeholder="Enter promocode here..." style="padding:8px;border-radius:10px;border:none;width:80%;max-width:300px;text-align:center;margin-bottom:10px;">
+  <button onclick="checkPromocode()">Apply</button>
+  <div id="promoMessage" style="margin-top:8px;font-size:14px;color:#aaa;"></div>
+
   <button onclick="closeShop()">Back</button>
 </div>
    
@@ -726,7 +735,6 @@ function logLine(text) {
   preloadLog.textContent += text + "\n";
 }
 
-// Список ассетов для предзагрузки
 const assets = [
   "bg.jpg",
   "pigeon.jpg",
@@ -773,8 +781,8 @@ function preloadAssets(list, callback) {
 preloadAssets(assets, () => {
   setTimeout(() => logLine("Checking pigeons.."), 300);
   setTimeout(() => logLine("Checking coins..."), 100);
-  setTimeout(() => logLine("[CLIENT] Pinging the PB server :: POST query... 200 OK"), 300);
-  setTimeout(() => logLine("Launching the game"), 200);
+  setTimeout(() => logLine("[CLIENT] Pinging the PB server :: POST query... 200 OK"), 100);
+  setTimeout(() => logLine("Launching the game"), 150);
   setTimeout(() => {
     logLine("PigeonBattle 0.4.2 BY zntsproj");
     const splash = document.getElementById('splash');
@@ -916,7 +924,45 @@ function checkPigeonRankMilestones() {
   }
 }
 
+
+function checkExtraMilestones(){
+  if(pigeonRank >= 10000 && !localStorage.getItem("pigeonRank10000Rewarded")){
+    coins += 150;
+    localStorage.setItem("pigeonCoins", coins);
+    localStorage.setItem("pigeonRank10000Rewarded","true");
+    alert("Well.. You played too much pigeon battle.\nHere's your 150 coins!");
+    updateCoinsDisplay();
+  }
+  if(pigeonRank >= 100000 && !localStorage.getItem("pigeonRank100000Rewarded")){
+    localStorage.setItem("pigeonRank100000Rewarded","true");
+    const toastEl = document.createElement('div');
+    toastEl.style.position = 'fixed';
+    toastEl.style.top = '-100px';
+    toastEl.style.left = '50%';
+    toastEl.style.transform = 'translateX(-50%)';
+    toastEl.style.background = '#222';
+    toastEl.style.color = '#fff';
+    toastEl.style.borderRadius = '20px';
+    toastEl.style.padding = '12px 20px';
+    toastEl.style.fontFamily = 'Poppins, sans-serif';
+    toastEl.style.textAlign = 'center';
+    toastEl.style.boxShadow = '0 6px 20px rgba(0,0,0,0.4)';
+    toastEl.innerHTML = "<div style='color:yellow;font-weight:700'>New milestone achieved!</div><div style='color:gray'>Played too much pigeon battle...</div>";
+    document.body.appendChild(toastEl);
+    setTimeout(()=>{toastEl.style.transition='top 0.5s ease'; toastEl.style.top='30px';},100);
+    setTimeout(()=>{toastEl.style.transition='top 0.5s ease, opacity 0.5s ease'; toastEl.style.top='-100px'; toastEl.style.opacity='0';},4000);
+    setTimeout(()=>toastEl.remove(),5000);
+  }
+  if(pigeonRank >= 1000000){
+    const el = document.getElementById("pigeonRankDisplay");
+    el.style.color = "#b900ff";
+    el.style.textShadow = "0 0 8px #ff00ff";
+    el.style.fontWeight = "bold";
+  }
+}
+
 checkPigeonRankMilestones();
+checkExtraMilestones();
     const owned = JSON.parse(localStorage.getItem('ownedPigeons') || '["default"]');
     let selected = localStorage.getItem('selectedPigeon') || 'default';
     // nfts
@@ -1353,7 +1399,31 @@ function shootFireball(player, bullets, dmgBoost) {
   });
 }
 
-    function updateCoinsDisplay() {
+    
+function checkPromocode(){
+  const input = document.getElementById('promocodeInput').value.trim();
+  const msg = document.getElementById('promoMessage');
+  if(input === "gcaupdate"){
+    if(!localStorage.getItem("promo_gcaupdate_used")){ 
+      coins += 100;
+      localStorage.setItem('pigeonCoins', coins);
+      localStorage.setItem("promo_gcaupdate_used","true"); // 🔑 ставим флаг
+      updateCoinsDisplay();
+      msg.style.color = "lime";
+      msg.textContent = "Promocode is CORRECT!";
+    } else {
+      msg.style.color = "gray";
+      msg.textContent = "This promocode was already used!"; 
+    }
+  } else {
+    msg.style.color = "gray";
+    msg.textContent = "Incorrect promocode!";
+  }
+}
+
+
+
+function updateCoinsDisplay() {
       coinsDisplay.textContent = 'Coins: ' + coins;
     }
 
@@ -1431,19 +1501,67 @@ function checkPigeonRankMilestones() {
   }
 }
 
+
+function checkExtraMilestones(){
+  if(pigeonRank >= 10000 && !localStorage.getItem("pigeonRank10000Rewarded")){
+    coins += 150;
+    localStorage.setItem("pigeonCoins", coins);
+    localStorage.setItem("pigeonRank10000Rewarded","true");
+    alert("Well.. You played too much pigeon battle.\nHere's your 150 coins!");
+    updateCoinsDisplay();
+  }
+  if(pigeonRank >= 100000 && !localStorage.getItem("pigeonRank100000Rewarded")){
+    localStorage.setItem("pigeonRank100000Rewarded","true");
+    const toastEl = document.createElement('div');
+    toastEl.style.position = 'fixed';
+    toastEl.style.top = '-100px';
+    toastEl.style.left = '50%';
+    toastEl.style.transform = 'translateX(-50%)';
+    toastEl.style.background = '#222';
+    toastEl.style.color = '#fff';
+    toastEl.style.borderRadius = '20px';
+    toastEl.style.padding = '12px 20px';
+    toastEl.style.fontFamily = 'Poppins, sans-serif';
+    toastEl.style.textAlign = 'center';
+    toastEl.style.boxShadow = '0 6px 20px rgba(0,0,0,0.4)';
+    toastEl.innerHTML = "<div style='color:yellow;font-weight:700'>New milestone achieved!</div><div style='color:gray'>Played too much pigeon battle...</div>";
+    document.body.appendChild(toastEl);
+    setTimeout(()=>{toastEl.style.transition='top 0.5s ease'; toastEl.style.top='30px';},100);
+    setTimeout(()=>{toastEl.style.transition='top 0.5s ease, opacity 0.5s ease'; toastEl.style.top='-100px'; toastEl.style.opacity='0';},4000);
+    setTimeout(()=>toastEl.remove(),5000);
+  }
+  if(pigeonRank >= 1000000){
+    const el = document.getElementById("pigeonRankDisplay");
+    el.style.color = "#b900ff";
+    el.style.textShadow = "0 0 8px #ff00ff";
+    el.style.fontWeight = "bold";
+  }
+}
+
 checkPigeonRankMilestones();
+checkExtraMilestones();
 
     showBattleResult('win', {coinGain: 10, spgcGain: 1, rankGain: gain});
   }
 
   if (player.hp <= 0) {
-    gameOver = true;
-    let loss = 5 + Math.floor(Math.random() * 6);
-    loss += Math.floor(pigeonRank / 5000);
-    pigeonRank = Math.max(0, pigeonRank - loss);
-    localStorage.setItem("pigeonRank", pigeonRank);
-    updatePigeonRankDisplay();
-
+  gameOver = true;
+  let loss;
+  if(pigeonRank >= 1000000){
+    loss = Math.floor(Math.random() * 45000) + 2000; // 1000 - 8000
+  } else if(pigeonRank >= 100000){
+    loss = Math.floor(Math.random() * 1000) + 500; // 500 - 1500
+  } else if(pigeonRank >= 10000){
+    loss = Math.floor(Math.random() * 400) + 100; // 100 - 500
+  } else if(pigeonRank >= 1000){
+    loss = Math.floor(Math.random() * 100) + 25; // 25 - 125
+  } else {
+    loss = Math.floor(Math.random() * 20) + 5; // 5 - 25
+  }
+  pigeonRank = Math.max(0, pigeonRank - loss);
+  localStorage.setItem("pigeonRank", pigeonRank);
+  updatePigeonRankDisplay();
+  
 function checkPigeonRankMilestones() {
   const milestone1000 = localStorage.getItem("pigeonRank1000Rewarded");
   if (pigeonRank >= 1000 && !milestone1000) {
@@ -1455,7 +1573,45 @@ function checkPigeonRankMilestones() {
   }
 }
 
+
+function checkExtraMilestones(){
+  if(pigeonRank >= 10000 && !localStorage.getItem("pigeonRank10000Rewarded")){
+    coins += 150;
+    localStorage.setItem("pigeonCoins", coins);
+    localStorage.setItem("pigeonRank10000Rewarded","true");
+    alert("Well.. You played too much pigeon battle.\nHere's your 150 coins!");
+    updateCoinsDisplay();
+  }
+  if(pigeonRank >= 100000 && !localStorage.getItem("pigeonRank100000Rewarded")){
+    localStorage.setItem("pigeonRank100000Rewarded","true");
+    const toastEl = document.createElement('div');
+    toastEl.style.position = 'fixed';
+    toastEl.style.top = '-100px';
+    toastEl.style.left = '50%';
+    toastEl.style.transform = 'translateX(-50%)';
+    toastEl.style.background = '#222';
+    toastEl.style.color = '#fff';
+    toastEl.style.borderRadius = '20px';
+    toastEl.style.padding = '12px 20px';
+    toastEl.style.fontFamily = 'Poppins, sans-serif';
+    toastEl.style.textAlign = 'center';
+    toastEl.style.boxShadow = '0 6px 20px rgba(0,0,0,0.4)';
+    toastEl.innerHTML = "<div style='color:yellow;font-weight:700'>New milestone achieved!</div><div style='color:gray'>Played too much pigeon battle...</div>";
+    document.body.appendChild(toastEl);
+    setTimeout(()=>{toastEl.style.transition='top 0.5s ease'; toastEl.style.top='30px';},100);
+    setTimeout(()=>{toastEl.style.transition='top 0.5s ease, opacity 0.5s ease'; toastEl.style.top='-100px'; toastEl.style.opacity='0';},4000);
+    setTimeout(()=>toastEl.remove(),5000);
+  }
+  if(pigeonRank >= 1000000){
+    const el = document.getElementById("pigeonRankDisplay");
+    el.style.color = "#b900ff";
+    el.style.textShadow = "0 0 8px #ff00ff";
+    el.style.fontWeight = "bold";
+  }
+}
+
 checkPigeonRankMilestones();
+checkExtraMilestones();
 
     showBattleResult('lose', {rankLoss: loss});
   }
