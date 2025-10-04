@@ -7,120 +7,105 @@
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background-color: #1a002a;
-      color: white;
+      background-color: #121212;
+      color: #fff;
       display: flex;
       flex-direction: column;
       align-items: center;
       padding: 40px;
     }
 
+    .title {
+      font-size: 36px;
+      font-weight: bold;
+      margin-bottom: 30px;
+      text-align: center;
+      color: #ffcc00;
+    }
+
     .section {
-      background-color: #2e004f;
+      background-color: #1f1f1f;
       border-radius: 20px;
-      padding: 20px 30px;
-      margin: 20px 0;
+      padding: 25px 30px;
+      margin: 15px 0;
       width: 90%;
       max-width: 600px;
       transition: background-color 0.3s ease;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
     }
 
     .section:hover {
-      background-color: #3d0068;
+      background-color: #2a2a2a;
     }
 
-    .title {
-      font-size: 32px;
-      font-weight: bold;
-      margin-bottom: 20px;
-      text-align: center;
+    .section h2 {
+      margin-top: 0;
+      font-size: 28px;
+      margin-bottom: 15px;
+      color: #ff9900;
     }
 
-    .red-text {
-      color: #ff6666;
-    }
-
-    .link {
-      display: inline-block;
-      margin-top: 10px;
-      background-color: #6200ea;
-      padding: 10px 20px;
-      border-radius: 15px;
-      text-decoration: none;
-      color: white;
-      transition: background-color 0.3s ease;
-    }
-
-    .link:hover {
-      background-color: #7b1fa2;
-    }
-
-    .avatar {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin-left: 20px;
-    }
-
-    .reset-btn {
-      background-color: #ff3333;
-      color: white;
+    .button {
+      background-color: #444;
+      color: #fff;
       border: none;
-      border-radius: 10px;
-      padding: 8px 16px;
+      border-radius: 12px;
+      padding: 10px 20px;
       font-weight: bold;
       cursor: pointer;
+      margin-top: 10px;
       transition: background-color 0.3s ease;
     }
 
-    .reset-btn:hover {
+    .button:hover {
+      background-color: #666;
+    }
+
+    .danger-btn {
+      background-color: #ff3333;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 24px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background-color 0.3s ease;
+    }
+
+    .danger-btn:hover {
       background-color: #cc0000;
+    }
+
+    .small-text {
+      font-size: 12px;
+      color: #aaa;
+      margin-top: 5px;
     }
   </style>
 </head>
 <body>
   <div class="title">ABOUT</div>
 
-  <div class="section red-text">
-    Thanks for all server/game testers even if u just opened the game! Especially: deejvtech, Rubyy, Pek
+  <div class="section">
+    <h2>Thanks</h2>
+    Big thanks to all server/game testers, even if you just opened the game! Special shoutout: deejvtech, Rubyy, Pek
   </div>
 
   <div class="section">
-    About the update:
-    
-    The pigeons’ war is no longer bound to the streets and rooftops!
-    The battle has spread beyond Earth’s atmosphere, and now… the pigeons have taken to the stars!
-
-    A massive flock of furious space pigeons is on its way, ready to invade and destroy the peaceful ones. Their wings slice through the void, their eyes glow with rage, and their coos echo in the endless darkness of space. They won’t stop until every kind pigeon is gone… unless you rise to defend them!
-
-  The future of pigeon-kind depends on your courage. Are you ready to be the hero they need?
-  </div>
-
-  <div class="section">
-    WARNING! Its a beta test of Space Update PT2. Pigeons may be dumb!
-   </div>
-
-  <div class="section">
-    Try out the Java Edition version on github!<br>
-    <a class="link" href="https://github.com/deejvgames/PigeonBattleJavaEdition/" target="_blank">
-      Go to GitHub
-    </a>
-  </div>
-
-  <div class="section">
-    Reset your progress
-    <button class="reset-btn" onclick="reset()">Reset</button>
+    <h2>Danger Zone</h2>
+    <p>Be careful! This will delete ALL your progress.</p>
+    <button class="danger-btn" onclick="resetProgress()">Delete Everything</button>
+    <div class="small-text">This action cannot be undone!</div>
   </div>
 
   <script>
-    function reset() {
-      localStorage.clear();
-      alert('Successfully!');
+    function resetProgress() {
+      if(confirm("Are you SURE you want to delete ALL progress?")) {
+        localStorage.clear();
+        alert('All progress deleted!');
+      }
     }
   </script>
 </body>
 </html>
+
