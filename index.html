@@ -726,7 +726,7 @@ button:hover { transform:translateY(-3px) !important; }
   
   <div class="pigeon-card">
     <img src="blackarmypigeon.jpg" alt="New Army Pigeon">
-    <p>Space Pigeon<br>100 pigeon coins<br>I mean... he is tuff.<br>He has many XP.<br>2440 HP</p>
+    <p>Black Army Pigeon<br>100 pigeon coins<br>I mean... he is tuff.<br>He has many XP.<br>2440 HP</p>
     <button onclick="buy('blackarmyPigeon', 100)">Buy</button>
   </div>
 
@@ -735,6 +735,12 @@ button:hover { transform:translateY(-3px) !important; }
     <img src="candypigeon.jpg" alt="Candy Pigeon">
     <p>Candy Pigeon<br>+5.5 speed<br>+25 attack<br>0.61 damage<br>1700 HP<br>Shoots red-white candies<br>220 pigeon coins</p>
     <button onclick="buy('candyPigeon', 220)">Buy</button>
+  </div>
+  
+  <div class="pigeon-card">
+    <img src="tankpigeon.jpg" alt="Tank Pigeon">
+    <p>Tank Pigeon<br>+2.1 speed<br>+40 attack<br>0.7 damage<br>3200 HP<br>Ts is so slow broo. At least it has many xp<br>300 pigeon coins</p>
+    <button onclick="buy('tankPigeon', 300)">Buy</button>
   </div>
 
   <div class="pigeon-card">
@@ -1322,6 +1328,7 @@ const pigeons = {
   spacePigeon: { img: 'spacepigeon.jpg', speed: 4, attack: 50, damage: 0.409, hp: 1875, shootType: 'purple_shoot' },
   blackarmyPigeon: { img: 'blackarmypigeon.jpg', speed: 5, attack: 25, damage: 0.506, hp: 2440, shootType: 'normal_shoot' },
   twoaksPigeon: { img: 'twoakspigeon.jpg', speed: 5, attack: 12, damage: 0.7, hp: 1966, shootType: 'twoaks_shoot' },
+  tankPigeon: { img: 'tankpigeon.jpg', speed: 2.1, attack: 5, damage: 0.7, hp: 3200, shootType: 'green_short' },
 };
 
    const enemies = [
@@ -1540,7 +1547,7 @@ function shootGreen(player, bullets, dmgBoost) {
     w: 15,
     h: 5,
     speed: 12,
-    dmg: 1 * dmgBoost,
+    dmg: 1,
     color: 'green'
   });
 }
@@ -2399,6 +2406,7 @@ const pigeonPriceMap = {
   candyPigeon: 220,
   blackarmyPigeon: 100,
   twoaksPigeon: 175,
+  tankPigeon: 300,
   default: 0
 };
 
