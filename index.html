@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html> -->
 <html lang="en">
 <head>
     <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
@@ -117,7 +117,7 @@
     display: block; 
     width: 100%; 
     height: 100%; 
-    background: linear-gradient(135deg, #153b24 0%, #2e7d32 60%, #66bb6a 100%);
+    background: #e67e22;
     background-size: cover;
     background-position: center;
     background-size: cover;
@@ -749,6 +749,12 @@ button:hover { transform:translateY(-3px) !important; }
     <button onclick="buy('twoaksPigeon', 175)">Buy</button>
   </div>
 
+  <div class="pigeon-card">
+    <img src="hipposigeon.jpg" alt="Hippo Pigeon">
+    <p>Hippo Pigeon<br>Soo fat. Normal pigeon, nothing much, but he's cool one..'<br>75 pigeon coins<br>HP: 2110<br>Damage: 0.57</p>
+    <button onclick="buy('hippoPigeon', 75)">Buy</button>
+  </div>
+
 <h2>PowerUps</h2>
   <div class="pigeon-card">
     <img src="classicpigeon.jpg" alt="Pigeonin Classic">
@@ -817,14 +823,13 @@ button:hover { transform:translateY(-3px) !important; }
 </div>
   <div id="gameContainer">
     <canvas id="gameCanvas"></canvas>
-    <div id="version">PigeonBattle 0.4.3</div>
+    <div id="version">PigeonBattle 0.5</div>
     <div id="joystick"></div>
     <div id="shootBtn">bang</div>
     <div id="superbangBtn">SUPERBANG</div>
   </div>
   
 <script>
-// Глобальная функция для показа результата матча (создаёт оверлей, если его ещё нет)
 window.showBattleResult = function(type, data) {
   // If overlay already exists, use it; otherwise create
   let overlay = document.getElementById('battleResultOverlay');
@@ -979,7 +984,7 @@ preloadAssets(assets, () => {
   setTimeout(() => logLine("[CLIENT] Pinging the PB server :: POST query... 200 OK"), 100);
   setTimeout(() => logLine("Launching the game"), 150);
   setTimeout(() => {
-    logLine("PigeonBattle 0.4.3 BY zntsproj");
+    logLine("PigeonBattle 0.5 BY zntsproj");
     const splash = document.getElementById('splash');
     splash.style.opacity = '0';
     splash.style.transition = 'opacity 0.5s ease';
@@ -1329,6 +1334,7 @@ const pigeons = {
   blackarmyPigeon: { img: 'blackarmypigeon.jpg', speed: 5, attack: 25, damage: 0.506, hp: 2440, shootType: 'normal_shoot' },
   twoaksPigeon: { img: 'twoakspigeon.jpg', speed: 5, attack: 12, damage: 0.7, hp: 1966, shootType: 'twoaks_shoot' },
   tankPigeon: { img: 'tankpigeon.jpg', speed: 2.1, attack: 5, damage: 0.7, hp: 3200, shootType: 'green_short' },
+  hippoPigeon: { img: 'hipposigeon.jpg', speed: 5.5, attack: 10, damage: 0.57, hp: 2110, shootType: 'normal_shoot' },
 };
 
    const enemies = [
@@ -1607,18 +1613,17 @@ function shootFireball(player, bullets, dmgBoost) {
 function checkPromocode() {
   const input = document.getElementById('promocodeInput').value.trim();
   const msg = document.getElementById('promoMessage');
-  if (input === "fatpigeons72") {
-    if (!localStorage.getItem("promo_fatpigeons72_used")) {
-      let ownedP = JSON.parse(localStorage.getItem('ownedPigeons') || '[]');
-      if (!ownedP.includes('blackarmyPigeon')) {
-        ownedP.push('blackarmyPigeon');
-        localStorage.setItem('ownedPigeons', JSON.stringify(ownedP));
-      }
-      localStorage.setItem("promo_fatpigeons72_used", "true");
+
+  if (input === "novemberr") {
+    if (!localStorage.getItem("promo_novemberr_used")) {
+      let coins = parseInt(localStorage.getItem('pigeonCoins') || '0', 10);
+      coins += 70;
+      localStorage.setItem('pigeonCoins', coins);
+
+      localStorage.setItem("promo_novemberr_used", "true");
       msg.style.color = "lime";
-      msg.textContent = "Promocode accepted! New pigeon granted.";
+      msg.textContent = "Promocode accepted! +70 coins added 💸";
       updateCoinsDisplay();
-      showNewPigeonAchievement('blackarmyPigeon', 'blackarmypigeon.jpg');
     } else {
       msg.style.color = "gray";
       msg.textContent = "This promocode was already used!";
@@ -1628,6 +1633,7 @@ function checkPromocode() {
     msg.textContent = "Incorrect promocode!";
   }
 }
+
 
 
 
@@ -2399,7 +2405,7 @@ const pigeonPriceMap = {
   goonPigeon: 69,
   clownPigeon: 130,
   wizardPigeon: 5000,
-  sorrelPigeon: 120990,
+  sorrelPigeon: 232880,
   feetphone: 210,
   spinPigeon: 300,
   spacePigeon: 65,
@@ -2407,6 +2413,7 @@ const pigeonPriceMap = {
   blackarmyPigeon: 100,
   twoaksPigeon: 175,
   tankPigeon: 300,
+  hippoPigeon: 75,
   default: 0
 };
 
@@ -2519,46 +2526,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 </script>
 
-<!-- START GIFT DIALOG -->
-<div id="giftDialog" style="
-  position: fixed;
-  inset: 0;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0,0,0,0.6);
-  z-index: 30000;
-  font-family: 'Poppins', sans-serif;">
-  <div style="
-    background: #111827;
-    color: #fff;
-    padding: 20px;
-    border-radius: 20px;
-    max-width: 340px;
-    text-align: center;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.5);">
-    
-    <h2 style="margin-bottom:12px;">Hey!</h2>
-    <p style="font-size:14px; margin-bottom:14px;">
-      Pigeon soldier. You was a great gooner.<br>
-      Or you just hopped on the game for the first time..<br><br>
-      Well. There’s a new update! Here’s your gift:
-    </p>
-    <img src="medal.jpg" alt="Goon Medal" style="width:120px; margin:10px auto; display:block; border-radius:12px;">
-    <h3 style="margin:10px 0;">Goon Medal 0.4</h3>
-    <button id="giftOkBtn" style="
-      background:#00aaff;
-      color:white;
-      border:none;
-      padding:10px 20px;
-      border-radius:12px;
-      cursor:pointer;
-      font-size:16px;
-      margin-top:12px;">
-      OK
-    </button>
-  </div>
-</div>
 
 <style>
 #reloadDisplay {
@@ -2732,10 +2699,7 @@ function showNewPigeonAchievement(name, imgSrc) {
 }
 
 </script>
-<!-- == PATCH END == -->
 
-
-  <!-- === CASE RESULT OVERLAY === -->
   <div id="caseResultOverlay">
     <h1 id="caseResultTitle"></h1>
     <img id="caseResultImg" src="" alt="" style="display:none;">
