@@ -730,6 +730,14 @@ button:hover { transform:translateY(-3px) !important; }
     <button onclick="buy('blackarmyPigeon', 100)">Buy</button>
   </div>
 
+
+  <div class="pigeon-card">
+    <img src="lavapigeon.jpg" alt="Lava Pigeon">
+    <p>Lava Pigeon<br>Molten beak. 120 pigeon coins<br>HP: 2500<br>Damage: 0.75</p>
+    <button onclick="buy('lavapigeon', 120)">Buy</button>
+  </div>
+
+
   
   <div class="pigeon-card">
     <img src="candypigeon.jpg" alt="Candy Pigeon">
@@ -823,7 +831,7 @@ button:hover { transform:translateY(-3px) !important; }
 </div>
   <div id="gameContainer">
     <canvas id="gameCanvas"></canvas>
-    <div id="version">PigeonBattle 0.5</div>
+    <div id="version">PigeonBattle 0.5.1</div>
     <div id="joystick"></div>
     <div id="shootBtn">bang</div>
     <div id="superbangBtn">SUPERBANG</div>
@@ -960,7 +968,8 @@ const assets = [
   "screaming.jpg",
   "kingpigeon.jpg",
   "medal.jpg",
-  "twoakspigeon.jpg"
+  "twoakspigeon.jpg",
+  "lavapigeon.jpg"
 ];
 
 function preloadAssets(list, callback) {
@@ -984,7 +993,7 @@ preloadAssets(assets, () => {
   setTimeout(() => logLine("[CLIENT] Pinging the PB server :: POST query... 200 OK"), 100);
   setTimeout(() => logLine("Launching the game"), 150);
   setTimeout(() => {
-    logLine("PigeonBattle 0.5 BY zntsproj");
+    logLine("PigeonBattle 0.5.1 BY zntsproj");
     const splash = document.getElementById('splash');
     splash.style.opacity = '0';
     splash.style.transition = 'opacity 0.5s ease';
@@ -1315,6 +1324,7 @@ function comp() {
 }
 
 const pigeons = {
+    lavapigeon: { img: 'lavapigeon.jpg', speed: 5, attack: 20, damage: 0.75, hp: 2500, shootType: 'normal_shoot' },
   candyPigeon: { img: 'candypigeon.jpg', speed: 5.5, attack: 25, damage: 0.6, hp: 1700, shootType: 'candy_shoot' },
   spinPigeon: { img: 'spinpigeon.jpg', speed: 4, attack: 20, damage: 1.2, hp: 1500, shootType: 'spin_shoot' },
   default: { img: 'pigeon.jpg', speed: 5, attack: 10, damage: 0.35, hp: 1200, shootType: 'normal_shoot' },
@@ -1409,6 +1419,18 @@ const spaceUlt = {
   bladeHitRadius: 30, // collision check radius
   damage: 200
 };
+
+
+const lavaUlt = {
+  available: true,
+  active: false,
+  duration: 1200,        // short active time (ms) for flash/shake
+  cooldown: 40000,       // 40 seconds cooldown
+  startedAt: 0,
+  cooldownStartedAt: 0,
+  damage: 400
+};
+
 
 const playerImg = new Image();
 playerImg.src = pigeons[selected].img;
@@ -1905,12 +1927,86 @@ function startSpaceUlt() {
 }
 
 /* Unified superbang starter used by button + key */
+
+/* === LAVA PIGEON ULT === */
+function canUseLavaUlt() {
+  return selected === 'lavapigeon' && gameStarted && lavaUlt.available && !lavaUlt.active;
+}
+
+function startLavaUlt() {
+  if (!canUseLavaUlt()) {
+    if (selected !== 'lavapigeon') toast('Это ульта только для Lava Pigeon 🔥');
+    return;
+  }
+  lavaUlt.active = true;
+  lavaUlt.available = false;
+  lavaUlt.startedAt = Date.now();
+
+  // visual flash overlay
+  let flash = document.getElementById('lavaFlashOverlay');
+  if (!flash) {
+    flash = document.createElement('div');
+    flash.id = 'lavaFlashOverlay';
+    flash.style.position = 'fixed';
+    flash.style.inset = '0';
+    flash.style.pointerEvents = 'none';
+    flash.style.background = 'radial-gradient(circle at 50% 40%, rgba(255,220,120,0.95), rgba(255,120,40,0.0) 40%)';
+    flash.style.opacity = '0';
+    flash.style.transition = 'opacity 0.8s ease-out';
+    flash.style.zIndex = '99999';
+    document.body.appendChild(flash);
+  }
+
+  // Shake container
+  const container = document.getElementById('gameContainer') || document.getElementById('canvas') || document.body;
+  const origTransform = container.style.transform || '';
+  let shakeStart = Date.now();
+  const shakeDuration = lavaUlt.duration;
+
+  // apply damage instantly (as requested ~400 hp)
+  try {
+    if (bot && typeof bot.hp === 'number') {
+      bot.hp = Math.max(0, bot.hp - lavaUlt.damage);
+      toast('-400 HP to enemy! 🔥', 1200);
+      checkGameEnd();
+    }
+  } catch(e) { console.error(e); }
+
+  // animate: quick intense flash and shake, then slowly fade
+  flash.style.opacity = '1';
+  // quick micro-shakes
+  const shakeInterval = setInterval(() => {
+    const t = Date.now() - shakeStart;
+    if (t > shakeDuration) {
+      clearInterval(shakeInterval);
+      container.style.transform = origTransform;
+      flash.style.opacity = '0';
+      lavaUlt.active = false;
+      lavaUlt.cooldownStartedAt = Date.now();
+      setTimeout(() => { lavaUlt.available = true; }, lavaUlt.cooldown);
+      return;
+    }
+    const intensity = 6 * (1 - t / shakeDuration); // px
+    const rx = (Math.random() - 0.5) * intensity;
+    const ry = (Math.random() - 0.5) * intensity;
+    const rot = (Math.random() - 0.5) * (intensity * 0.2);
+    container.style.transform = `translate(${rx}px, ${ry}px) rotate(${rot}deg)`;
+  }, 16);
+
+  setTimeout(() => {
+    // ensure it ends
+    flash.style.opacity = '0';
+  }, lavaUlt.duration + 100);
+}
+
 function startSuperbang() {
   // If both are available, priority to selected pigeon
   if (selected === 'emiPigeon') {
     startEmiUlt();
   } else if (selected === 'spacePigeon') {
     startSpaceUlt();
+  } else if (selected === 'lavapigeon') {
+    startLavaUlt();
   } else {
     toast('У тебя нет ульты у выбранного голубя 😕');
   }
@@ -1940,7 +2036,7 @@ function updateSuperbangUI() {
   const btn = document.getElementById('superbangBtn');
   if (!btn) return;
   // Show button only on touch devices AND only when selected is emiPigeon or spacePigeon
-  if ('ontouchstart' in window && (selected === 'emiPigeon' || selected === 'spacePigeon') && gameStarted) {
+  if ('ontouchstart' in window && (selected === 'emiPigeon' || selected === 'spacePigeon' || selected === 'lavapigeon') && gameStarted) {
     btn.style.display = 'block';
   } else {
     btn.style.display = 'none';
@@ -2414,6 +2510,7 @@ const pigeonPriceMap = {
   twoaksPigeon: 175,
   tankPigeon: 300,
   hippoPigeon: 75,
+  lavapigeon: 120,
   default: 0
 };
 
