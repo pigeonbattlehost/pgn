@@ -837,7 +837,7 @@ button:hover { transform:translateY(-3px) !important; }
 </div>
   <div id="gameContainer">
     <canvas id="gameCanvas"></canvas>
-    <div id="version">PigeonBattle 0.6</div>
+    <div id="version">PigeonBattle 0.6a</div>
     <div id="joystick"></div>
     <div id="shootBtn">bang</div>
     <div id="superbangBtn">SUPERBANG</div>
@@ -998,7 +998,7 @@ preloadAssets(assets, () => {
   setTimeout(() => logLine("[CLIENT] Pinging the PB server :: POST query... 200 OK"), 100);
   setTimeout(() => logLine("Launching the game"), 150);
   setTimeout(() => {
-    logLine("PigeonBattle 0.6 BY zntsproj");
+    logLine("PigeonBattle 0.6a BY zntsproj");
     const splash = document.getElementById('splash');
     splash.style.opacity = '0';
     splash.style.transition = 'opacity 0.5s ease';
@@ -2553,6 +2553,7 @@ const pigeonPriceMap = {
   tankPigeon: 300,
   hippoPigeon: 75,
   lavapigeon: 120,
+  snowyPigeon: 95,
   default: 0
 };
 
@@ -2837,41 +2838,131 @@ function showNewPigeonAchievement(name, imgSrc) {
   } catch(e) { console.error(e); }
 }
 
-(function createSnow() {
-  const menu = document.getElementById('menu');
-  if (!menu) return;
-  const maxFlakes = 40;
-  function spawnFlake() {
-    const flake = document.createElement('div');
-    flake.className = 'snowflake';
-    const size = Math.random() * 8 + 4;
-    flake.style.width = size + 'px';
-    flake.style.height = size + 'px';
-    flake.style.left = Math.random() * 100 + '%';
-    flake.style.opacity = 0.7 + Math.random() * 0.3;
-    menu.appendChild(flake);
-    // animate
-    const fallDuration = 4000 + Math.random() * 6000;
-    const endX = (Math.random() - 0.5) * 200;
-    flake.animate([
-      { transform: 'translateY(0px) translateX(0px)', opacity: flake.style.opacity },
-      { transform: 'translateY(' + (menu.clientHeight + 40) + 'px) translateX(' + endX + 'px)', opacity: 0.8 }
-    ], {
-      duration: fallDuration,
-      easing: 'linear',
-      fill: 'forwards'
-    });
-    setTimeout(() => flake.remove(), fallDuration + 80);
-  }
-  setInterval(() => {
-    if (menu.style.display === 'flex' || window.getComputedStyle(menu).display !== 'none') {
-      spawnFlake();
-      const flakes = menu.querySelectorAll('.snowflake');
-      if (flakes.length > maxFlakes) flakes[0].remove();
-    }
-  }, 250);
-})();
 
+(function(){
+  function isNewYearMidnight(date) {
+    return date.getMonth() === 0 && date.getDate() === 1 && date.getHours() === 0 && date.getMinutes() === 0;
+  }
+
+  function hideAllMenus() {
+    const ids = ['menu','shop','pigeonsMenu','communityShop'];
+    ids.forEach(id=>{
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+  }
+
+  function createNYOverlay() {
+    // overlay
+    const ov = document.createElement('div');
+    ov.id = 'nyOverlay';
+    Object.assign(ov.style, {
+      position: 'fixed',
+      inset: '0',
+      zIndex: 999999,
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      pointerEvents: 'none',
+      overflow: 'hidden',
+      background: 'radial-gradient(circle at 50% 20%, rgba(255,255,255,0.06), rgba(0,0,0,0.7))'
+    });
+
+    // big text
+    const txt = document.createElement('div');
+    txt.innerText = 'HAPPY NEW YEAR!!!!!!!!!!!!!!!!!';
+    Object.assign(txt.style, {
+      position: 'absolute',
+      top: '10%',
+      width: '100%',
+      textAlign: 'center',
+      fontSize: '8vw',
+      fontWeight: '900',
+      fontFamily: "'Press Start 2P', sans-serif",
+      color: 'white',
+      textShadow: '0 6px 20px rgba(0,0,0,0.6), 0 0 20px rgba(255,255,255,0.08)',
+      pointerEvents: 'none',
+    });
+    ov.appendChild(txt);
+
+    // helper to spawn pigeon img
+    function spawnPigeon(src) {
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = 'pigeon';
+      const size = 40 + Math.random()*180; // px
+      Object.assign(img.style, {
+        position: 'absolute',
+        left: (Math.random()*120 - 10) + '%', // allow off-screen spawn
+        top: '-20%',
+        width: size + 'px',
+        height: 'auto',
+        transform: `rotate(${Math.random()*60-30}deg)`,
+        opacity: 0.95,
+        pointerEvents: 'none',
+        willChange: 'transform, top, left'
+      });
+      ov.appendChild(img);
+
+      // animate falling / flying across screen
+      const duration = 4000 + Math.random()*6000;
+      const endLeft = (Math.random()*120 - 10);
+      img.animate([
+        { transform: `translateY(0px) rotate(${Math.random()*60-30}deg)`, left: img.style.left, top: '-20%' },
+        { transform: `translateY(${70 + Math.random()*120}vh) rotate(${Math.random()*360-180}deg)`, left: endLeft + '%', top: (60 + Math.random()*30) + '%' }
+      ], {
+        duration: duration,
+        easing: 'cubic-bezier(.2,.8,.2,1)',
+        fill: 'forwards'
+      });
+
+      // remove after finished
+      setTimeout(()=> img.remove(), duration + 200);
+    }
+
+    // spawn wave of pigeons
+    function spawnWave() {
+      // try to pick pigeon images from assets array if available
+      const pool = (window.assets || []).filter(a => /\.(jpg|png|jpeg|webp)$/i.test(a));
+
+      const count = 12 + Math.floor(Math.random()*18);
+      for (let i=0;i<count;i++) {
+        const src = pool[Math.floor(Math.random()*pool.length)];
+        // small stagger
+        setTimeout(()=> spawnPigeon(src), i * 120);
+      }
+    }
+
+    // periodic waves
+    const waveInterval = setInterval(spawnWave, 1800);
+    // initial burst
+    spawnWave();
+
+    // allow closing overlay after 20s (keeps overlay for a while then remove)
+    setTimeout(() => {
+      clearInterval(waveInterval);
+      // let remaining animations finish, then remove
+      setTimeout(()=> {
+        ov.remove();
+        // restore menu (optional) — we leave menus hidden as per request, but uncomment to restore:
+        // document.getElementById('menu').style.display = 'flex';
+      }, 3000);
+    }, 20000);
+
+    document.body.appendChild(ov);
+  }
+
+  // run on DOM ready
+  document.addEventListener('DOMContentLoaded', () => {
+    try {
+      const now = new Date;
+      if (isNewYearMidnight(now)) {
+        hideAllMenus();
+        createNYOverlay();
+      }
+    } catch(e) { console.error('NY easter egg error', e); }
+  });
+})();
 
 </script>
 
