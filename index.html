@@ -117,7 +117,7 @@
     display: block; 
     width: 100%; 
     height: 100%; 
-    background: #e67e22;
+    background: #34b4eb;
     background-size: cover;
     background-position: center;
     background-size: cover;
@@ -483,9 +483,6 @@ h1, h2, h3 {
   #shop .pigeon-card p, #shop .pigeon-card button { font-size: 0.95rem; }
   #pigeonsMenu { padding: 8px; }
 
-  /* NOTE: We DO NOT scale down in-game touch controls (joystick, shoot button, superbang button)
-     — user asked to keep controls comfortable. So don't modify #joystick, #shootBtn, #superbangBtn here. */
-}
 
 /* ===== Ultra-compact mode for very narrow phones (<=420px) ===== */
 @media (max-width: 420px) {
@@ -546,6 +543,8 @@ h1, h2, h3 {
   background:#000 !important;
   color:#fff !important;
 }
+
+
 
 button, #shop button, #menu button, #pigeonsMenu button {
   background: linear-gradient(135deg,#0d6efd,#0b5fd6) !important;
@@ -636,7 +635,7 @@ button:hover { transform:translateY(-3px) !important; }
 
   <div id="menu">
     <h1>Pigen Battle</h1>
-    <h3>Autumn Update!</h3>
+    <h3>Winter Update!</h3>
     <div id="coinsDisplay">Coins: 0</div>
     <button id="playButton">Play</button>
     <button id="shopButton">Shop</button>
@@ -763,6 +762,13 @@ button:hover { transform:translateY(-3px) !important; }
     <button onclick="buy('hippoPigeon', 75)">Buy</button>
   </div>
 
+  <div class="pigeon-card">
+    <img src="snowypigeon.jpg" alt="Snowy Pigeon">
+    <p>Snowy Pigeon<br>HP: 2000<br>Attack: 25<br>Урон: 0.611<br>Стоимость: 95 pigeon coins</p>
+    <button onclick="buy('snowyPigeon', 95)">Buy</button>
+  </div>
+
+
 <h2>PowerUps</h2>
   <div class="pigeon-card">
     <img src="classicpigeon.jpg" alt="Pigeonin Classic">
@@ -831,7 +837,7 @@ button:hover { transform:translateY(-3px) !important; }
 </div>
   <div id="gameContainer">
     <canvas id="gameCanvas"></canvas>
-    <div id="version">PigeonBattle 0.5.1</div>
+    <div id="version">PigeonBattle 0.6</div>
     <div id="joystick"></div>
     <div id="shootBtn">bang</div>
     <div id="superbangBtn">SUPERBANG</div>
@@ -839,7 +845,6 @@ button:hover { transform:translateY(-3px) !important; }
   
 <script>
 window.showBattleResult = function(type, data) {
-  // If overlay already exists, use it; otherwise create
   let overlay = document.getElementById('battleResultOverlay');
   if (!overlay) {
     overlay = document.createElement('div');
@@ -935,11 +940,10 @@ fetch("https://pigeonbattle.onrender.com/ping", {
   .catch(error => console.error('Error fetching data:', error));
   
 src="https://cdn.jsdelivr.net/npm/nipplejs@0.8.0/dist/nipplejs.min.js"
-// === PRELOADER WITH LOG ===
+
 const preloadLog = document.getElementById("preloadLog");
 
 function logLine(text) {
-  // append with timestamp-ish prefix to make it nicer
   preloadLog.textContent += text + "\n";
 }
 
@@ -969,7 +973,8 @@ const assets = [
   "kingpigeon.jpg",
   "medal.jpg",
   "twoakspigeon.jpg",
-  "lavapigeon.jpg"
+  "lavapigeon.jpg",
+  "snowypigeon.jpg"
 ];
 
 function preloadAssets(list, callback) {
@@ -993,7 +998,7 @@ preloadAssets(assets, () => {
   setTimeout(() => logLine("[CLIENT] Pinging the PB server :: POST query... 200 OK"), 100);
   setTimeout(() => logLine("Launching the game"), 150);
   setTimeout(() => {
-    logLine("PigeonBattle 0.5.1 BY zntsproj");
+    logLine("PigeonBattle 0.6 BY zntsproj");
     const splash = document.getElementById('splash');
     splash.style.opacity = '0';
     splash.style.transition = 'opacity 0.5s ease';
@@ -1345,6 +1350,7 @@ const pigeons = {
   twoaksPigeon: { img: 'twoakspigeon.jpg', speed: 5, attack: 12, damage: 0.7, hp: 1966, shootType: 'twoaks_shoot' },
   tankPigeon: { img: 'tankpigeon.jpg', speed: 2.1, attack: 5, damage: 0.7, hp: 3200, shootType: 'green_short' },
   hippoPigeon: { img: 'hipposigeon.jpg', speed: 5.5, attack: 10, damage: 0.57, hp: 2110, shootType: 'normal_shoot' },
+  snowyPigeon: { img: 'snowypigeon.jpg', speed: 5.2, attack: 25, damage: 0.611, hp: 2000, shootType: 'normal_shoot', snowy: true }
 };
 
    const enemies = [
@@ -1636,15 +1642,31 @@ function checkPromocode() {
   const input = document.getElementById('promocodeInput').value.trim();
   const msg = document.getElementById('promoMessage');
 
-  if (input === "novemberr") {
-    if (!localStorage.getItem("promo_novemberr_used")) {
-      let coins = parseInt(localStorage.getItem('pigeonCoins') || '0', 10);
-      coins += 70;
-      localStorage.setItem('pigeonCoins', coins);
+  if (input === "snowysigeons2025") {
+    if (!localStorage.getItem("promo_snowysigeons2025_used")) {
+      let coinsLocal = parseInt(localStorage.getItem('pigeonCoins') || '0', 10);
+      coinsLocal += 25;
+      localStorage.setItem('pigeonCoins', coinsLocal);
 
-      localStorage.setItem("promo_novemberr_used", "true");
+      localStorage.setItem("promo_snowysigeons2025_used", "true");
       msg.style.color = "lime";
-      msg.textContent = "Promocode accepted! +70 coins added 💸";
+      msg.textContent = "Promocode accepted! +25 coins added 💸";
+      coins = coinsLocal;
+      updateCoinsDisplay();
+    } else {
+      msg.style.color = "gray";
+      msg.textContent = "This promocode was already used!";
+    }
+  } else if (input === "snowygoon") {
+    if (!localStorage.getItem("promo_snowygoon_used")) {
+      let coinsLocal = parseInt(localStorage.getItem('pigeonCoins') || '0', 10);
+      coinsLocal += 50;
+      localStorage.setItem('pigeonCoins', coinsLocal);
+
+      localStorage.setItem("promo_snowygoon_used", "true");
+      msg.style.color = "lime";
+      msg.textContent = "Promocode accepted! +50 coins added 💸";
+      coins = coinsLocal;
       updateCoinsDisplay();
     } else {
       msg.style.color = "gray";
@@ -1655,8 +1677,6 @@ function checkPromocode() {
     msg.textContent = "Incorrect promocode!";
   }
 }
-
-
 
 
 function updateCoinsDisplay() {
@@ -2266,11 +2286,33 @@ function update() {
         // apply damage once per blade per ult
         bot.hp -= spaceUlt.damage;
         blade.hit = true;
-        // optional feedback
-        toast('Клинок попал! -500 HP', 900);
       }
     }
   }
+
+  // Movement & physics for Snowy Pigeon (sliding on ice)
+if (typeof player.vx === 'undefined') { player.vx = 0; player.vy = 0; }
+const accel = 0.9;
+const maxSpeed = (pigeons[selected] && pigeons[selected].speed) ? pigeons[selected].speed * 1.6 : 6;
+if (selected === 'snowyPigeon') {
+  if (keys['w'] || keys['arrowup']) player.vy -= accel;
+  if (keys['s'] || keys['arrowdown']) player.vy += accel;
+  if (keys['a'] || keys['arrowleft']) player.vx -= accel;
+  if (keys['d'] || keys['arrowright']) player.vx += accel;
+  player.vx = Math.max(-maxSpeed, Math.min(maxSpeed, player.vx));
+  player.vy = Math.max(-maxSpeed, Math.min(maxSpeed, player.vy));
+  // slight friction to slide
+  player.vx *= 0.985;
+  player.vy *= 0.985;
+  player.x += player.vx;
+  player.y += player.vy;
+} else {
+  // original immediate movement fallback (keep your original movement code here)
+  if (keys['w'] || keys['arrowup']) player.y -= (pigeons[selected] && pigeons[selected].speed) ? pigeons[selected].speed : 4;
+  if (keys['s'] || keys['arrowdown']) player.y += (pigeons[selected] && pigeons[selected].speed) ? pigeons[selected].speed : 4;
+  if (keys['a'] || keys['arrowleft']) player.x -= (pigeons[selected] && pigeons[selected].speed) ? pigeons[selected].speed : 4;
+  if (keys['d'] || keys['arrowright']) player.x += (pigeons[selected] && pigeons[selected].speed) ? pigeons[selected].speed : 4;
+}
 
   // END GAME CHECK!
   checkGameEnd();
@@ -2794,6 +2836,42 @@ function showNewPigeonAchievement(name, imgSrc) {
     }, 4000);
   } catch(e) { console.error(e); }
 }
+
+(function createSnow() {
+  const menu = document.getElementById('menu');
+  if (!menu) return;
+  const maxFlakes = 40;
+  function spawnFlake() {
+    const flake = document.createElement('div');
+    flake.className = 'snowflake';
+    const size = Math.random() * 8 + 4;
+    flake.style.width = size + 'px';
+    flake.style.height = size + 'px';
+    flake.style.left = Math.random() * 100 + '%';
+    flake.style.opacity = 0.7 + Math.random() * 0.3;
+    menu.appendChild(flake);
+    // animate
+    const fallDuration = 4000 + Math.random() * 6000;
+    const endX = (Math.random() - 0.5) * 200;
+    flake.animate([
+      { transform: 'translateY(0px) translateX(0px)', opacity: flake.style.opacity },
+      { transform: 'translateY(' + (menu.clientHeight + 40) + 'px) translateX(' + endX + 'px)', opacity: 0.8 }
+    ], {
+      duration: fallDuration,
+      easing: 'linear',
+      fill: 'forwards'
+    });
+    setTimeout(() => flake.remove(), fallDuration + 80);
+  }
+  setInterval(() => {
+    if (menu.style.display === 'flex' || window.getComputedStyle(menu).display !== 'none') {
+      spawnFlake();
+      const flakes = menu.querySelectorAll('.snowflake');
+      if (flakes.length > maxFlakes) flakes[0].remove();
+    }
+  }, 250);
+})();
+
 
 </script>
 
