@@ -768,6 +768,12 @@ button:hover { transform:translateY(-3px) !important; }
     <button onclick="buy('snowyPigeon', 95)">Buy</button>
   </div>
 
+  <div class="pigeon-card">
+  <img src="frostbitepigeon.jpg" alt="Frostbite Pigeon">
+  <p>Frostbite Pigeon<br>80 pigeon coins<br>HP: 2100<br>Damage: 0.62<br>Snowy: true</p>
+  <button onclick="buy('frostbitePigeon', 80)">Buy</button>
+</div>
+
 
 <h2>PowerUps</h2>
   <div class="pigeon-card">
@@ -837,7 +843,7 @@ button:hover { transform:translateY(-3px) !important; }
 </div>
   <div id="gameContainer">
     <canvas id="gameCanvas"></canvas>
-    <div id="version">PigeonBattle 0.6a</div>
+    <div id="version">PigeonBattle 0.6.1</div>
     <div id="joystick"></div>
     <div id="shootBtn">bang</div>
     <div id="superbangBtn">SUPERBANG</div>
@@ -998,13 +1004,12 @@ preloadAssets(assets, () => {
   setTimeout(() => logLine("[CLIENT] Pinging the PB server :: POST query... 200 OK"), 100);
   setTimeout(() => logLine("Launching the game"), 150);
   setTimeout(() => {
-    logLine("PigeonBattle 0.6a BY zntsproj");
+    logLine("PigeonBattle 0.6.1 BY zntsproj");
     const splash = document.getElementById('splash');
     splash.style.opacity = '0';
     splash.style.transition = 'opacity 0.5s ease';
     setTimeout(() => {
       if (splash && splash.parentNode) splash.parentNode.removeChild(splash);
-      // reveal menu explicitly (in case it was hidden behind)
       const menu = document.getElementById('menu');
       if (menu) menu.style.display = 'flex';
     }, 500);
@@ -1329,7 +1334,7 @@ function comp() {
 }
 
 const pigeons = {
-    lavapigeon: { img: 'lavapigeon.jpg', speed: 5, attack: 20, damage: 0.75, hp: 2500, shootType: 'normal_shoot' },
+  lavapigeon: { img: 'lavapigeon.jpg', speed: 5, attack: 20, damage: 0.75, hp: 2500, shootType: 'normal_shoot' },
   candyPigeon: { img: 'candypigeon.jpg', speed: 5.5, attack: 25, damage: 0.6, hp: 1700, shootType: 'candy_shoot' },
   spinPigeon: { img: 'spinpigeon.jpg', speed: 4, attack: 20, damage: 1.2, hp: 1500, shootType: 'spin_shoot' },
   default: { img: 'pigeon.jpg', speed: 5, attack: 10, damage: 0.35, hp: 1200, shootType: 'normal_shoot' },
@@ -1350,7 +1355,15 @@ const pigeons = {
   twoaksPigeon: { img: 'twoakspigeon.jpg', speed: 5, attack: 12, damage: 0.7, hp: 1966, shootType: 'twoaks_shoot' },
   tankPigeon: { img: 'tankpigeon.jpg', speed: 2.1, attack: 5, damage: 0.7, hp: 3200, shootType: 'green_short' },
   hippoPigeon: { img: 'hipposigeon.jpg', speed: 5.5, attack: 10, damage: 0.57, hp: 2110, shootType: 'normal_shoot' },
-  snowyPigeon: { img: 'snowypigeon.jpg', speed: 5.2, attack: 25, damage: 0.611, hp: 2000, shootType: 'normal_shoot', snowy: true }
+  snowyPigeon: { img: 'snowypigeon.jpg', speed: 5.2, attack: 25, damage: 0.611, hp: 2000, shootType: 'normal_shoot', snowy: true },
+  frostbitePigeon: {
+  img: 'frostbitepigeon.jpg',
+  speed: 5.1,
+  attack: 25,
+  damage: 0.62,
+  hp: 2100,
+  shootType: 'ice_shoot',
+  snowy: true },
 };
 
    const enemies = [
@@ -1435,6 +1448,15 @@ const lavaUlt = {
   startedAt: 0,
   cooldownStartedAt: 0,
   damage: 400
+};
+
+const frostUlt = {
+  available: true,
+  active: false,
+  duration: 2000,
+  cooldown: 40000,
+  startedAt: 0,
+  cooldownStartedAt: 0
 };
 
 
@@ -1635,6 +1657,18 @@ function shootFireball(player, bullets, dmgBoost) {
     speedY: velY,
     dmg: 2 * dmgBoost,
     color: 'orange'
+  });
+}
+
+function shootIce(player, bullets, dmgBoost) {
+  bullets.push({
+    x: player.x + player.w,
+    y: player.y + player.h / 2 - 8,
+    w: 14,
+    h: 14,
+    speed: 11,
+    dmg: 6 * dmgBoost,
+    color: 'ice'
   });
 }
 
@@ -2019,18 +2053,57 @@ function startLavaUlt() {
   }, lavaUlt.duration + 100);
 }
 
+/* === FROSTBITE PIGEON ULT === */
+function canUseFrostUlt() {
+  return selected === 'frostbitePigeon' && gameStarted && frostUlt.available && !frostUlt.active;
+}
+
+function startFrostUlt() {
+  if (!canUseFrostUlt()) {
+    if (selected !== 'frostbitePigeon') toast('Это ульта только для Frostbite Pigeon ❄️');
+    return;
+  }
+
+  frostUlt.active = true;
+  frostUlt.available = false;
+  frostUlt.startedAt = Date.now();
+
+  // freeze enemy
+  bot.freezeUntil = Date.now() + frostUlt.duration;
+
+  // frost vignette
+  canvas.style.boxShadow = "inset 0 0 120px rgba(150,200,255,0.85)";
+  document.body.style.filter = "brightness(0.9)";
+
+  // stop ult after duration
+  setTimeout(() => {
+    frostUlt.active = false;
+    canvas.style.boxShadow = "";
+    document.body.style.filter = "";
+
+    frostUlt.cooldownStartedAt = Date.now();
+    setTimeout(() => {
+      frostUlt.available = true;
+    }, frostUlt.cooldown);
+
+  }, frostUlt.duration);
+
+}
+
 function startSuperbang() {
-  // If both are available, priority to selected pigeon
   if (selected === 'emiPigeon') {
     startEmiUlt();
   } else if (selected === 'spacePigeon') {
     startSpaceUlt();
   } else if (selected === 'lavapigeon') {
     startLavaUlt();
+  } else if (selected === 'frostbitePigeon') {
+    startFrostUlt();
   } else {
-    toast('У тебя нет ульты у выбранного голубя 😕');
+    toast('No superpower');
   }
 }
+
 
 /* Hook superbang button events */
 const superbangBtn = document.getElementById('superbangBtn');
@@ -2133,12 +2206,13 @@ function update() {
   if (player.x + player.w > canvas.width) player.x = canvas.width - player.w;
   if (player.y + player.h > canvas.height) player.y = canvas.height - player.h;
 
-  // Shooting logic
+  // now this part of the code is more understanable
   if (keys[' ']) {
     const shootType = stats.shootType || 'normal_shoot';
 
     if (shootType === 'candy_shoot') {
       shootCandy(player, bullets, dmgBoost);
+
     } else if (shootType === 'spin_shoot') {
       if (spinMode) {
         shoot360(player, bullets, stats.damage, 6, 'purple');
@@ -2146,24 +2220,36 @@ function update() {
         shoot(player, bullets, stats.damage, 8);
         bullets[bullets.length - 1].color = 'purple';
       }
+
     } else if (shootType === 'emishoot') {
       shootEmi(player, bullets, dmgBoost);
+
     } else if (shootType === 'white_shoot') {
       shootWhite(player, bullets, dmgBoost);
+
     } else if (shootType === 'green_short') {
       shootGreen(player, bullets, dmgBoost);
+
     } else if (shootType === 'ball_shoot') {
       shootBall(player, bullets, dmgBoost);
+
     } else if (shootType === 'purple_shoot') {
       shootPurple(player, bullets, dmgBoost);
+
     } else if (shootType === 'fireball_shoot') {
       shootFireball(player, bullets, dmgBoost);
+
     } else if (shootType === 'twoaks_shoot') {
       shootTwoaks(player, bullets, dmgBoost);
+
+    } else if (shootType === 'ice_shoot') {
+      shootIce(player, bullets, dmgBoost);
+
     } else {
       shoot(player, bullets, dmgBoost);
     }
-  }
+}
+
 
   // Bot movement towards player with prediction
   if (!player.lastX || !player.lastY) {
@@ -2261,9 +2347,9 @@ function update() {
     if (dist <= emiUlt.radius) {
       bot.hp -= dmgPerFrame;
     }
-
-    // If you had more enemies list, you'd loop and damage them similarly.
   }
+
+
 
   // APPLY SPACE PIGEON ULT (blades) logic
   if (spaceUlt.active) {
