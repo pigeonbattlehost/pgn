@@ -642,6 +642,7 @@ button:hover { transform:translateY(-3px) !important; }
     <button id="pigeonsButton">Pigeons</button>
     <button class="pigeonism-btn" id="pigeonism-btn">Pigeon Chat</button>
     <button id="about-btn">About</button>
+    <button id="goonNFTsButton">GoonNFTs</button>
 
     
     <div id="onlineStatus">Loading pigeons...</div>
@@ -843,7 +844,7 @@ button:hover { transform:translateY(-3px) !important; }
 </div>
   <div id="gameContainer">
     <canvas id="gameCanvas"></canvas>
-    <div id="version">PigeonBattle 0.6.1b</div>
+    <div id="version">PigeonBattle 0.6.1c</div>
     <div id="joystick"></div>
     <div id="shootBtn">bang</div>
     <div id="superbangBtn">SUPERBANG</div>
@@ -1004,7 +1005,7 @@ preloadAssets(assets, () => {
   setTimeout(() => logLine("[CLIENT] Pinging the PB server :: POST query... 200 OK"), 100);
   setTimeout(() => logLine("Launching the game"), 150);
   setTimeout(() => {
-    logLine("PigeonBattle 0.6.1b BY zntsproj");
+    logLine("PigeonBattle 0.6.1c BY zntsproj");
     const splash = document.getElementById('splash');
     splash.style.opacity = '0';
     splash.style.transition = 'opacity 0.5s ease';
@@ -1066,14 +1067,31 @@ function buyClassicPigeon() {
 }
 
 function buyNFT(nft, cost) {
-  if (coins >= cost && !ownedNFTs.some(n => n.id === nft.id)) {
+  coins = parseInt(localStorage.getItem('pigeonCoins') || coins || 0, 10);
+
+  if (coins >= cost) {
+    const owned = JSON.parse(localStorage.getItem('ownedNFTs') || '[]');
+    if (owned.some(x => x.id === nft.id)) {
+      alert('You already own this NFT.');
+      return;
+    }
+
     coins -= cost;
-    ownedNFTs.push(nft);
-    localStorage.setItem('ownedNFTs', JSON.stringify(ownedNFTs));
-    updateCoinsDisplay();
-    alert(`${nft.name} NFT purchased!`);
+    localStorage.setItem('pigeonCoins', coins);
+    owned.push(nft);
+    localStorage.setItem('ownedNFTs', JSON.stringify(owned));
+    try { ownedNFTs = owned; } catch(e){}
+
+    updateCoinsDisplay && updateCoinsDisplay();
+    renderOwnedNFTs && renderOwnedNFTs();
+
+    try {
+      if (typeof updateSpentCoins === 'function') updateSpentCoins(cost);
+    } catch(e){}
+
+    toast && toast(`${nft.name} purchased! -${cost} coins`);
   } else {
-    alert('Not enough coins or already owned');
+    alert('Not enough coins to buy this NFT.');
   }
 }
 
@@ -3049,7 +3067,44 @@ function showNewPigeonAchievement(name, imgSrc) {
   });
 })();
 
+document.getElementById('goonNFTsButton').onclick = () => {
+  document.getElementById('menu').style.display = 'none';
+  document.getElementById('goonNFTsPage').style.display = 'flex';
+  document.getElementById('goonCoinsDisplay').innerText = `Coins: ${coins}`;
+  renderOwnedNFTs();
+};
+
+
+function renderOwnedNFTs() {
+  const listEl = document.getElementById('ownedNFTList') || document.getElementById('ownedNFTsContainer');
+  if (!listEl) return;
+  const owned = JSON.parse(localStorage.getItem('ownedNFTs') || '[]');
+  if (!owned || owned.length === 0) {
+    listEl.innerHTML = '<div style="opacity:.6">none</div>';
+    return;
+  }
+  listEl.innerHTML = owned.map(n => `
+    <div class="owned-nft-row" style="display:flex;align-items:center;gap:8px;padding:8px;border-radius:10px;background:#081018;margin:8px 0;">
+      <img src="${n.img || n.id + '.jpg' }" alt="${n.name}" style="width:56px;height:56px;border-radius:8px;object-fit:cover;box-shadow:0 6px 16px rgba(0,0,0,.6)">
+      <div style="flex:1;text-align:left">
+        <div style="font-weight:700">${n.name}</div>
+        <div style="font-size:12px;opacity:.6">${n.id}</div>
+      </div>
+      <button onclick="selectNFT('${n.id}')" style="padding:8px 10px;border-radius:10px;border:none;background:linear-gradient(90deg,#0d6efd,#00c3ff);color:white;font-weight:800">Select</button>
+    </div>`).join('');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderOwnedNFTs();
+});
+
+function closeGoonNFTs() {
+  document.getElementById('goonNFTsPage').style.display = 'none';
+  document.getElementById('mainPage').style.display = 'block'; // still in development
+}
+
 </script>
+
 
   <div id="caseResultOverlay">
     <h1 id="caseResultTitle"></h1>
@@ -3059,6 +3114,96 @@ function showNewPigeonAchievement(name, imgSrc) {
   </div>
 
 <div id="achievement" class="achievement">New pigeon unlocked!</div>
+
+
+<!-- GoonNFTs Page -->
+<style>
+  #goonNFTsPage {
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    padding:20px;
+    background:#000;
+    color:white;
+    min-height:100vh;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 10px;
+  }
+  .nft-card {
+    background:#111;
+    border-radius:18px;
+    padding:18px;
+    margin:10px;
+    width:260px;
+    box-shadow:0 0 15px rgba(0,0,0,0.6);
+    text-align:center;
+  }
+  .nft-btn {
+    background:linear-gradient(135deg,#0d6efd,#00c3ff);
+    padding:10px 14px;
+    border:none;
+    border-radius:12px;
+    font-weight:700;
+    color:white;
+    margin-top:8px;
+    width:100%;
+  }
+  .owned-list {
+    margin-top:20px;
+    width:100%;
+    max-width:300px;
+    text-align:center;
+  }
+
+  /* 3D glow frame */
+.glow3d {
+  background: linear-gradient(180deg, rgba(6,10,13,0.85), rgba(14,18,22,0.9));
+  border-radius: 18px;
+  padding: 14px;
+  box-shadow:
+    0 6px 26px rgba(0,200,150,0.06),
+    0 0 40px rgba(0,240,180,0.08),
+    inset 0 0 20px rgba(0,120,90,0.06);
+  border: 1px solid rgba(0,200,150,0.12);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.glow3d:hover { transform: translateY(-6px) scale(1.01); box-shadow: 0 18px 50px rgba(0,200,150,0.12); }
+.emerald-card { border-image: linear-gradient(90deg,#00ffbf,#00c3ff) 1; }
+.nft-image-wrap img { display:block; }
+
+</style>
+
+<div id="goonNFTsPage">
+  <h2>GoonNFTs</h2>
+  <div id="goonCoinsDisplay">Coins: 0</div>
+
+  <div class="nft-card">
+    <img src="frostbitepigeon.jpg" style="width:100%;border-radius:12px;">
+    <p>Frostbite Pigeon<br>26,270 coins</p>
+    <button class="nft-btn" onclick="buyNFT({id:'frostbiteNFT', name:'Frostbite Pigeon'}, 26270)">Buy Frostbite</button>
+  </div>
+
+  <div class="nft-card" style="background:#332700;">
+    <img src="goldenpigeon.jpg" style="width:100%;border-radius:12px;">
+    <p>Golden Pigeon<br>17,837 coins</p>
+    <button class="nft-btn" onclick="buyNFT({id:'goldNFT', name:'Golden Pigeon'}, 17837)">Buy Golden</button>
+  </div>
+
+<div class="nft-card glow3d emerald-card">
+  <div class="nft-image-wrap" style="perspective:800px;">
+    <img src="emeraldpigeon.jpg" alt="Emerald Pigeon" style="width:100%;border-radius:14px;transform:translateZ(12px) scale(1.02);">
+  </div>
+  <h4 style="margin:10px 0 6px;font-weight:900">Emerald Pigeon</h4>
+  <div style="opacity:.85;margin-bottom:8px">83,991 pigeon coins</div>
+  <button class="nft-btn" onclick="buyNFT({id:'emeraldNFT', name:'Emerald Pigeon', img:'emeraldpigeon.jpg'}, 83991)">Buy Emerald</button>
+</div>
+
+  <h3>Owned NFTs</h3>
+  <div class="owned-list" id="ownedNFTList">none</div>
+
+  <button class="nft-btn" onclick="closeShop()">Back</button>
+</div>
 
 </body>
 </html>
