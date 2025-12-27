@@ -832,7 +832,7 @@ button:hover { transform:translateY(-3px) !important; }
 </div>
   <div id="gameContainer">
     <canvas id="gameCanvas"></canvas>
-    <div id="version">PigeonBattle 0.6.1c</div>
+    <div id="version">PigeonBattle 0.6.2</div>
     <div id="joystick"></div>
     <div id="shootBtn">bang</div>
     <div id="superbangBtn">SUPERBANG</div>
@@ -993,7 +993,7 @@ preloadAssets(assets, () => {
   setTimeout(() => logLine("[CLIENT] Pinging the PB server :: POST query... 200 OK"), 100);
   setTimeout(() => logLine("Launching the game"), 150);
   setTimeout(() => {
-    logLine("PigeonBattle 0.6.1c BY zntsproj");
+    logLine("PigeonBattle 0.6.2 BY zntsproj");
     const splash = document.getElementById('splash');
     splash.style.opacity = '0';
     splash.style.transition = 'opacity 0.5s ease';
@@ -3159,7 +3159,9 @@ function closeGoonNFTs() {
 .glow3d:hover { transform: translateY(-6px) scale(1.01); box-shadow: 0 18px 50px rgba(0,200,150,0.12); }
 .emerald-card { border-image: linear-gradient(90deg,#00ffbf,#00c3ff) 1; }
 .nft-image-wrap img { display:block; }
-
+  .glow-simple {
+  box-shadow: 0 0 18px rgba(120, 200, 255, 0.85);
+}
 </style>
 
 <div id="goonNFTsPage">
@@ -3187,11 +3189,122 @@ function closeGoonNFTs() {
   <button class="nft-btn" onclick="buyNFT({id:'emeraldNFT', name:'Emerald Pigeon', img:'emeraldpigeon.jpg'}, 83991)">Buy Emerald</button>
 </div>
 
+  <h3 class="nft-collection-title">❄ Frostbite Collection</h3>
+
+<div class="nft-card glow-simple" style="background:black;">
+  <img src="frostbite_7468.png" style="width:100%;border-radius:12px;">
+  <p>
+    <b>Frostbite Pigeon #7468</b><br>
+    Glow Effect<br>
+    14,328 PGC
+  </p>
+  <button class="nft-btn"
+    onclick="buyNFT({id:'frostbite7468', name:'Frostbite Pigeon #7468', img:'frostbite_7468.png'}, 14328)">
+    Buy
+  </button>
+</div>
+
+<div class="nft-card" style="background:white;color:black;">
+  <img src="frostbite_6789.png" style="width:100%;border-radius:12px;">
+  <p>
+    <b>Frostbite Pigeon #6789</b><br>
+    No effects<br>
+    95,328 PGC
+  </p>
+  <button class="nft-btn"
+    onclick="buyNFT({id:'frostbite6789', name:'Frostbite Pigeon #6789', img:'frostbite_6789.png'}, 95328)">
+    Buy
+  </button>
+</div>
+
+<div class="nft-card glow-simple" style="background:#ff8c1a;">
+  <img src="frostbite_99023.png" style="width:100%;border-radius:12px;">
+  <p>
+    <b>Frostbite Pigeon #99023</b><br>
+    Glow Effect<br>
+    44,238 PGC
+  </p>
+  <button class="nft-btn"
+    onclick="buyNFT({id:'frostbite99023', name:'Frostbite Pigeon #99023', img:'frostbite_99023.png'}, 44238)">
+    Buy
+  </button>
+</div>
+
+
   <h3>Owned NFTs</h3>
   <div class="owned-list" id="ownedNFTList">none</div>
 
   <button class="nft-btn" onclick="closeShop()">Back</button>
 </div>
+
+    <style>
+#scareOverlay {
+  position: fixed;
+  inset: 0;
+  background: black;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 999999;
+}
+
+#scareText {
+  color: red;
+  font-size: 3em;
+  font-weight: 900;
+  opacity: 0;
+  animation: scareFade 4s ease forwards;
+}
+
+@keyframes scareFade {
+  0% { opacity: 0 }
+  20% { opacity: 1 }
+  80% { opacity: 1 }
+  100% { opacity: 0 }
+}
+</style>
+
+<div id="scareOverlay">
+  <div id="scareText">WHY DID YOU DO THAT</div>
+</div>
+
+<script>
+(function () {
+  // если уже помечен как читер — сразу чёрный экран
+  if (localStorage.getItem("isHacked") === "true") {
+    document.body.innerHTML = "";
+    document.body.style.background = "black";
+    throw new Error("Blocked");
+  }
+
+  let lastCoins = 0;
+
+  // ВАЖНО:
+  // зови эту функцию ТОЛЬКО когда игра сама меняет коины
+  window.checkScareAntiCheat = function (currentCoins) {
+    if (currentCoins - lastCoins >= 9999) {
+      const ov = document.getElementById("scareOverlay");
+      ov.style.display = "flex";
+
+      setTimeout(() => {
+        localStorage.setItem("isHacked", "true");
+      }, 3500);
+
+      setTimeout(() => {
+        document.body.innerHTML = "";
+        document.body.style.background = "black";
+      }, 4200);
+    }
+
+    lastCoins = currentCoins;
+  };
+})();
+  
+  checkScareAntiCheat(coins);
+checkScareAntiCheat(coins);
+checkScareAntiCheat(coins);
+
+</script>
 
 </body>
 </html>
