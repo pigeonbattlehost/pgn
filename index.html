@@ -3270,21 +3270,26 @@ function closeGoonNFTs() {
 
 <script>
 (function () {
-  // если уже помечен как читер — сразу чёрный экран
   if (localStorage.getItem("isHacked") === "true") {
     document.body.innerHTML = "";
     document.body.style.background = "black";
     throw new Error("Blocked");
   }
 
-  let lastCoins = 0;
+  let lastCoins = null; 
 
-  // ВАЖНО:
-  // зови эту функцию ТОЛЬКО когда игра сама меняет коины
   window.checkScareAntiCheat = function (currentCoins) {
-    if (currentCoins - lastCoins >= 9999) {
+  
+    if (lastCoins === null) {
+      lastCoins = currentCoins;
+      return;
+    }
+
+    let diff = currentCoins - lastCoins;
+
+    if (diff >= 9999) {
       const ov = document.getElementById("scareOverlay");
-      ov.style.display = "flex";
+      if (ov) ov.style.display = "flex";
 
       setTimeout(() => {
         localStorage.setItem("isHacked", "true");
@@ -3294,17 +3299,14 @@ function closeGoonNFTs() {
         document.body.innerHTML = "";
         document.body.style.background = "black";
       }, 4200);
+
+      throw new Error("Cheater detected");
     }
 
     lastCoins = currentCoins;
   };
 })();
-  
-  checkScareAntiCheat(coins);
-checkScareAntiCheat(coins);
-checkScareAntiCheat(coins);
-
 </script>
-
 </body>
 </html>
+
