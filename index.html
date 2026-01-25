@@ -117,7 +117,7 @@
     display: block; 
     width: 100%; 
     height: 100%; 
-    background: #34b4eb;
+    background-image: url("bg.jpg");
     background-size: cover;
     background-position: center;
     background-size: cover;
@@ -652,6 +652,20 @@ button:hover { transform:translateY(-3px) !important; }
  <div id="shop" style="display:none;">
   <h2>Shop</h2>
 
+  <h3>LAVA SIGEON FOR SALE!!! 16% Sale!</h3>
+    <div class="pigeon-card">
+    <img src="lavapigeon.jpg">
+    <p>
+  Lava Pigeon<br>
+  HP: 2500<br>
+  Damage: 0.75<br>
+  <s style="color: gray; font-size: 0.9em;">120</s> 
+  <b style="color: yellow; font-size: 1.2em;">100 pigeon coins</b>
+</p>
+    <button onclick="buy('lavapigeon', 100)">Buy</button>
+  </div>
+    
+    
   <div class="pigeon-card">
     <img src="wheelpigeon.jpg">
     <p>Wheel Pigeon<br>+2 speed<br>+1.5 attack<br>25 pigeon coins</p>
@@ -733,14 +747,20 @@ button:hover { transform:translateY(-3px) !important; }
       
   <div class="pigeon-card">
     <img src="lavapigeon.jpg">
-    <p>Lava Pigeon<br>HP: 2500<br>Damage: 0.75<br>120 pigeon coins</p>
-    <button onclick="buy('lavapigeon', 120)">Buy</button>
+    <p>Lava Pigeon<br>HP: 2500<br>Damage: 0.75<br>100 pigeon coins</p>
+    <button onclick="buy('lavapigeon', 100)">Buy</button>
   </div>
 
   <div class="pigeon-card">
     <img src="clownpigeon.jpg">
     <p>Clown Pigeon<br>+5 speed<br>+30 attack<br>130 pigeon coins</p>
     <button onclick="buy('clownPigeon', 130)">Buy</button>
+  </div>
+
+ <div class="pigeon-card">
+    <img src="richpigeon.jpg">
+    <p>Rich Pigeon<br>+5.5 speed<br>+35 attack<br>155 pigeon coins</p>
+    <button onclick="buy('richPigeon', 155)">Buy</button>
   </div>
 
   <div class="pigeon-card">
@@ -1380,6 +1400,7 @@ const pigeons = {
   tankPigeon: { img: 'tankpigeon.jpg', speed: 2.1, attack: 5, damage: 0.7, hp: 3200, shootType: 'green_short' },
   hippoPigeon: { img: 'hipposigeon.jpg', speed: 5.5, attack: 10, damage: 0.57, hp: 2110, shootType: 'normal_shoot' },
   snowyPigeon: { img: 'snowypigeon.jpg', speed: 5.2, attack: 25, damage: 0.611, hp: 2000, shootType: 'normal_shoot', snowy: true },
+  richPigeon: { img: 'richpigeon.jpg', speed: 5.5, attack: 35, damage: 0.627, hp: 2560, shootType: 'golden_rain' }, // HAHHAHAAH
   frostbitePigeon: {
   img: 'frostbitepigeon.jpg',
   speed: 5.1,
@@ -1634,6 +1655,18 @@ function shootGreen(player, bullets, dmgBoost) {
     color: 'green'
   });
 }
+              
+function shootGolden(player, bullets, dmgBoost) {
+  bullets.push({
+    x: player.x + player.w,
+    y: player.y + player.h / 2 - 5,
+    w: 15,
+    h: 5,
+    speed: 12,
+    dmg: 1,
+    color: 'yellow'
+  });
+}
 
 function shootPurple(player, bullets, dmgBoost) {
   bullets.push({
@@ -1703,26 +1736,68 @@ function checkPromocode() {
   const input = document.getElementById('promocodeInput').value.trim();
   const msg = document.getElementById('promoMessage');
 
+  // 1. Промокод siscorddex (старый)
   if (input === "siscorddex") {
     if (!localStorage.getItem("promo_siscorddex_used")) {
       let coinsLocal = parseInt(localStorage.getItem('pigeonCoins') || '0', 10);
       coinsLocal += 111;
       localStorage.setItem('pigeonCoins', coinsLocal);
-
       localStorage.setItem("promo_siscorddex_used", "true");
+
+      coins = coinsLocal;
       msg.style.color = "lime";
       msg.textContent = "Promocode accepted! +111 coins added 💸";
-      coins = coinsLocal;
       updateCoinsDisplay();
     } else {
       msg.style.color = "gray";
       msg.textContent = "This promocode was already used!";
     }
-  } else {
-    msg.style.color = "gray";
-    msg.textContent = "Incorrect promocode!";
+  } 
+
+  // 2. НОВЫЙ: pigeoning9311 (60 коинов)
+  else if (input === "pigeoning9311") {
+    if (!localStorage.getItem("promo_pigeoning_used")) {
+      let coinsLocal = parseInt(localStorage.getItem('pigeonCoins') || '0', 10);
+      coinsLocal += 60;
+      localStorage.setItem('pigeonCoins', coinsLocal);
+      localStorage.setItem("promo_pigeoning_used", "true");
+
+      coins = coinsLocal;
+      msg.style.color = "lime";
+      msg.textContent = "+60 coins added!";
+      updateCoinsDisplay();
+    } else {
+      msg.style.color = "gray";
+      msg.textContent = "Already used!";
+    }
+  }
+
+  else if (input === "88FatSigeon88") {
+    if (!localStorage.getItem("promo_fatsigeon_used")) {
+      if (!owned.includes("goonPigeon")) {
+        owned.push("goonPigeon"); 
+        localStorage.setItem('ownedPigeons', JSON.stringify(owned));
+        localStorage.setItem("promo_fatsigeon_used", "true");
+
+        msg.style.color = "gold";
+        msg.textContent = "Goon Pigeon joined you! 🥚";
+        showAchievement("You have got a new pigeon!");
+      } else {
+        msg.style.color = "gray";
+        msg.textContent = "You already have this pigeon!";
+      }
+    } else {
+      msg.style.color = "gray";
+      msg.textContent = "Promocode expired for you!";
+    }
+  }
+
+  else {
+    msg.style.color = "red";
+    msg.textContent = "Incorrect promocode! Try again, scrub.";
   }
 }
+
 
 
 function updateCoinsDisplay() {
@@ -2256,6 +2331,9 @@ function update() {
 
     } else if (shootType === 'ice_shoot') {
       shootIce(player, bullets, dmgBoost);
+                 
+    } else if (shootType === 'golden_rain') {
+      shootGolden(player, bullets, dmgBoost);
 
     } else {
       shoot(player, bullets, dmgBoost);
@@ -2405,7 +2483,6 @@ if (selected === 'snowyPigeon') {
   player.x += player.vx;
   player.y += player.vy;
 } else {
-  // original immediate movement fallback (keep your original movement code here)
   if (keys['w'] || keys['arrowup']) player.y -= (pigeons[selected] && pigeons[selected].speed) ? pigeons[selected].speed : 4;
   if (keys['s'] || keys['arrowdown']) player.y += (pigeons[selected] && pigeons[selected].speed) ? pigeons[selected].speed : 4;
   if (keys['a'] || keys['arrowleft']) player.x -= (pigeons[selected] && pigeons[selected].speed) ? pigeons[selected].speed : 4;
@@ -2656,6 +2733,7 @@ const pigeonPriceMap = {
   snowdriftPigeon: 185,
   gerbellPigeon: 90,
   diamondPigeon: 110,
+  richPigeon: 155,
   default: 0
 };
 
