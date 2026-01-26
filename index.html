@@ -444,7 +444,52 @@ h1, h2, h3 {
   100% { transform: scale(1); opacity: 1 }
 }
 
+#pb-warning-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+}
 
+.pb-warning-box {
+  background: #0e0e0e;
+  color: #fff;
+  padding: 20px 24px;
+  border-radius: 16px;
+  max-width: 420px;
+  font-family: sans-serif;
+  box-shadow: 0 0 30px rgba(0,0,0,0.6);
+  text-align: center;
+}
+
+.pb-warning-box h2 {
+  margin: 0 0 12px;
+  color: #ff5555;
+}
+
+.pb-warning-box p {
+  font-size: 14px;
+  line-height: 1.4;
+  margin-bottom: 16px;
+}
+
+.pb-warning-box button {
+  background: #ffffff;
+  color: #000;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.pb-warning-box button:hover {
+  background: #ddd;
+}
+    
 /* ===== Mobile-friendly UI tweaks (scale down menus/overlays but keep game controls size) ===== */
 @media (max-width: 600px) {
   /* Menu / shop / lists */
@@ -870,13 +915,75 @@ button:hover { transform:translateY(-3px) !important; }
 </div>
   <div id="gameContainer">
     <canvas id="gameCanvas"></canvas>
-    <div id="version">PigeonBattle 0.6.3</div>
+    <div id="version">PigeonBattle 0.6.3a</div>
     <div id="joystick"></div>
     <div id="shootBtn">bang</div>
     <div id="superbangBtn">SUPERBANG</div>
   </div>
   
 <script>
+  (function() {
+    // 1. Проверяем, Лиса ли это
+    const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
+    // 2. Проверяем, показывали ли мы уже это предупреждение
+    const warningSeen = localStorage.getItem('pb_ff_warning_v1');
+
+    if (isFirefox && !warningSeen) {
+        // Создаем оверлей (фон)
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 10000; backdrop-filter: blur(4px);
+            font-family: 'Poppins', sans-serif;
+        `;
+
+        // Создаем саму коробку диалога
+        const dialog = document.createElement('div');
+        dialog.style.cssText = `
+            background: #111;
+            color: white;
+            padding: 30px;
+            border-radius: 24px;
+            border: 1px solid #333;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        `;
+
+        dialog.innerHTML = `
+            <h2 style="margin: 0 0 15px; color: #ff4444; font-size: 28px;">Warning!!!</h2>
+            <p style="font-size: 16px; line-height: 1.5; color: #ccc; margin-bottom: 25px;">
+                You're using <b>Firefox</b>. If you have extra tabs opened, the game sometimes doesn't work correctly.<br><br>
+                Close other tabs or change the browser so you could play in peace.
+            </p>
+            <button id="close-ff-warn" style="
+                background: white; color: black; border: none;
+                padding: 12px 40px; border-radius: 12px;
+                font-weight: 700; cursor: pointer; font-size: 16px;
+                transition: 0.2s;
+            ">OK</button>
+        `;
+
+        overlay.appendChild(dialog);
+        document.body.appendChild(overlay);
+
+        // Логика кнопки OK
+        const btn = document.getElementById('close-ff-warn');
+        btn.onclick = function() {
+            overlay.remove();
+            // Сохраняем в память, что юзер это видел
+            localStorage.setItem('pb_ff_warning_v1', 'true');
+        };
+
+        // Эффект при наведении на кнопку
+        btn.onmouseover = () => btn.style.transform = 'scale(1.05)';
+        btn.onmouseout = () => btn.style.transform = 'scale(1)';
+    }
+})();
+
 window.showBattleResult = function(type, data) {
   let overlay = document.getElementById('battleResultOverlay');
   if (!overlay) {
@@ -909,6 +1016,7 @@ window.showBattleResult = function(type, data) {
   const rewards = document.getElementById('battleResultRewards');
   const continueBtn = document.getElementById('battleContinueBtn');
   const menuBtn = document.getElementById('battleToMenuBtn');
+
 
   // clear old rewards
   rewards.innerHTML = '';
@@ -1031,7 +1139,7 @@ preloadAssets(assets, () => {
   setTimeout(() => logLine("[CLIENT] Pinging the PB server :: POST query... 200 OK"), 100);
   setTimeout(() => logLine("Launching the game"), 150);
   setTimeout(() => {
-    logLine("PigeonBattle 0.6.3 BY zntsproj");
+    logLine("PigeonBattle 0.6.3a BY zntsproj");
     const splash = document.getElementById('splash');
     splash.style.opacity = '0';
     splash.style.transition = 'opacity 0.5s ease';
@@ -1507,7 +1615,7 @@ const frostUlt = {
   cooldownStartedAt: 0
 };
 
-
+               
 const playerImg = new Image();
 playerImg.src = pigeons[selected].img;
 const botImg = new Image();
