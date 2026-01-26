@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>PigeonBattle | Official Site</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
@@ -14,13 +14,15 @@
       --accent-color: #ffaa00;
     }
 
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: "Poppins", sans-serif;
       background: var(--bg-color);
       color: white;
-      display: flex;
-      flex-direction: column;
       min-height: 100vh;
     }
 
@@ -31,7 +33,6 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-sizing: border-box;
       border-bottom: 2px solid #222;
       position: sticky;
       top: 0;
@@ -40,119 +41,91 @@
 
     header h1 {
       margin: 0;
-      font-size: clamp(20px, 4vw, 32px);
+      font-size: 26px;
       font-weight: 700;
     }
 
     .nav-buttons {
       display: flex;
       gap: 12px;
-      align-items: center;
     }
 
     .btn {
-      padding: 8px 18px;
+      padding: 10px 18px;
       border-radius: 10px;
       font-weight: 600;
       font-size: 14px;
       cursor: pointer;
-      transition: 0.3s;
+      transition: 0.25s;
       text-decoration: none;
-      display: inline-block;
       text-align: center;
+      white-space: nowrap;
     }
 
-    .btn-play { background: #fff; color: #000; }
-    .btn-play:hover { background: #eee; transform: translateY(-2px); }
+    .btn-play {
+      background: #fff;
+      color: #000;
+    }
 
-    .btn-discord { background: var(--discord-color); color: #fff; }
-    .btn-discord:hover { background: #4752c4; transform: translateY(-2px); }
+    .btn-play:hover {
+      background: #eee;
+      transform: translateY(-2px);
+    }
+
+    .btn-discord {
+      background: var(--discord-color);
+      color: #fff;
+    }
+
+    .btn-discord:hover {
+      background: #4752c4;
+      transform: translateY(-2px);
+    }
 
     .content {
-      text-align: center;
+      max-width: 1100px;
       margin: 60px auto;
       padding: 0 20px;
-      max-width: 800px;
-    }
-
-    .content h2 {
-      font-size: clamp(32px, 8vw, 56px);
-      margin-bottom: 15px;
-      font-weight: 700;
-    }
-
-    .server-card {
-      background: #151515;
-      border: 1px solid #222;
-      padding: 30px;
-      border-radius: 20px;
-      margin-top: 50px;
       text-align: center;
     }
 
-    .server-card h3 {
-      margin: 0 0 15px 0;
-      color: var(--accent-color);
-      font-size: 24px;
+    h2 {
+      font-size: clamp(32px, 6vw, 56px);
+      margin-bottom: 10px;
     }
 
-    .server-card p {
-      font-size: 16px;
+    h3 {
+      margin-top: 60px;
+      margin-bottom: 20px;
+      font-size: 28px;
+    }
+
+    p {
       opacity: 0.9;
-      margin-bottom: 25px;
-    }
-
-    .btn-wake {
-      background: var(--accent-color);
-      color: #000;
-      padding: 12px 25px;
-      font-size: 16px;
-      border-radius: 12px;
-      font-weight: 700;
-    }
-
-    .btn-wake:hover {
-      background: #ffc85a;
-      box-shadow: 0 0 20px rgba(255, 170, 0, 0.3);
-    }
-
-    .small-info {
-      display: block;
-      margin-top: 15px;
-      font-size: 12px;
-      color: #555;
-      line-height: 1.4;
     }
 
     .github-tag {
-      margin-top: 30px;
+      display: inline-block;
+      margin-bottom: 30px;
       font-size: 14px;
       color: #00ff88;
       background: rgba(0, 255, 136, 0.1);
-      padding: 5px 15px;
+      padding: 6px 18px;
       border-radius: 20px;
-      display: inline-block;
     }
 
-    /* RELEASE SLIDER */
+    /* GRID / SLIDER */
     .release-slider {
-      display: flex;
-      gap: 15px;
-      overflow-x: auto;
-      padding: 20px 0;
-      scroll-snap-type: x mandatory;
-      margin-top: 40px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 20px;
     }
 
     .release-card {
-      min-width: 200px;
-      flex: 0 0 auto;
       background: #151515;
       border: 1px solid #222;
       border-radius: 15px;
       padding: 15px;
-      scroll-snap-align: start;
-      text-align: center;
       transition: transform 0.2s;
     }
 
@@ -161,9 +134,9 @@
     }
 
     .release-card h4 {
-      margin: 0 0 10px 0;
-      font-size: 16px;
+      margin: 0 0 10px;
       color: var(--accent-color);
+      font-size: 16px;
     }
 
     .release-card p {
@@ -179,10 +152,61 @@
       font-size: 14px;
     }
 
-    @media (max-width: 600px) {
-      header { flex-direction: column; gap: 15px; padding: 15px; }
-      .nav-buttons { width: 100%; flex-wrap: wrap; justify-content: center; }
-      .btn { flex: 1; min-width: 120px; }
+    /* COMMITS */
+    .commit-meta {
+      font-size: 12px;
+      color: #666;
+    }
+
+    /* SERVER CARD */
+    .server-card {
+      background: #151515;
+      border: 1px solid #222;
+      padding: 30px;
+      border-radius: 20px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .btn-wake {
+      display: inline-block;
+      margin-top: 20px;
+      background: var(--accent-color);
+      color: #000;
+      padding: 12px 25px;
+      border-radius: 12px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .btn-wake:hover {
+      background: #ffc85a;
+      box-shadow: 0 0 20px rgba(255,170,0,0.3);
+    }
+
+    /* MOBILE */
+    @media (max-width: 700px) {
+      .release-slider {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+      }
+
+      .release-card {
+        min-width: 220px;
+        scroll-snap-align: start;
+      }
+
+      header {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+      }
+
+      .nav-buttons {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
     }
   </style>
 </head>
@@ -191,23 +215,25 @@
 <header>
   <h1>PigeonBattle</h1>
   <div class="nav-buttons">
-    <a href="#" class="btn" id="servers-btn" style="background: #222; color: #888;">Servers</a>
+    <a href="#" class="btn" id="servers-btn" style="background:#222;color:#aaa;">Servers</a>
     <a href="https://discord.gg/pgBbtXuB6r" target="_blank" class="btn btn-discord">Discord</a>
     <a href="https://pigeonbattlehost.github.io/pgn" class="btn btn-play">Play Now</a>
   </div>
 </header>
 
 <div class="content" id="main-content">
-  <div id="version-container">
-    <span class="github-tag" id="gh-version">Fetching latest release...</span>
-  </div>
 
-  <h3>Fat Pigeon Game. Yes. Ok.<h3>
-  <p>Pigeons are fat. But they're still strong to battle. Pigeon Battle! Play it NOW!</p>
+  <span class="github-tag" id="gh-version">Fetching latest release...</span>
 
-  <div class="release-slider" id="release-slider">
+  <h2>Fat Pigeon Game. Yes. Ok.</h2>
+  <p>Pigeons are fat. But they're still strong. Sigeon battles!</p>
 
-  </div>
+  <h3>Releases</h3>
+  <div class="release-slider" id="release-slider"></div>
+
+  <h3>Latest Commits</h3>
+  <div class="release-slider" id="commit-slider"></div>
+
 </div>
 
 <script>
@@ -216,53 +242,64 @@
     try {
       const res = await fetch('https://api.github.com/repos/pigeonbattlehost/pgn/releases/latest');
       const data = await res.json();
-      tag.textContent = "Latest: " + data.tag_name + " (" + new Date(data.published_at).toLocaleDateString() + ")";
-    } catch (e) {
-      tag.textContent = "v0.6.3 Update Live";
+      tag.textContent = `Latest: ${data.tag_name} (${new Date(data.published_at).toLocaleDateString()})`;
+    } catch {
+      tag.textContent = 'Unable to fetch release';
     }
   }
-  getRelease();
 
   async function loadReleases() {
     const slider = document.getElementById('release-slider');
     try {
       const res = await fetch('https://api.github.com/repos/pigeonbattlehost/pgn/releases');
       const data = await res.json();
-      data.slice(0, 10).forEach(rel => {
-        const card = document.createElement('div');
-        card.className = 'release-card';
-        card.innerHTML = `
-          <h4>${rel.tag_name}</h4>
-          <p>${new Date(rel.published_at).toLocaleDateString()}</p>
-          <a href="${rel.html_url}" target="_blank">View on GitHub</a>
+      data.slice(0, 8).forEach(r => {
+        slider.innerHTML += `
+          <div class="release-card">
+            <h4>${r.tag_name}</h4>
+            <p>${new Date(r.published_at).toLocaleDateString()}</p>
+            <a href="${r.html_url}" target="_blank">View on GitHub</a>
+          </div>
         `;
-        slider.appendChild(card);
       });
-    } catch (e) {
-      slider.innerHTML = `<p style="color:#888;">Unable to load past releases.</p>`;
+    } catch {
+      slider.innerHTML = '<p style="color:#777;">Failed to load releases</p>';
     }
   }
+
+  async function loadCommits() {
+    const slider = document.getElementById('commit-slider');
+    try {
+      const res = await fetch('https://api.github.com/repos/pigeonbattlehost/pgn/commits');
+      const data = await res.json();
+      data.slice(0, 8).forEach(c => {
+        slider.innerHTML += `
+          <div class="release-card">
+            <p>${c.commit.message.split('\n')[0]}</p>
+            <div class="commit-meta">
+              ${c.commit.author.name} · ${new Date(c.commit.author.date).toLocaleDateString()}
+            </div>
+          </div>
+        `;
+      });
+    } catch {
+      slider.innerHTML = '<p style="color:#777;">Failed to load commits</p>';
+    }
+  }
+
+  getRelease();
   loadReleases();
+  loadCommits();
 
-  // SERVER BUTTON
-  const serversBtn = document.getElementById('servers-btn');
-  const mainContent = document.getElementById('main-content');
-
-  serversBtn.addEventListener('click', () => {
-    mainContent.innerHTML = `
+  document.getElementById('servers-btn').onclick = () => {
+    document.getElementById('main-content').innerHTML = `
       <div class="server-card">
         <h3>Server Status</h3>
-        <p>
-          If the <b>Pigeon Forum</b> or the <b>Online Counter</b> isn't working, the backend might be sleeping. 
-          Click the button below to wake it up!
-        </p>
-        <a href="https://pgn-3xyh.onrender.com" target="_blank" class="btn btn-wake">Wake Up Server</a>
-        <span class="small-info">
-          This button activates the Pigeon Battle backend server if it has gone into sleep mode due to inactivity.
-        </span>
+        <p>If backend is sleeping — wake the pigeon 🐦</p>
+        <a class="btn-wake" target="_blank" href="https://pgn-3xyh.onrender.com">Wake Up Server</a>
       </div>
     `;
-  });
+  };
 </script>
 
 </body>
