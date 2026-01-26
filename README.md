@@ -7,3 +7,6 @@ This is the working Pigeon Battle (PB) host. All updates are made by **zntsproj*
 
 # Official mirrors (not abandoned)
 https://pgnmirror.github.io/pgn
+
+# Official website
+https://pigeonbattlehost.github.io/pgn
