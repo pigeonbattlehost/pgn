@@ -1510,7 +1510,7 @@ const pigeons = {
   hippoPigeon: { img: 'hipposigeon.jpg', speed: 5.5, attack: 10, damage: 0.57, hp: 2110, shootType: 'normal_shoot' },
   snowyPigeon: { img: 'snowypigeon.jpg', speed: 5.2, attack: 25, damage: 0.611, hp: 2000, shootType: 'normal_shoot', snowy: true },
   richPigeon: { img: 'richpigeon.jpg', speed: 5.5, attack: 35, damage: 0.627, hp: 2560, shootType: 'golden_rain' }, // HAHHAHAAH
-  gravityPigeon: { img: 'gravitypigeon.jpg', speed: 5, attack: 45, damage: 0.805, hp: 2600, shootType: 'gravity_shoot' },
+  gravityPigeon: { img: 'gravitypigeon.jpg', speed: 5, attack: 45, damage: 0.6001, hp: 2600, shootType: 'gravity_shoot' },
   frostbitePigeon: {
   img: 'frostbitepigeon.jpg',
   speed: 5.1,
@@ -1802,7 +1802,7 @@ function shootGravity(player, bullets, dmgBoost) {
     w: 10,
     h: 10,
     speed: 10,
-    dmg: 5 * dmgBoost,
+    dmg: 0.99,
     color: 'rgba(160,32,240,0.9)' // тёмно-фиолетовый
   });
 }
