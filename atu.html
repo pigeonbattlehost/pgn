@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Space Update - Pigeon Battle</title>
+<title>Pigeon Battle</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
   body, html {
@@ -16,43 +16,59 @@
     background-size: cover;
     color: white;
   }
+
   #pigeon-container {
     position: absolute;
-    top: -200px; /* стартовая позиция сверху */
+    top: -200px;
     left: 50%;
     transform: translateX(-50%);
     text-align: center;
     opacity: 0;
     transition: top 2s ease, opacity 2s ease;
   }
+
   #pigeon-container.show {
     top: 50%;
     opacity: 1;
     transform: translate(-50%, -50%);
   }
+
   #pigeon-container img {
     width: 200px;
     height: auto;
   }
+
   #message {
     margin-top: 20px;
-    font-size: 16px;
-  }
-  #click-text {
-    margin-top: 10px;
     font-size: 14px;
+    line-height: 1.6;
+  }
+
+  #click-text {
+    margin-top: 12px;
+    font-size: 12px;
     opacity: 0.7;
     cursor: pointer;
-    display: none; /* появится позже */
+    display: none;
   }
+
+  button {
+    margin-top: 16px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 12px;
+    padding: 10px 14px;
+    cursor: pointer;
+  }
+
   .floating-pigeon {
     position: absolute;
     width: 80px;
     animation: float linear infinite;
   }
+
   @keyframes float {
-    0% { transform: translate(0, 0);}
-    100% { transform: translate(calc(100vw - 80px), calc(100vh - 80px));}
+    0% { transform: translate(0,0); }
+    100% { transform: translate(calc(100vw - 80px), calc(100vh - 80px)); }
   }
 </style>
 </head>
@@ -60,57 +76,91 @@
 
 <div id="pigeon-container">
   <img src="pigeon.jpg" alt="Pigeon">
-  <div id="message">Hi, pigeon soldier.</div>
+  <div id="message">Hi vro (press to continue)</div>
   <div id="click-text">Click To Continue</div>
 </div>
 
 <script>
 const pigeonContainer = document.getElementById('pigeon-container');
-const clickText = document.getElementById('click-text');
 const messageDiv = document.getElementById('message');
+const clickText = document.getElementById('click-text');
+
+// кнопка Fuck off
+const fuckOffBtn = document.createElement('button');
+fuckOffBtn.textContent = 'Fuck off';
+fuckOffBtn.style.display = 'none';
+pigeonContainer.appendChild(fuckOffBtn);
 
 setTimeout(() => {
   pigeonContainer.classList.add('show');
-}, 500); 
+  clickText.style.display = 'block';
+}, 500);
 
-// texts
+// весь новый диалог
 const messages = [
-  "How are you?",
-  "How are you?",
-  "they nuked the fucking goon city now and we're in trouble..",
-  "I think that even space fight was easier. than this.",
-  "Will you help us?..",
-  "If you will, play this game! Please!!",
-  "Now you can exit the page..."
+  "Hi vro (press to continue)",
+  "Thanks for trying to help poor sigeons",
+  "😂😂😂😂😂",
+  "😂😂😂😂😂😂😂",
+  "😂😂😂😂😂😂😂😂😂"
 ];
 
 let msgIndex = 0;
+
 clickText.addEventListener('click', () => {
   msgIndex++;
-  if(msgIndex < messages.length) {
+
+  if (msgIndex < messages.length) {
     messageDiv.textContent = messages[msgIndex];
-  } else {
-    messageDiv.textContent = messages[messages.length - 1];
+  }
+
+  if (msgIndex === messages.length - 1) {
     clickText.style.display = 'none';
+    fuckOffBtn.style.display = 'inline-block';
   }
 });
 
-setTimeout(() => {
-  clickText.style.display = 'block';
+// после Fuck off
+fuckOffBtn.addEventListener('click', () => {
+  fuckOffBtn.style.display = 'none';
 
-  const flyingPigeons = ['spacepigeon.jpg','candypigeon.jpg', 'spacegooner.jpg'];
-  for(let i=0;i<7;i++){
+  const finalMessages = [
+    "Alright alright vro",
+    "So the game is pretty simple:",
+    "W,A,S,D - move!",
+    "Click / Space - shoot!",
+    "Try to kill as much evil sigeons as possible",
+    "Bye vroo 😂"
+  ];
+
+  let i = 0;
+  messageDiv.textContent = finalMessages[i];
+
+  const interval = setInterval(() => {
+    i++;
+    if (i < finalMessages.length) {
+      messageDiv.textContent = finalMessages[i];
+    } else {
+      clearInterval(interval);
+    }
+  }, 1800);
+});
+
+// летающие голуби
+setTimeout(() => {
+  const flyingPigeons = ['spacepigeon.jpg','candypigeon.jpg','spacegooner.jpg'];
+  for (let i = 0; i < 7; i++) {
     const f = document.createElement('img');
-    f.src = flyingPigeons[Math.floor(Math.random()*flyingPigeons.length)];
+    f.src = flyingPigeons[Math.floor(Math.random() * flyingPigeons.length)];
     f.className = 'floating-pigeon';
-    f.style.top = Math.random()*window.innerHeight+'px';
-    f.style.left = Math.random()*window.innerWidth+'px';
-    f.style.animationDuration = (8 + Math.random()*7)+'s';
+    f.style.top = Math.random() * window.innerHeight + 'px';
+    f.style.left = Math.random() * window.innerWidth + 'px';
+    f.style.animationDuration = (8 + Math.random() * 7) + 's';
     document.body.appendChild(f);
   }
-
 }, 2500);
 </script>
 
 </body>
 </html>
+

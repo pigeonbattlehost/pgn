@@ -49,7 +49,7 @@
       color: #fff;
       border: none;
       border-radius: 12px;
-      padding: 10px 20px;
+      padding: 12px 24px;
       font-weight: bold;
       cursor: pointer;
       margin-top: 10px;
@@ -130,7 +130,15 @@
   </style>
 </head>
 <body>
+
   <div class="title">ABOUT</div>
+
+  <div class="section">
+    <h2>How to Play</h2>
+    <button class="button" onclick="location.href='atu.html'">
+      How to play the game
+    </button>
+  </div>
 
   <div class="section">
     <h2>Credits</h2>
@@ -175,7 +183,7 @@ Press ESC to close
 
   <script>
     function resetProgress() {
-      if(confirm("Are you SURE you want to delete ALL progress?")) {
+      if (confirm("Are you SURE you want to delete ALL progress?")) {
         localStorage.clear();
         alert('All progress deleted!');
       }
@@ -198,5 +206,7 @@ Press ESC to close
       if (e.key === 'Escape') hideCredits();
     });
   </script>
+
 </body>
 </html>
+
