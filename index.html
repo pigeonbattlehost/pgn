@@ -911,11 +911,17 @@ button:hover { transform:translateY(-3px) !important; }
     <button onclick="buysuper('lawPigeon', 20)">Buy</button>
   </div>
   
+   <div class="pigeon-card">
+    <img src="gravitypigeon.jpg" alt="Gravity Pigeon">
+    <p>Gravity Pigeon<br>He collects all the goon from goon planet and uses gravity telekinesis to drink it<br>60 spgc<br>45 attack<br>2600HP</p>
+    <button onclick="buysuper('gravityPigeon', 60)">Buy</button>
+  </div>
+                                                                                       
   <button onclick="closeCommunityShop()" style="margin-top:20px; padding:10px 20px; font-size:16px;">Back</button>
 </div>
   <div id="gameContainer">
     <canvas id="gameCanvas"></canvas>
-    <div id="version">PigeonBattle 0.6.3a</div>
+    <div id="version">PigeonBattle 0.6.3b</div>
     <div id="joystick"></div>
     <div id="shootBtn">bang</div>
     <div id="superbangBtn">SUPERBANG</div>
@@ -923,13 +929,11 @@ button:hover { transform:translateY(-3px) !important; }
   
 <script>
   (function() {
-    // 1. Проверяем, Лиса ли это
     const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
-    // 2. Проверяем, показывали ли мы уже это предупреждение
+  
     const warningSeen = localStorage.getItem('pb_ff_warning_v1');
 
     if (isFirefox && !warningSeen) {
-        // Создаем оверлей (фон)
         const overlay = document.createElement('div');
         overlay.style.cssText = `
             position: fixed;
@@ -940,7 +944,6 @@ button:hover { transform:translateY(-3px) !important; }
             font-family: 'Poppins', sans-serif;
         `;
 
-        // Создаем саму коробку диалога
         const dialog = document.createElement('div');
         dialog.style.cssText = `
             background: #111;
@@ -970,15 +973,13 @@ button:hover { transform:translateY(-3px) !important; }
         overlay.appendChild(dialog);
         document.body.appendChild(overlay);
 
-        // Логика кнопки OK
         const btn = document.getElementById('close-ff-warn');
         btn.onclick = function() {
             overlay.remove();
-            // Сохраняем в память, что юзер это видел
             localStorage.setItem('pb_ff_warning_v1', 'true');
         };
 
-        // Эффект при наведении на кнопку
+
         btn.onmouseover = () => btn.style.transform = 'scale(1.05)';
         btn.onmouseout = () => btn.style.transform = 'scale(1)';
     }
@@ -1139,7 +1140,7 @@ preloadAssets(assets, () => {
   setTimeout(() => logLine("[CLIENT] Pinging the PB server :: POST query... 200 OK"), 100);
   setTimeout(() => logLine("Launching the game"), 150);
   setTimeout(() => {
-    logLine("PigeonBattle 0.6.3a BY zntsproj");
+    logLine("PigeonBattle 0.6.3b BY zntsproj");
     const splash = document.getElementById('splash');
     splash.style.opacity = '0';
     splash.style.transition = 'opacity 0.5s ease';
@@ -1509,6 +1510,7 @@ const pigeons = {
   hippoPigeon: { img: 'hipposigeon.jpg', speed: 5.5, attack: 10, damage: 0.57, hp: 2110, shootType: 'normal_shoot' },
   snowyPigeon: { img: 'snowypigeon.jpg', speed: 5.2, attack: 25, damage: 0.611, hp: 2000, shootType: 'normal_shoot', snowy: true },
   richPigeon: { img: 'richpigeon.jpg', speed: 5.5, attack: 35, damage: 0.627, hp: 2560, shootType: 'golden_rain' }, // HAHHAHAAH
+  gravityPigeon: { img: 'gravitypigeon.jpg', speed: 5, attack: 45, damage: 0.805, hp: 2600, shootType: 'gravity_shoot' },
   frostbitePigeon: {
   img: 'frostbitepigeon.jpg',
   speed: 5.1,
@@ -1790,6 +1792,21 @@ function shootPurple(player, bullets, dmgBoost) {
   });
 }
    
+const gravityBulletImg = new Image();
+gravityBulletImg.src = 'gravitybullet.png';
+
+function shootGravity(player, bullets, dmgBoost) {
+  bullets.push({
+    x: player.x + player.w,
+    y: player.y + player.h / 2 - 5,
+    w: 10,
+    h: 10,
+    speed: 10,
+    dmg: 5 * dmgBoost,
+    color: 'rgba(160,32,240,0.9)' // тёмно-фиолетовый
+  });
+}
+
 function shootTwoaks(player, bullets, dmgBoost) {
   const leftX = player.x;
   const rightX = player.x + player.w;
@@ -1846,65 +1863,26 @@ function checkPromocode() {
   const input = document.getElementById('promocodeInput').value.trim();
   const msg = document.getElementById('promoMessage');
 
-  // 1. Промокод siscorddex (старый)
-  if (input === "siscorddex") {
-    if (!localStorage.getItem("promo_siscorddex_used")) {
+  if (input === "sigeonpromax1399") {
+    if (!localStorage.getItem("promo_sigeonpromax_used")) {
       let coinsLocal = parseInt(localStorage.getItem('pigeonCoins') || '0', 10);
-      coinsLocal += 111;
+      coinsLocal += 150;
       localStorage.setItem('pigeonCoins', coinsLocal);
-      localStorage.setItem("promo_siscorddex_used", "true");
+      localStorage.setItem("promo_sigeonpromax_used", "true");
 
       coins = coinsLocal;
       msg.style.color = "lime";
-      msg.textContent = "Promocode accepted! +111 coins added 💸";
+      msg.textContent = "+150 PigeonCoins added";
       updateCoinsDisplay();
     } else {
       msg.style.color = "gray";
-      msg.textContent = "This promocode was already used!";
-    }
-  } 
-
-  // 2. НОВЫЙ: pigeoning9311 (60 коинов)
-  else if (input === "pigeoning9311") {
-    if (!localStorage.getItem("promo_pigeoning_used")) {
-      let coinsLocal = parseInt(localStorage.getItem('pigeonCoins') || '0', 10);
-      coinsLocal += 60;
-      localStorage.setItem('pigeonCoins', coinsLocal);
-      localStorage.setItem("promo_pigeoning_used", "true");
-
-      coins = coinsLocal;
-      msg.style.color = "lime";
-      msg.textContent = "+60 coins added!";
-      updateCoinsDisplay();
-    } else {
-      msg.style.color = "gray";
-      msg.textContent = "Already used!";
-    }
-  }
-
-  else if (input === "88FatSigeon88") {
-    if (!localStorage.getItem("promo_fatsigeon_used")) {
-      if (!owned.includes("goonPigeon")) {
-        owned.push("goonPigeon"); 
-        localStorage.setItem('ownedPigeons', JSON.stringify(owned));
-        localStorage.setItem("promo_fatsigeon_used", "true");
-
-        msg.style.color = "gold";
-        msg.textContent = "Goon Pigeon joined you! 🥚";
-        showAchievement("You have got a new pigeon!");
-      } else {
-        msg.style.color = "gray";
-        msg.textContent = "You already have this pigeon!";
-      }
-    } else {
-      msg.style.color = "gray";
-      msg.textContent = "Promocode expired for you!";
+      msg.textContent = "You already used this code!";
     }
   }
 
   else {
     msg.style.color = "red";
-    msg.textContent = "Incorrect promocode! Try again, scrub.";
+    msg.textContent = "Incorrect promocode";
   }
 }
 
@@ -2403,7 +2381,6 @@ function update() {
   if (player.x + player.w > canvas.width) player.x = canvas.width - player.w;
   if (player.y + player.h > canvas.height) player.y = canvas.height - player.h;
 
-  // now this part of the code is more understanable
   if (keys[' ']) {
     const shootType = stats.shootType || 'normal_shoot';
 
@@ -2445,6 +2422,9 @@ function update() {
     } else if (shootType === 'golden_rain') {
       shootGolden(player, bullets, dmgBoost);
 
+   } else if (shootType === 'gravity_shoot') {
+      shootGravity(player, bullets, dmgBoost);
+                 
     } else {
       shoot(player, bullets, dmgBoost);
     }
@@ -2837,7 +2817,7 @@ const pigeonPriceMap = {
   twoaksPigeon: 175,
   tankPigeon: 300,
   hippoPigeon: 75,
-  lavapigeon: 120,
+  lavapigeon: 100,
   snowyPigeon: 95,
   frostbitePigeon: 80,
   snowdriftPigeon: 185,
