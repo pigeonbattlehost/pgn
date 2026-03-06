@@ -646,6 +646,46 @@ button:hover { transform:translateY(-3px) !important; }
   to   { top: -160px; opacity: 0; transform: translateX(-50%) translateY(-6px) scale(0.98); }
 }
 
+/* Контейнер для килл-листа */
+#killfeed {
+    position: absolute;
+    top: 60px; /* чуть ниже верхнего края */
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    z-index: 10000;
+    pointer-events: none;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Сама плашка килла */
+.kill-item {
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 6px 12px;
+    margin-bottom: 4px;
+    border-radius: 4px;
+    font-size: 14px;
+    border-right: 4px solid #ff4444; /* красная полоска как символ фрага */
+    animation: killSlide 5s forwards;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.kill-item .attacker { color: #5dbbff; font-weight: bold; } /* Цвет ника игрока */
+.kill-item .victim { color: #ffeb3b; } /* Цвет бота */
+.kill-item .icon { color: #fff; font-weight: bold; }
+
+@keyframes killSlide {
+    0% { transform: translateX(200px); opacity: 0; }
+    5% { transform: translateX(0); opacity: 1; }
+    80% { opacity: 1; }
+    100% { transform: translateX(50px); opacity: 0; }
+}
+
+
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
@@ -783,6 +823,12 @@ button:hover { transform:translateY(-3px) !important; }
     <p>Lava Pigeon<br>HP: 2500<br>Damage: 0.75<br>120 pigeon coins</p>
     <button onclick="buy('lavapigeon', 120)">Buy</button>
   </div>
+  
+  <div class="pigeon-card">
+    <img src="sorreltractor.jpg">
+    <p>Sorrel Tractor Pigeon<br>HP: 2200<br>Damage: 0.68<br>129 pigeon coins</p>
+    <button onclick="buy('sorrelTractor', 129)">Buy</button>
+  </div>
 
   <div class="pigeon-card">
     <img src="clownpigeon.jpg">
@@ -902,8 +948,10 @@ button:hover { transform:translateY(-3px) !important; }
   <button onclick="closeCommunityShop()" style="margin-top:20px; padding:10px 20px; font-size:16px;">Back</button>
 </div>
   <div id="gameContainer">
+    <div id="killfeed"></div> 
     <canvas id="gameCanvas"></canvas>
-    <div id="version">PigeonBattle 0.7</div>
+    <canvas id="gameCanvas"></canvas>
+    <div id="version">PigeonBattle 0.7a</div>
     <div id="joystick"></div>
     <div id="shootBtn">bang</div>
     <div id="superbangBtn">SUPERBANG</div>
@@ -1122,7 +1170,7 @@ preloadAssets(assets, () => {
   setTimeout(() => logLine("[CLIENT] Pinging the PB server :: POST query... 200 OK"), 100);
   setTimeout(() => logLine("Launching the game"), 150);
   setTimeout(() => {
-    logLine("PigeonBattle 0.7 BY zntsproj");
+    logLine("PigeonBattle 0.7a BY zntsproj");
     const splash = document.getElementById('splash');
     splash.style.opacity = '0';
     splash.style.transition = 'opacity 0.5s ease';
@@ -1245,6 +1293,37 @@ function isClassicPigeonActive() {
     const coinsDisplay = document.getElementById('coinsDisplay');
     let coins = parseInt(localStorage.getItem('pigeonCoins') || '0');
 let pigeonRank = parseInt(localStorage.getItem("pigeonRank") || "0");
+// Проверка и сохранение никнейма
+let nickname = localStorage.getItem('pigeonNickname');
+if (!nickname) {
+    nickname = prompt("Введите ваш никнейм голубь:", "PigeonPlayer");
+    if (!nickname || nickname.trim() === "") nickname = "PigeonPlayer";
+    localStorage.setItem('pigeonNickname', nickname);
+}
+
+// Функция добавления килла в список
+function addKillToFeed(attacker, victim) {
+    const feed = document.getElementById('killfeed');
+    const killDiv = document.createElement('div');
+    killDiv.className = 'kill-item';
+
+    // Очищаем имя бота от расширения .jpg для красоты
+    const victimName = victim.replace('.jpg', '').replace('.png', '');
+
+    killDiv.innerHTML = `
+        <span class="attacker">${nickname}</span>
+        <span class="icon">»</span>
+        <span class="victim">[Bot] ${victimName}</span>
+    `;
+
+    feed.appendChild(killDiv);
+
+    // Удаляем элемент из DOM после завершения анимации
+    setTimeout(() => {
+        killDiv.remove();
+    }, 5000);
+}
+
 
 function updatePigeonRankDisplay() {
   const el = document.getElementById("pigeonRankDisplay");
@@ -1505,6 +1584,7 @@ const pigeons = {
   gerbellPigeon: { img: 'gerbell.jpg', speed: 5.5, attack: 40, damage: 0.65, hp: 1800, shootType: 'normal_shoot' },
   diamondPigeon: { img: 'diamondpigeon.jpg', speed: 6, attack: 35, damage: 0.62, hp: 1995, shootType: 'normal_shoot' },
   treePigeon: { img: 'treepigeon.jpg', speed: 4.2, attack: 25, damage: 0.54, hp: 2100, shootType: 'green_short' },
+  sorrelTractor: { img: 'sorreltractor.jpg', speed: 5, attack: 2, damage: 0.68, hp: 2200, shootType: 'green_short' }
 };
 
    const enemies = [
@@ -1539,12 +1619,71 @@ const bots = [
   { img: 'evilsorrel.jpg',     hp: 1450, speed: 2.5, attack: 13, damage:450 },
   { img: 'dronesigeon.jpg',     hp: 1775, speed: 3.5, attack: 30, damage: 350 },
   { img: 'irpigeon.jpg',      hp: 1665, speed: 4, attack: 45, damage: 270 },
-  { img: 'leafblowersigeon.jpg',    hp: 2150, speed: 4.7, attack: 38, damage: 340 }
+  { img: 'leafblowersigeon.jpg',    hp: 2150, speed: 4.7, attack: 38, damage: 340 },
+  { img: 'armorpigeon.jpg',    hp: 3120, speed: 2.5, attack: 35, damage: 500 },
+  { img: 'silanepigeon.jpg',    hp: 3150, speed: 4.25, attack: 40, damage: 400 },
+  { img: 'fastfoodpigeon.jpg',    hp: 2350, speed: 5.7, attack: 50, damage: 500 },
+  { img: 'minigunpigeon.jpg', hp: 6000, speed: 4.0, attack: 55, damage: 700 }
 ];
 
-// random enemy
-const chosenBot = bots[Math.floor(Math.random() * bots.length)];
-const bot = { x: 600, y: 250, w: 64, h: 64, ...chosenBot };
+const enemyTiers = {
+  easy: [
+    { img: 'screaming.jpg',   hp: 1200, speed: 1.2, attack: 20, damage: 50 },
+    { img: 'oldpigeon.jpg',    hp: 2500, speed: 0.8, attack: 15, damage: 60 },
+    { img: 'skinnybirb.jpg',   hp: 1800, speed: 2.0, attack: 30, damage: 80 },
+    { img: 'angrypigeon.jpg',  hp: 2200, speed: 1.8, attack: 40, damage: 110 }
+  ],
+
+  medium: [
+    { img: 'milkpigeon.jpg',   hp: 2200, speed: 2.5, attack: 45, damage: 160 },
+    { img: 'nuclearbird.jpg',  hp: 2600, speed: 2.2, attack: 40, damage: 220 },
+    { img: 'dronesigeon.jpg',  hp: 2000, speed: 3.5, attack: 35, damage: 200 },
+    { img: 'evilsorrel.jpg',   hp: 1800, speed: 2.8, attack: 20, damage: 300 }
+  ],
+
+  hard: [
+    { img: 'irpigeon.jpg',     hp: 2400, speed: 3.8, attack: 45, damage: 280 },
+    { img: 'sbbrother.jpg',    hp: 3000, speed: 4.2, attack: 25, damage: 350 },
+    { img: 'spacegooner.jpg',  hp: 2800, speed: 3.5, attack: 30, damage: 450 },
+    { img: 'leafblowersigeon.jpg', hp: 2500, speed: 4.8, attack: 40, damage: 320 }
+  ],
+
+  boss: [
+    { img: 'armorpigeon.jpg',   hp: 5000, speed: 2.5, attack: 50, damage: 500 },
+    { img: 'silanepigeon.jpg',  hp: 4500, speed: 4.5, attack: 45, damage: 450 },
+    { img: 'fastfoodpigeon.jpg', hp: 3500, speed: 6.0, attack: 55, damage: 600 },
+    { img: 'minigunpigeon.jpg', hp: 6000, speed: 4.0, attack: 55, damage: 700 }
+  ],
+  
+  legendary: [
+    { 
+      img: 'fighterjetpigeon.jpg', 
+      hp: 8000, 
+      speed: 8.5,  
+      attack: 75,   
+      damage: 500
+    },
+  ]
+};
+
+function getEnemyTier(rank) {
+  if (rank <= 200) return enemyTiers.easy;
+  if (rank <= 500) return enemyTiers.medium;
+  if (rank <= 2000) return enemyTiers.hard;
+  if (rank <= 5000) return enemyTiers.legendary;
+  return enemyTiers.boss;
+}
+
+const availableEnemies = getEnemyTier(pigeonRank);
+const chosenBot = availableEnemies[Math.floor(Math.random() * availableEnemies.length)]; // Выбираем рандомного пидораса
+
+let bot = { 
+  x: 600, 
+  y: 250, 
+  w: 64, 
+  h: 64, 
+  ...chosenBot 
+};
 
 const bullets = [], botBullets = [], keys = {};
 let spinMode = false;
@@ -1956,6 +2095,7 @@ function checkGameEnd() {
     superPigeonCoins += 1;
     localStorage.setItem('spgcoins', superPigeonCoins);
     localStorage.setItem('pigeonCoins', coins);
+    addKillToFeed(nickname, chosenBot.img);
     let gain;
     if (pigeonRank < 500) {
   gain = Math.floor(Math.random() * (15 - 5 + 1)) + 5;
@@ -2817,7 +2957,7 @@ const pigeonPriceMap = {
   goonPigeon: 69,
   clownPigeon: 130,
   wizardPigeon: 5000,
-  sorrelPigeon: 232880,
+  sorrelPigeon: 2880,
   feetphone: 210,
   spinPigeon: 300,
   spacePigeon: 65,
@@ -2826,7 +2966,7 @@ const pigeonPriceMap = {
   twoaksPigeon: 175,
   tankPigeon: 300,
   hippoPigeon: 75,
-  lavapigeon: 100,
+  lavapigeon: 120,
   snowyPigeon: 95,
   frostbitePigeon: 80,
   snowdriftPigeon: 185,
@@ -2834,6 +2974,7 @@ const pigeonPriceMap = {
   diamondPigeon: 110,
   richPigeon: 155,
   treePigeon: 80,
+  sorrelTractor: 129,
   default: 0
 };
 
